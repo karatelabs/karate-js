@@ -1,0 +1,226 @@
+/*
+ * The MIT License
+ *
+ * Copyright 2024 Karate Labs Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+package io.karatelabs.js;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.*;
+
+public class JavaUtils {
+
+    public static final Object[] EMPTY = new Object[0];
+
+    public static Class<?>[] paramTypes(Object[] args) {
+        Class<?>[] paramTypes = new Class[args.length];
+        for (int i = 0; i < args.length; i++) {
+            Object arg = args[i];
+            paramTypes[i] = arg == null ? Object.class : arg.getClass();
+        }
+        return paramTypes;
+    }
+
+    public static Object construct(Class<?> clazz, Object[] args) {
+        try {
+            return findConstructor(clazz, args).newInstance(args);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Class<?> forClass(String className) {
+        try {
+            return Class.forName(className);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Object invoke(Class<?> clazz, String name, Object[] args) {
+        try {
+            return findMethod(clazz, name, args).invoke(null, args);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Object invoke(Object object, String name, Object[] args) {
+        try {
+            return findMethod(object.getClass(), name, args).invoke(object, args);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Collection<String> propertyNames(Object object) {
+        List<String> list = new ArrayList<>();
+        for (Method method : object.getClass().getDeclaredMethods()) {
+            if (match(method.getParameterTypes(), EMPTY)) {
+                String methodName = method.getName();
+                if (methodName.startsWith("get") && methodName.length() > 3) {
+                    list.add(methodName.substring(3, 4).toLowerCase() + methodName.substring(4));
+                } else if (methodName.startsWith("is") && methodName.length() > 2) {
+                    list.add(methodName.substring(2, 3).toLowerCase() + methodName.substring(3));
+                }
+            }
+        }
+        return list;
+    }
+
+    public static Method findGetter(Object object, String name) {
+        String getterSuffix = name.substring(0, 1).toUpperCase() + name.substring(1);
+        Method method = findMethod(object.getClass(), "is" + getterSuffix, EMPTY);
+        if (method == null) {
+            method = findMethod(object.getClass(), "get" + getterSuffix, EMPTY);
+        }
+        return method;
+    }
+
+    public static Object get(Object object, String name) {
+        Method method = findGetter(object, name);
+        if (method == null) {
+            return null;
+        }
+        try {
+            return method.invoke(object, EMPTY);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void set(Object object, String name, Object value) {
+        String setterName = "set" + name.substring(0, 1).toUpperCase() + name.substring(1);
+        Object[] args = new Object[]{value};
+        try {
+            Method method = findMethod(object.getClass(), setterName, args);
+            if (method == null) {
+                return;
+            }
+            method.invoke(object, args);
+        } catch (Exception e) {
+
+        }
+    }
+
+    public static Constructor<?> findConstructor(Class<?> clazz, Object[] args) {
+        try {
+            return clazz.getConstructor(paramTypes(args));
+        } catch (Exception e) {
+            for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
+                Class<?>[] argTypes = constructor.getParameterTypes();
+                if (match(argTypes, args)) {
+                    return constructor;
+                }
+            }
+        }
+        throw new RuntimeException(clazz + " constructor not found, param types: " + Arrays.asList(paramTypes(args)));
+    }
+
+    public static Method findMethod(Class<?> clazz, String name, Object[] args) {
+        try {
+            return clazz.getMethod(name, paramTypes(args));
+        } catch (Exception e) {
+            for (Method method : clazz.getDeclaredMethods()) {
+                if (method.getName().equals(name)) {
+                    Class<?>[] argTypes = method.getParameterTypes();
+                    if (match(argTypes, args)) {
+                        return method;
+                    }
+                }
+            }
+            return null;
+        }
+    }
+
+    private static boolean match(Class<?>[] types, Object[] args) {
+        if (args.length != types.length) {
+            return false;
+        }
+        for (int i = 0; i < args.length; i++) {
+            Class<?> argType = types[i];
+            Object arg = args[i];
+            if (arg != null) {
+                if (argType.equals(int.class) && arg instanceof Integer) {
+                    return true;
+                }
+                if (argType.equals(double.class) && arg instanceof Number) {
+                    return true;
+                }
+                if (argType.equals(long.class) && (arg instanceof Integer || arg instanceof Long)) {
+                    return true;
+                }
+                if (argType.equals(boolean.class) && arg instanceof Boolean) {
+                    return true;
+                }
+                if (argType.equals(byte.class) && arg instanceof Byte) {
+                    return true;
+                }
+                if (argType.equals(char.class) && arg instanceof Character) {
+                    return true;
+                }
+                if (argType.equals(float.class) && arg instanceof Number) {
+                    return true;
+                }
+                if (argType.equals(short.class) && arg instanceof Short) {
+                    return true;
+                }
+                if (!argType.isAssignableFrom(arg.getClass())) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Object toMapOrList(Object object) {
+        if (object == null) {
+            return object;
+        }
+        if (object instanceof List) {
+            List<Object> list = (List<Object>) object;
+            List<Object> result = new ArrayList<>();
+            for (Object o : list) {
+                result.add(toMapOrList(o));
+            }
+            return result;
+        }
+        if (object instanceof Map) {
+            Map<String, Object> map = (Map<String, Object>) object;
+            Map<String, Object> result = new LinkedHashMap<>();
+            map.forEach((k, v) -> result.put(k, toMapOrList(v)));
+            return result;
+        }
+        if (object instanceof ObjectLike) {
+            return ((ObjectLike) object).toMap();
+        }
+        if (object instanceof ArrayLike) {
+            return ((ArrayLike) object).toList();
+        }
+        if (object instanceof String || object instanceof Number || object instanceof Boolean) {
+            return object;
+        }
+        return new JavaObject(object).toMap();
+    }
+
+}

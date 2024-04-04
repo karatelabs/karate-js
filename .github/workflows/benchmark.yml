@@ -1,0 +1,39 @@
+name: benchmark
+
+on: workflow_dispatch
+
+jobs:
+  build:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+      - name: git checkout
+        uses: actions/checkout@v3
+        with:
+          path: karate-js
+      - name: set up jdk 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: adopt
+          java-version: 17
+      - name: cache maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
+      - name: build
+        working-directory: karate-js
+        run: mvn -B install
+      - name: git checkout ecma test suite
+        uses: actions/checkout@v3
+        with:
+          repository: tc39/test262
+          path: test262
+      - name: build benchmark
+        working-directory: karate-js
+        run: mvn -B -f test-perf/pom.xml package -P fatjar
+      - name: run benchmark
+        working-directory: karate-js
+        run: java -jar test-perf/target/benchmark.jar
+
