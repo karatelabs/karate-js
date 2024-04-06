@@ -406,6 +406,7 @@ class EvalTest {
     void testStringApi() {
         assertEquals(3, eval("a = 'foobar'; a.indexOf('bar')"));
         assertEquals(3, eval("a = 'foo'; a.length"));
+        assertEquals(true, eval("a = 'foobar'; a.startsWith('foo')"));
     }
 
     @Test

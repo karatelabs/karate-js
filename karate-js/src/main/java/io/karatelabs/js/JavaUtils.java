@@ -24,6 +24,7 @@
 package io.karatelabs.js;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -58,7 +59,11 @@ public class JavaUtils {
 
     public static Object invoke(Class<?> clazz, String name, Object[] args) {
         try {
-            return findMethod(clazz, name, args).invoke(null, args);
+            Method method = findMethod(clazz, name, args);
+            if (method == null) {
+                throw new RuntimeException("cannot find method [" + name + "] on class: " + clazz);
+            }
+            return invoke(null, method, args);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -66,16 +71,38 @@ public class JavaUtils {
 
     public static Object invoke(Object object, String name, Object[] args) {
         try {
-            return findMethod(object.getClass(), name, args).invoke(object, args);
+            Method method = findMethod(object.getClass(), name, args);
+            if (method == null) {
+                throw new RuntimeException("cannot find method [" + name + "] on object: " + object.getClass());
+            }
+            return invoke(object, method, args);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private static Object invoke(Object object, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
+        Class<?>[] paramTypes = method.getParameterTypes();
+        if (paramTypes.length > 0 && paramTypes[paramTypes.length - 1].equals(Object[].class)) {
+            List<Object> argsList = new ArrayList<>();
+            for (int i = 0; i < (paramTypes.length - 1); i++) {
+                argsList.add(args[i]);
+            }
+            List<Object> lastArg = new ArrayList<>();
+            for (int i = paramTypes.length - 1; i < args.length; i++) {
+                lastArg.add(args[i]);
+            }
+            argsList.add(lastArg.toArray());
+            return method.invoke(object, argsList.toArray());
+        } else {
+            return method.invoke(object, args);
         }
     }
 
     public static Collection<String> propertyNames(Object object) {
         List<String> list = new ArrayList<>();
         for (Method method : object.getClass().getDeclaredMethods()) {
-            if (match(method.getParameterTypes(), EMPTY)) {
+            if (method.getParameterTypes().length == 0) {
                 String methodName = method.getName();
                 if (methodName.startsWith("get") && methodName.length() > 3) {
                     list.add(methodName.substring(3, 4).toLowerCase() + methodName.substring(4));
@@ -153,36 +180,36 @@ public class JavaUtils {
     }
 
     private static boolean match(Class<?>[] types, Object[] args) {
-        if (args.length != types.length) {
-            return false;
-        }
-        for (int i = 0; i < args.length; i++) {
+        for (int i = 0; i < types.length; i++) {
             Class<?> argType = types[i];
+            if (argType.equals(Object[].class) && i == (types.length - 1)) {
+                return true;
+            }
             Object arg = args[i];
             if (arg != null) {
                 if (argType.equals(int.class) && arg instanceof Integer) {
-                    return true;
+                    continue;
                 }
                 if (argType.equals(double.class) && arg instanceof Number) {
-                    return true;
+                    continue;
                 }
                 if (argType.equals(long.class) && (arg instanceof Integer || arg instanceof Long)) {
-                    return true;
+                    continue;
                 }
                 if (argType.equals(boolean.class) && arg instanceof Boolean) {
-                    return true;
+                    continue;
                 }
                 if (argType.equals(byte.class) && arg instanceof Byte) {
-                    return true;
+                    continue;
                 }
                 if (argType.equals(char.class) && arg instanceof Character) {
-                    return true;
+                    continue;
                 }
                 if (argType.equals(float.class) && arg instanceof Number) {
-                    return true;
+                    continue;
                 }
                 if (argType.equals(short.class) && arg instanceof Short) {
-                    return true;
+                    continue;
                 }
                 if (!argType.isAssignableFrom(arg.getClass())) {
                     return false;

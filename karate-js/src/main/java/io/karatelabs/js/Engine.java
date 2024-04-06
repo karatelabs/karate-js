@@ -28,8 +28,16 @@ import java.nio.file.Files;
 
 public class Engine {
 
-    public final Context context = Context.root();
+    public final Context context;
     public Source source;
+
+    private Engine(Context context) {
+        this.context = context;
+    }
+
+    public Engine() {
+        this(Context.root());
+    }
 
     public Object eval(Source source) {
         return evalInternal(source);
@@ -57,6 +65,10 @@ public class Engine {
             message = message + "\n" + source.getStringForLog();
             throw new EvalError(message);
         }
+    }
+
+    public Engine copy() {
+        return new Engine(context.copy());
     }
 
     public static Object exec(File file) {

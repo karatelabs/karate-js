@@ -64,4 +64,13 @@ class JavaObjectTest {
         assertEquals(List.of("booleanValue", "doubleValue", "intValue", "stringValue"), keys);
     }
 
+    @Test
+    void testVarArgs() {
+        DemoPojo dp = new DemoPojo();
+        JavaObject jo = new JavaObject(dp);
+        JavaInvokable method = new JavaInvokable("varArgs", jo);
+        assertEquals("foo", method.invoke(null, "foo"));
+        assertEquals("bar", method.invoke(null, "foo", "bar"));
+    }
+
 }

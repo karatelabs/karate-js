@@ -256,7 +256,7 @@ public class Terms {
         return value == UNDEFINED;
     }
 
-    public static Object typeOf(Object value) {
+    public static String typeOf(Object value) {
         if (value instanceof Invokable) {
             return "function";
         }

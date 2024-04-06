@@ -43,4 +43,8 @@ public class DemoPojo {
         return "hello";
     }
 
+    public Object varArgs(Object[] args) {
+        return args[args.length - 1];
+    }
+
 }

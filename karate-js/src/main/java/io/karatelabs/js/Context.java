@@ -73,6 +73,11 @@ public class Context {
         return new Context(this, new HashMap<>(), caller);
     }
 
+    Context copy() {
+        Map<String, Object> map = new HashMap<>(bindings);
+        return new Context(null, map, null);
+    }
+
     public Object get(String name) {
         if (bindings.containsKey(name)) {
             return bindings.get(name);
@@ -110,6 +115,10 @@ public class Context {
         } else {
             bindings.put(name, value);
         }
+    }
+
+    public void remove(String name) {
+        bindings.remove(name);
     }
 
     //==================================================================================================================

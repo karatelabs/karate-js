@@ -36,7 +36,7 @@ public class JavaObject implements JavaMethods, ObjectLike {
 
     @Override
     public Object invoke(Object instance, String name, Object... args) {
-        return JavaUtils.invoke(instance == null ? object : instance, name, args);
+        return JavaUtils.invoke(object, name, args);
     }
 
     @Override
