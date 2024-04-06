@@ -75,7 +75,8 @@ public class Terms {
             if (text.charAt(0) == '0') {
                 char second = text.charAt(1);
                 if (second == 'x' || second == 'X') { // hex
-                    return Integer.parseInt(text.substring(2), 16);
+                    long longValue = Long.parseLong(text.substring(2), 16);
+                    return narrow(longValue);
                 }
             }
             return NAN;

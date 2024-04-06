@@ -4,8 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class TermsTest {
 
@@ -25,6 +24,12 @@ class TermsTest {
         assertTrue(Terms.isTruthy("foo"));
         assertTrue(Terms.isTruthy(Collections.emptyMap()));
         assertTrue(Terms.isTruthy(Collections.emptyList()));
+    }
+
+    @Test
+    void testHex() {
+        Number num = Terms.toNumber("0xffffffff");
+        assertEquals(4294967295L, num.longValue());
     }
 
 }
