@@ -410,6 +410,21 @@ class EvalTest {
     }
 
     @Test
+    void testMathApi() {
+        assertEquals(Math.E, eval("Math.E"));
+        assertEquals(2.302585092994046, eval("Math.LN10"));
+        assertEquals(0.6931471805599453, eval("Math.LN2"));
+        assertEquals(1.4426950408889634, eval("Math.LOG2E"));
+        assertEquals(Math.PI, eval("Math.PI"));
+        assertEquals(0.7071067811865476, eval("Math.SQRT1_2"));
+        assertEquals(1.4142135623730951, eval("Math.SQRT2"));
+        assertEquals(5, eval("Math.abs(-5)"));
+        assertEquals(Math.PI, eval("Math.acos(-1)"));
+        assertEquals(Terms.NAN, eval("Math.acosh(0.5)"));
+        assertEquals(1.566799236972411, eval("Math.acosh(2.5)"));
+    }
+
+    @Test
     void testIfStatement() {
         eval("if (true) a = 1");
         assertEquals(1, get("a"));

@@ -25,6 +25,7 @@ package io.karatelabs.js;
 
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class JsCommon {
 
@@ -252,5 +253,40 @@ public class JsCommon {
         });
         return prototype;
     }
+
+    private static Invokable math(Function<Double, Double> fn) {
+        return (instance, args) -> {
+            try {
+                Number x = Terms.toNumber(args[0]);
+                Double y = fn.apply(x.doubleValue());
+                return Terms.narrow(y);
+            } catch (Exception e) {
+                return Terms.NAN;
+            }
+        };
+    }
+
+    static final JsObject MATH = new JsObject() {
+        @Override
+        Map<String, Object> initPrototype() {
+            Map<String, Object> prototype = super.initPrototype();
+            prototype.put("E", Math.E);
+            prototype.put("LN10", Math.log(10));
+            prototype.put("LN2", Math.log(2));
+            prototype.put("LOG2E", 1 / Math.log(2));
+            prototype.put("PI", Math.PI);
+            prototype.put("SQRT1_2", Math.sqrt(0.5));
+            prototype.put("SQRT2", Math.sqrt(2));
+            prototype.put("abs", math(Math::abs));
+            prototype.put("acos", math(Math::acos));
+            prototype.put("acosh", math(x -> {
+                if (x < 1) {
+                    throw new RuntimeException("value must be >= 1");
+                }
+                return Math.log(x + Math.sqrt(x * x - 1));
+            }));
+            return prototype;
+        }
+    };
 
 }

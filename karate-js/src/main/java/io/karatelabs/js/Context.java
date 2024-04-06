@@ -57,6 +57,7 @@ public class Context {
         globals.put("String", JsCommon.STRING_CONSTRUCTOR);
         globals.put("Infinity", Terms.POSITIVE_INFINITY);
         globals.put("NaN", Terms.NAN);
+        globals.put("Math", JsCommon.MATH);
         return globals;
     }
 
