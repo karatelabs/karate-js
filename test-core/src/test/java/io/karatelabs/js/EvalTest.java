@@ -185,6 +185,18 @@ class EvalTest {
     }
 
     @Test
+    void testLogicNonNumbers() {
+        assertEquals(false, eval("'a' == 'b'"));
+        assertEquals(false, eval("'a' === 'b'"));
+        assertEquals(true, eval("'a' == 'a'"));
+        assertEquals(true, eval("'a' === 'a'"));
+        assertEquals(true, eval("'a' != 'b'"));
+        assertEquals(true, eval("'a' !== 'b'"));
+        assertEquals(false, eval("'a' != 'a'"));
+        assertEquals(false, eval("'a' !== 'a'"));
+    }
+
+    @Test
     void testLogicSpecial() {
         assertEquals(false, eval("a = undefined; b = 0; a < b"));
         assertEquals(true, eval("a = ''; b = ''; a == b"));

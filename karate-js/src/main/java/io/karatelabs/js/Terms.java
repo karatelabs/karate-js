@@ -113,8 +113,11 @@ public class Terms {
             }
             return false;
         }
-        Terms terms = new Terms(lhs, rhs);
-        return terms.lhs.equals(terms.rhs);
+        if (lhs instanceof Number || rhs instanceof Number) { // coerce to number
+            Terms terms = new Terms(lhs, rhs);
+            return terms.lhs.equals(terms.rhs);
+        }
+        return false;
     }
 
     static boolean lt(Object lhs, Object rhs) {
