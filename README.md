@@ -97,9 +97,11 @@ A [GitHub action](.github/workflows/benchmark.yml) is available that runs a [per
 * A Java interop demo that calls methods and bean-properties on Java classes and objects. This is run 100 times.
 * A set of 35 tests from the ECMA conformance suite that Karate-JS can support
 
-The time taken to initialize the JS engine is also counted. You can run  the benchmark on your machine after cloning this project by typing the following commands:
+The time taken to initialize the JS engine is also counted. You can run the benchmark on your machine after cloning this project by typing the following commands. The first command is to download the [ECMAScript Test Suite](https://github.com/tc39/test262) which will be partially used. Java 17 is required for Graal.
 
 ```
+git clone --depth 1 https://github.com/tc39/test262.git ../test262
+mvn clean install
 mvn -f test-perf/pom.xml package -P fatjar
 java -jar test-perf/target/benchmark.jar 
 ```
