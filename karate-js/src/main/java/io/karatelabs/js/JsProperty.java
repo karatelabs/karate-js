@@ -152,7 +152,12 @@ public class JsProperty {
             return ((ArrayLike) object).get(name);
         }
         if (object instanceof Map) {
-            return ((Map<String, Object>) object).get(name);
+            Map<String, Object> map = (Map<String, Object>) object;
+            // fall back to java interop in-case this happens to implement Map
+            // but the intent is to call a java method
+            if (map.containsKey(name) || !function) {
+                return map.get(name);
+            }
         }
         if (object instanceof ObjectLike) {
             return ((ObjectLike) object).get(name);

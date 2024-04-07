@@ -137,11 +137,19 @@ public class Interpreter {
         } else if (o instanceof JavaClass) {
             JavaClass jc = (JavaClass) o;
             invokable = (instance, args) -> jc.construct(args);
-        } else if (o == null) {
-            throw new RuntimeException("null is not a function");
-        } else {
-            JavaObject jo = new JavaObject(o);
-            invokable = new JavaInvokable(prop.name, jo);
+        } else { // try java interop
+            if (o == null) { // constructor
+                String className = node.children.get(0).getText();
+                try {
+                    Class<?> clazz = Class.forName(className);
+                    invokable = (instance, args) -> JavaUtils.construct(clazz, args);
+                } catch (Exception e) {
+                    throw new RuntimeException("not a function: " + className);
+                }
+            } else { // method
+                JavaObject jo = new JavaObject(o);
+                invokable = new JavaInvokable(prop.name, jo);
+            }
         }
         if (invokable instanceof Invokable.Instance) {
             Invokable.Instance ii = (Invokable.Instance) invokable;

@@ -587,4 +587,9 @@ class EvalTest {
         assertEquals("foo", get("c"));
     }
 
+    @Test
+    void testJavaInteropJdk() {
+        assertEquals("bar", eval("var props = new java.util.Properties(); props.put('foo', 'bar'); props.get('foo')"));
+    }
+
 }
