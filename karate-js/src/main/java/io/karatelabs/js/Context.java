@@ -51,6 +51,7 @@ public class Context {
         globals.put("Java", JavaGlobal.INSTANCE);
         globals.put("undefined", Terms.UNDEFINED);
         globals.put("Object", JsCommon.GLOBAL_OBJECT);
+        globals.put("Array", JsCommon.GLOBAL_ARRAY);
         globals.put("Error", new JsError("Error"));
         globals.put("TypeError", new JsError("TypeError"));
         globals.put("console", JsCommon.CONSOLE);

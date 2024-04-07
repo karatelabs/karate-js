@@ -55,19 +55,21 @@ public class JsCommon {
         return null;
     };
 
-    static final JsFunction TO_STRING = JsFunction.of((instance, args) -> {
-                if (instance == null) {
-                    return "[object Null]";
-                }
-                if (instance instanceof ArrayLike || instance instanceof List) {
-                    return "[object Array]";
-                }
-                if (instance instanceof String || instance instanceof Number || instance instanceof Boolean) {
-                    return instance.toString();
-                }
-                return "[object Object]";
+    static final JsFunction TO_STRING = new JsFunction() {
+        @Override
+        public Object invoke(Object instance, Object... args) {
+            if (instance == null) {
+                return "[object Null]";
             }
-    );
+            if (instance instanceof ArrayLike || instance instanceof List) {
+                return "[object Array]";
+            }
+            if (instance instanceof String || instance instanceof Number || instance instanceof Boolean) {
+                return instance.toString();
+            }
+            return "[object Object]";
+        }
+    };
 
     static final JsObject CONSOLE = createConsole();
 
@@ -99,6 +101,28 @@ public class JsCommon {
 
     static final JsObject GLOBAL_OBJECT = new JsObject();
 
+    static final JsArray GLOBAL_ARRAY = new JsArray() {
+        @Override
+        Map<String, Object> initPrototype() {
+            Map<String, Object> prototype = super.initPrototype();
+            prototype.put("from", new JsFunction() {
+                @Override
+                public Object invoke(Object instance, Object... args) {
+                    List<Object> results = new ArrayList<>();
+                    Invokable invokable;
+                    if (args.length > 1 && args[1] instanceof Invokable) {
+                        invokable = (Invokable) args[1];
+                    } else {
+                        invokable = null;
+                    }
+                    loop(null, args[0], invokable, r -> results.add(r.result));
+                    return results;
+                }
+            });
+            return prototype;
+        }
+    };
+
     static class LoopResult {
 
         final Object element;
@@ -123,15 +147,20 @@ public class JsCommon {
 
     static ArrayLike toArrayLike(Map<String, Object> map) {
         List<Object> list = new ArrayList<>();
-        int max = 0;
+        if (map.containsKey("length")) {
+            Object length = map.get("length");
+            if (length instanceof Number) {
+                int size = ((Number) length).intValue();
+                for (int i = 0; i < size; i++) {
+                    list.add(0, Terms.UNDEFINED);
+                }
+            }
+        }
         Set<Integer> indexes = new HashSet<>();
         for (String key : map.keySet()) {
             try {
                 int index = Integer.parseInt(key);
                 indexes.add(index);
-                if (index > max) {
-                    max = index;
-                }
             } catch (Exception e) {
 
             }
@@ -154,7 +183,7 @@ public class JsCommon {
         int count = array.size();
         for (int i = 0; i < count; i++) {
             Object value = array.get(i);
-            Object result = invokable == null ? null : invokable.invoke(null, value, i);
+            Object result = invokable == null ? value : invokable.invoke(null, value, i);
             consumer.accept(new LoopResult(value, i, result));
         }
     }
@@ -184,36 +213,45 @@ public class JsCommon {
         prototype.put("toString", TO_STRING);
         prototype.put("constructor", ARRAY_CONSTRUCTOR);
         prototype.put("length", new Property(array::size));
-        prototype.put("map", JsFunction.of((instance, args) -> {
-            List<Object> results = new ArrayList<>();
-            loop(array, instance, toInvokable(args), r -> results.add(r.result));
-            return results;
-        }));
-        prototype.put("filter", JsFunction.of((instance, args) -> {
-            List<Object> results = new ArrayList<>();
-            loop(array, instance, toInvokable(args), r -> {
-                if (Terms.isTruthy(r.result)) {
-                    results.add(r.element);
-                }
-            });
-            return results;
-        }));
-        prototype.put("join", JsFunction.of((instance, args) -> {
-            StringBuilder sb = new StringBuilder();
-            String delimiter;
-            if (args.length > 0 && args[0] != null) {
-                delimiter = args[0].toString();
-            } else {
-                delimiter = ",";
+        prototype.put("map", new JsFunction() {
+            @Override
+            public Object invoke(Object instance, Object... args) {
+                List<Object> results = new ArrayList<>();
+                loop(array, instance, toInvokable(args), r -> results.add(r.result));
+                return results;
             }
-            loop(array, instance, null, r -> {
-                if (sb.length() != 0) {
-                    sb.append(delimiter);
+        });
+        prototype.put("filter", new JsFunction() {
+            @Override
+            public Object invoke(Object instance, Object... args) {
+                List<Object> results = new ArrayList<>();
+                loop(array, instance, toInvokable(args), r -> {
+                    if (Terms.isTruthy(r.result)) {
+                        results.add(r.element);
+                    }
+                });
+                return results;
+            }
+        });
+        prototype.put("join", new JsFunction() {
+            @Override
+            public Object invoke(Object instance, Object... args) {
+                StringBuilder sb = new StringBuilder();
+                String delimiter;
+                if (args.length > 0 && args[0] != null) {
+                    delimiter = args[0].toString();
+                } else {
+                    delimiter = ",";
                 }
-                sb.append(r.element);
-            });
-            return sb.toString();
-        }));
+                loop(array, instance, null, r -> {
+                    if (sb.length() != 0) {
+                        sb.append(delimiter);
+                    }
+                    sb.append(r.element);
+                });
+                return sb.toString();
+            }
+        });
         return prototype;
     }
 

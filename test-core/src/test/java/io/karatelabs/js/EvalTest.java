@@ -566,6 +566,9 @@ class EvalTest {
         match(eval("[1, 2, 3].join()"), "1,2,3");
         match(eval("[1, 2, 3].join(', ')"), "1, 2, 3");
         match(eval("[].map.call({0:'a',1:'b'}, (x, i) => x + i)"), "['a0','b1']");
+        match(eval("Array.from([1, 2, 3])"), "[1, 2, 3]");
+        match(eval("Array.from([1, 2, 3], x => x * 2)"), "[2, 4, 6]");
+        match(eval("Array.from({ length: 3 }, (v, i) => i)"), "[0, 1, 2]");
     }
 
     @Test

@@ -44,13 +44,4 @@ public abstract class JsFunction extends JsObject implements Invokable {
         return JsCommon.getBaseFunctionPrototype(this);
     }
 
-    static JsFunction of(Invokable invokable) {
-        return new JsFunction() {
-            @Override
-            public Object invoke(Object instance, Object... args) {
-                return invokable.invoke(instance, args);
-            }
-        };
-    }
-
 }
