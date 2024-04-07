@@ -138,7 +138,7 @@ public class Interpreter {
             JavaClass jc = (JavaClass) o;
             invokable = (instance, args) -> jc.construct(args);
         } else { // try java interop
-            if (o == null) { // constructor
+            if (o == null || o == Terms.UNDEFINED) { // constructor
                 String className = node.children.get(0).getText();
                 try {
                     Class<?> clazz = Class.forName(className);

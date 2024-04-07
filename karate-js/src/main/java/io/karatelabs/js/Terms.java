@@ -273,6 +273,9 @@ public class Terms {
         if (value instanceof Boolean) {
             return "boolean";
         }
+        if (value == UNDEFINED) {
+            return "undefined";
+        }
         return "object";
     }
 

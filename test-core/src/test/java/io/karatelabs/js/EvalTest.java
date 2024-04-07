@@ -479,13 +479,13 @@ class EvalTest {
         eval("if (true) a = 1");
         assertEquals(1, get("a"));
         eval("if (false) a = 1");
-        assertNull(get("a"));
+        assertEquals(Terms.UNDEFINED, get("a"));
         eval("if (false) a = 1; else a = 2");
         assertEquals(2, get("a"));
         eval("a = 1; if (a) b = 2");
         assertEquals(2, get("b"));
         eval("a = 0; if (a) b = 2");
-        assertNull(get("b"));
+        assertEquals(Terms.UNDEFINED, get("b"));
         eval("a = ''; if (a) b = 1; else b = 2");
         assertEquals(2, get("b"));
         assertEquals(true, eval("if (false) { false } else { true }"));
@@ -522,6 +522,7 @@ class EvalTest {
         assertEquals("function", eval("var a = function(){}; typeof a"));
         assertEquals("object", eval("typeof new Error('foo')"));
         assertEquals(true, eval("typeof 'foo' === 'string'"));
+        assertEquals("undefined", eval("typeof bar"));
     }
 
     @Test

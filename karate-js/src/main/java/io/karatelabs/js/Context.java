@@ -87,7 +87,10 @@ public class Context {
         if (caller != null && caller.hasKey(name)) {
             return caller.get(name);
         }
-        return parent != null ? parent.get(name) : null;
+        if (parent != null && parent.hasKey(name)) {
+            return parent.get(name);
+        }
+        return Terms.UNDEFINED;
     }
 
     public boolean hasKey(String name) {
