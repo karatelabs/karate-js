@@ -24,8 +24,8 @@
 package io.karatelabs.js;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class JsCommon {
@@ -172,19 +172,27 @@ public class JsCommon {
     }
 
     @SuppressWarnings("unchecked")
-    static void loop(ArrayLike array, Object instance, Invokable invokable, Consumer<LoopResult> consumer) {
+    private static ArrayLike thisArray(ArrayLike array, Object instance) {
         if (instance instanceof List) {
-            array = new JsArray((List<Object>) instance);
+            return new JsArray((List<Object>) instance);
         } else if (instance instanceof ArrayLike) {
-            array = (ArrayLike) instance;
+            return (ArrayLike) instance;
         } else if (instance instanceof Map) {
-            array = toArrayLike((Map<String, Object>) instance);
+            return toArrayLike((Map<String, Object>) instance);
         }
+        return array;
+    }
+
+    static void loop(ArrayLike array, Object instance, Invokable invokable, Function<LoopResult, Boolean> action) {
+        array = thisArray(array, instance);
         int count = array.size();
         for (int i = 0; i < count; i++) {
             Object value = array.get(i);
             Object result = invokable == null ? value : invokable.invoke(null, value, i);
-            consumer.accept(new LoopResult(value, i, result));
+            Boolean doNext = action.apply(new LoopResult(value, i, result));
+            if (doNext != null && !doNext) { // return a boolean false to stop loop
+                break;
+            }
         }
     }
 
@@ -229,6 +237,7 @@ public class JsCommon {
                     if (Terms.isTruthy(r.result)) {
                         results.add(r.element);
                     }
+                    return null;
                 });
                 return results;
             }
@@ -248,8 +257,33 @@ public class JsCommon {
                         sb.append(delimiter);
                     }
                     sb.append(r.element);
+                    return null;
                 });
                 return sb.toString();
+            }
+        });
+        prototype.put("find", new JsFunction() {
+            @Override
+            public Object invoke(Object instance, Object... args) {
+                AtomicReference<Object> result = new AtomicReference<>(Terms.UNDEFINED);
+                loop(array, instance, toInvokable(args), r -> {
+                    if (Terms.isTruthy(r.result)) {
+                        result.set(r.element);
+                        return false;
+                    }
+                    return null;
+                });
+                return result.get();
+            }
+        });
+        prototype.put("push", new JsFunction() {
+            @Override
+            public Object invoke(Object instance, Object... args) {
+                ArrayLike thisArray = thisArray(array, instance);
+                for (Object o : args) {
+                    thisArray.add(o);
+                }
+                return thisArray.size();
             }
         });
         return prototype;

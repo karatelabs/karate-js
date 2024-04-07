@@ -32,7 +32,9 @@ public interface ObjectLike {
 
     void put(String name, Object value);
 
-    void putAll(Map<String, Object> values);
+    default void putAll(Map<String, Object> values) {
+        values.forEach(this::put);
+    }
 
     boolean hasKey(String name);
 

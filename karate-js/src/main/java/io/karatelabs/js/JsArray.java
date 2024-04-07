@@ -55,6 +55,11 @@ public class JsArray extends Prototype implements ArrayLike {
     }
 
     @Override
+    public void add(Object value) {
+        list.add(value);
+    }
+
+    @Override
     public void remove(int index) {
         list.remove(index);
     }

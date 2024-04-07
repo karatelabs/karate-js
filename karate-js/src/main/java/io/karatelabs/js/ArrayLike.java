@@ -31,6 +31,8 @@ public interface ArrayLike {
 
     Object get(int index);
 
+    void add(Object value);
+
     void set(int index, Object value);
 
     void remove(int index);

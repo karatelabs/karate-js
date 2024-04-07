@@ -569,6 +569,12 @@ class EvalTest {
         match(eval("Array.from([1, 2, 3])"), "[1, 2, 3]");
         match(eval("Array.from([1, 2, 3], x => x * 2)"), "[2, 4, 6]");
         match(eval("Array.from({ length: 3 }, (v, i) => i)"), "[0, 1, 2]");
+        assertEquals(2, eval("[1, 2, 3].find(x => x % 2 === 0)"));
+        assertEquals(Terms.UNDEFINED, eval("[1, 2, 3].find(x => x % 5 === 0)"));
+        assertEquals(4, eval("[1, 2, 3].push(2)"));
+        eval("var a = []; var b = a.push(1, 2, 3);");
+        match(get("a"), "[1, 2, 3]");
+        assertEquals(3, get("b"));
     }
 
     @Test
