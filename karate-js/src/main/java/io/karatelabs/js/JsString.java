@@ -36,9 +36,10 @@ public class JsString extends JsFunction {
     @Override
     Map<String, Object> initPrototype() {
         Map<String, Object> prototype = super.initPrototype();
-        prototype.put("indexOf", (Invokable) (instance, args) -> text.indexOf(args[0].toString()));
-        prototype.put("startsWith", (Invokable) (instance, args) -> text.startsWith(args[0].toString()));
+        prototype.put("indexOf", (Invokable) (instance, args) -> text.indexOf((String) args[0]));
+        prototype.put("startsWith", (Invokable) (instance, args) -> text.startsWith((String) args[0]));
         prototype.put("length", new Property(text::length));
+        prototype.put("replaceAll", (Invokable) (instance, args) -> text.replaceAll((String) args[0], (String) args[1]));
         return prototype;
     }
 

@@ -63,7 +63,7 @@ public class NodeFunction extends JsFunction {
         if (args.length < argCount) {
             for (int i = args.length; i < argCount; i++) {
                 String name = argNames.get(i);
-                childContext.declare(name, Terms.UNDEFINED);
+                childContext.declare(name, Undefined.INSTANCE);
             }
         }
         if (!arrow) {

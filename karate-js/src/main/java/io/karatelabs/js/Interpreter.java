@@ -138,7 +138,7 @@ public class Interpreter {
             JavaClass jc = (JavaClass) o;
             invokable = (instance, args) -> jc.construct(args);
         } else { // try java interop
-            if (o == null || o == Terms.UNDEFINED) { // constructor
+            if (o == null || o == Undefined.INSTANCE) { // constructor
                 String className = node.children.get(0).getText();
                 try {
                     Class<?> clazz = Class.forName(className);
@@ -571,7 +571,7 @@ public class Interpreter {
         if (node.children.size() > 3) {
             varValue = eval(node.children.get(3), context);
         } else {
-            varValue = Terms.UNDEFINED;
+            varValue = Undefined.INSTANCE;
         }
         List<Node> varNames = node.children.get(1).findAll(Token.IDENT);
         // TODO let & const

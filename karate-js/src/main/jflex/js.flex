@@ -48,8 +48,8 @@ HEX = 0 [Xx] {HEX_DIGIT}*
 
 L_COMMENT = "//".*
 B_COMMENT = "/"\*([^*]|\*+[^*/])*(\*+"/")?
-D_STRING = \"([^\\\"\R]|\\[^\R])*\"?
-S_STRING = '([^\\'\R]|\\[^\R])*'?
+D_STRING = \"([^\\\"\n]|\\[^\n])*\"?
+S_STRING = '([^\\'\n]|\\[^\n])*'?
 IDENT = [:jletter:][:jletterdigit:]*
 T_STRING = [^`$]+ ("$"[^{])?
 

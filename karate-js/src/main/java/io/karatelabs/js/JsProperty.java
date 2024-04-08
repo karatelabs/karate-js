@@ -176,7 +176,7 @@ public class JsProperty {
                 return jo.get(name);
             }
         } catch (Exception e) {
-            return Terms.UNDEFINED;
+            return Undefined.INSTANCE;
         }
     }
 

@@ -124,8 +124,8 @@ class EvalTest {
 
     @Test
     void testVarStatement() {
-        assertEquals(Terms.UNDEFINED, eval("var a"));
-        assertEquals(Terms.UNDEFINED, get("a"));
+        assertEquals(Undefined.INSTANCE, eval("var a"));
+        assertEquals(Undefined.INSTANCE, get("a"));
         assertEquals(1, eval("var a = 1"));
         assertEquals(1, get("a"));
         assertEquals(2, eval("var a, b = 2"));
@@ -419,6 +419,7 @@ class EvalTest {
         assertEquals(3, eval("a = 'foobar'; a.indexOf('bar')"));
         assertEquals(3, eval("a = 'foo'; a.length"));
         assertEquals(true, eval("a = 'foobar'; a.startsWith('foo')"));
+        assertEquals("FOObar", eval("a = 'foobar'; a.replaceAll('foo', 'FOO')"));
     }
 
     @Test
@@ -479,13 +480,13 @@ class EvalTest {
         eval("if (true) a = 1");
         assertEquals(1, get("a"));
         eval("if (false) a = 1");
-        assertEquals(Terms.UNDEFINED, get("a"));
+        assertEquals(Undefined.INSTANCE, get("a"));
         eval("if (false) a = 1; else a = 2");
         assertEquals(2, get("a"));
         eval("a = 1; if (a) b = 2");
         assertEquals(2, get("b"));
         eval("a = 0; if (a) b = 2");
-        assertEquals(Terms.UNDEFINED, get("b"));
+        assertEquals(Undefined.INSTANCE, get("b"));
         eval("a = ''; if (a) b = 1; else b = 2");
         assertEquals(2, get("b"));
         assertEquals(true, eval("if (false) { false } else { true }"));
@@ -595,7 +596,7 @@ class EvalTest {
         match(eval("Array.from([1, 2, 3], x => x * 2)"), "[2, 4, 6]");
         match(eval("Array.from({ length: 3 }, (v, i) => i)"), "[0, 1, 2]");
         assertEquals(2, eval("[1, 2, 3].find(x => x % 2 === 0)"));
-        assertEquals(Terms.UNDEFINED, eval("[1, 2, 3].find(x => x % 5 === 0)"));
+        assertEquals(Undefined.INSTANCE, eval("[1, 2, 3].find(x => x % 5 === 0)"));
         assertEquals(4, eval("[1, 2, 3].push(2)"));
         eval("var a = []; var b = a.push(1, 2, 3);");
         match(get("a"), "[1, 2, 3]");

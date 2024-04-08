@@ -124,6 +124,11 @@ class ParserTest {
     }
 
     @Test
+    void testString() {
+        expr("read('fooRbar')", "[$read,'(','fooRbar',')']");
+    }
+
+    @Test
     void testParen() {
         expr("(1)", "1");
         expr("(1 + 3) * 2", "[[1,'+',3],'*',2]]");

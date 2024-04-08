@@ -49,7 +49,7 @@ public class Context {
     public static Map<String, Object> globals() {
         Map<String, Object> globals = new HashMap<>();
         globals.put("Java", JavaGlobal.INSTANCE);
-        globals.put("undefined", Terms.UNDEFINED);
+        globals.put("undefined", Undefined.INSTANCE);
         globals.put("Object", JsCommon.GLOBAL_OBJECT);
         globals.put("Array", JsCommon.GLOBAL_ARRAY);
         globals.put("Error", new JsError("Error"));
@@ -90,7 +90,7 @@ public class Context {
         if (parent != null && parent.hasKey(name)) {
             return parent.get(name);
         }
-        return Terms.UNDEFINED;
+        return Undefined.INSTANCE;
     }
 
     public boolean hasKey(String name) {

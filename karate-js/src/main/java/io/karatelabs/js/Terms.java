@@ -31,13 +31,6 @@ public class Terms {
     static final Number POSITIVE_INFINITY = Double.POSITIVE_INFINITY;
     static final Number NEGATIVE_INFINITY = Double.NEGATIVE_INFINITY;
 
-    static final Object UNDEFINED = new Object() {
-        @Override
-        public String toString() {
-            return "undefined";
-        }
-    };
-
     static final Number POSITIVE_ZERO = 0;
     static final Number NEGATIVE_ZERO = -0.0;
 
@@ -93,10 +86,10 @@ public class Terms {
 
     static boolean eq(Object lhs, Object rhs, boolean strict) {
         if (lhs == null) {
-            return rhs == null || !strict && rhs == UNDEFINED;
+            return rhs == null || !strict && rhs == Undefined.INSTANCE;
         }
-        if (lhs == UNDEFINED) {
-            return rhs == UNDEFINED || !strict && rhs == null;
+        if (lhs == Undefined.INSTANCE) {
+            return rhs == Undefined.INSTANCE || !strict && rhs == null;
         }
         if (lhs == rhs) { // instance equality !
             return true;
@@ -233,7 +226,7 @@ public class Terms {
     }
 
     public static boolean isTruthy(Object value) {
-        if (value == null || value.equals(UNDEFINED) || value.equals(NAN)) {
+        if (value == null || value.equals(Undefined.INSTANCE) || value.equals(NAN)) {
             return false;
         }
         if (value instanceof Boolean) {
@@ -257,7 +250,7 @@ public class Terms {
                 || value instanceof Boolean) {
             return true;
         }
-        return value == UNDEFINED;
+        return value == Undefined.INSTANCE;
     }
 
     public static String typeOf(Object value) {
@@ -273,7 +266,7 @@ public class Terms {
         if (value instanceof Boolean) {
             return "boolean";
         }
-        if (value == UNDEFINED) {
+        if (value == Undefined.INSTANCE) {
             return "undefined";
         }
         return "object";

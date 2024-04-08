@@ -152,7 +152,7 @@ public class JsCommon {
             if (length instanceof Number) {
                 int size = ((Number) length).intValue();
                 for (int i = 0; i < size; i++) {
-                    list.add(0, Terms.UNDEFINED);
+                    list.add(0, Undefined.INSTANCE);
                 }
             }
         }
@@ -349,7 +349,7 @@ public class JsCommon {
         prototype.put("find", new JsFunction() {
             @Override
             public Object invoke(Object instance, Object... args) {
-                AtomicReference<Object> result = new AtomicReference<>(Terms.UNDEFINED);
+                AtomicReference<Object> result = new AtomicReference<>(Undefined.INSTANCE);
                 loop(array, instance, toInvokable(args), r -> {
                     if (Terms.isTruthy(r.result)) {
                         result.set(r.element);
