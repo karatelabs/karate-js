@@ -73,4 +73,14 @@ class JavaObjectTest {
         assertEquals("bar", method.invoke(null, "foo", "bar"));
     }
 
+    @Test
+    void testMethodOverload() {
+        DemoPojo dp = new DemoPojo();
+        JavaObject jo = new JavaObject(dp);
+        JavaInvokable method = new JavaInvokable("doWork", jo);
+        assertEquals("hello", method.invoke(null));
+        assertEquals("hellofoo", method.invoke(null, "foo"));
+        assertEquals("hellofootrue", method.invoke(null, "foo", true));
+    }
+
 }

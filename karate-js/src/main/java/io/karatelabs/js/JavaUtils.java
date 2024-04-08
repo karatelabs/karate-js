@@ -216,7 +216,7 @@ public class JavaUtils {
                 }
             }
         }
-        return true;
+        return types.length == args.length;
     }
 
     @SuppressWarnings("unchecked")

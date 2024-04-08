@@ -43,6 +43,14 @@ public class DemoPojo {
         return "hello";
     }
 
+    public String doWork(String arg1) {
+        return "hello" + arg1;
+    }
+
+    public String doWork(String arg1, boolean arg2) {
+        return "hello" + arg1 + arg2;
+    }
+
     public Object varArgs(Object[] args) {
         return args[args.length - 1];
     }
