@@ -128,7 +128,12 @@ public class JavaUtils {
     public static Object get(Object object, String name) {
         Method method = findGetter(object, name);
         if (method == null) {
-            return null;
+            try {
+                Field field = object.getClass().getDeclaredField(name);
+                return field.get(object);
+            } catch (Exception e) {
+                return null;
+            }
         }
         try {
             return method.invoke(object, EMPTY);

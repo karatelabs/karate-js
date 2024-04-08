@@ -23,7 +23,7 @@
  */
 package io.karatelabs.js;
 
-public class JavaClass implements Creatable, JavaMethods {
+public class JavaClass implements Creatable, JavaMethods, JavaFields {
 
     private final Class<?> clazz;
 
@@ -39,6 +39,11 @@ public class JavaClass implements Creatable, JavaMethods {
     @Override
     public Object invoke(Object instance, String name, Object[] args) {
         return JavaUtils.invoke(clazz, name, args);
+    }
+
+    @Override
+    public Object read(String name) {
+        return JavaUtils.get(clazz, name);
     }
 
 }

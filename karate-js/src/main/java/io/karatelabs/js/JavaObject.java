@@ -26,7 +26,7 @@ package io.karatelabs.js;
 import java.util.Collection;
 import java.util.Map;
 
-public class JavaObject implements JavaMethods, ObjectLike {
+public class JavaObject implements JavaMethods, JavaFields, ObjectLike {
 
     private final Object object;
 
@@ -37,6 +37,11 @@ public class JavaObject implements JavaMethods, ObjectLike {
     @Override
     public Object invoke(Object instance, String name, Object... args) {
         return JavaUtils.invoke(object, name, args);
+    }
+
+    @Override
+    public Object read(String name) {
+        return JavaUtils.get(object, name);
     }
 
     @Override

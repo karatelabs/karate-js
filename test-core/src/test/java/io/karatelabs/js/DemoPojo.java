@@ -20,6 +20,10 @@ public class DemoPojo {
     private int intValue;
     private double doubleValue;
 
+    public final String instanceField = "instance-field";
+
+    public static final String staticField = "static-field";
+
     public boolean isBooleanValue() {
         return booleanValue;
     }

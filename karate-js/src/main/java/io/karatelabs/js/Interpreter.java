@@ -140,6 +140,14 @@ public class Interpreter {
                 // fall through
             }
         }
+        if (result instanceof JavaInvokable) {
+            JavaInvokable ji = (JavaInvokable) result;
+            JavaMethods methods = ji.methods;
+            if (methods instanceof JavaFields) {
+                String name = node.children.get(2).getText();
+                return ((JavaFields) methods).read(name);
+            }
+        }
         return result;
     }
 
