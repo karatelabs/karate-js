@@ -616,6 +616,10 @@ class EvalTest {
         eval("var a = []; var b = a.push(1, 2, 3);");
         match(get("a"), "[1, 2, 3]");
         assertEquals(3, get("b"));
+        match(eval("[1, 2, 3].reverse()"), "[3, 2, 1]");
+        assertEquals(true, eval("[1, 2, 3].includes(2)"));
+        assertEquals(1, eval("[1, 2, 3].indexOf(2)"));
+        assertEquals(-1, eval("[1, 2, 3].indexOf(5)"));
     }
 
     @Test

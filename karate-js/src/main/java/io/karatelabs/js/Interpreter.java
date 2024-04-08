@@ -128,7 +128,7 @@ public class Interpreter {
     }
 
     private static Object evalDotExpr(Node node, Context context) {
-        // TODO refactor and merge into JsProperty
+        // TODO refactor and merge code from evalFnCall into JsProperty
         Object result = new JsProperty(node, context).get();
         if (result == null) { // java interop failed else would be undefined
             String className = node.children.get(0).getText();

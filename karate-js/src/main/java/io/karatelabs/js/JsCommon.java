@@ -24,7 +24,6 @@
 package io.karatelabs.js;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -101,6 +100,7 @@ public class JsCommon {
 
     static final JsObject GLOBAL_OBJECT = new JsObject();
 
+    @SuppressWarnings("unchecked")
     static final JsArray GLOBAL_ARRAY = new JsArray() {
         @Override
         Map<String, Object> initPrototype() {
@@ -115,35 +115,20 @@ public class JsCommon {
                     } else {
                         invokable = null;
                     }
-                    loop(null, args[0], invokable, r -> results.add(r.result));
+                    Object array = args[0];
+                    if (array instanceof Map) {
+                        array = toArrayLike((Map<String, Object>) args[0]);
+                    }
+                    for (KeyValue kv : toIterable(array)) {
+                        Object result = invokable == null ? kv.value : invokable.invoke(null, kv.value, kv.index);
+                        results.add(result);
+                    }
                     return results;
                 }
             });
             return prototype;
         }
     };
-
-    static class LoopResult {
-
-        final Object element;
-        final int index;
-        final Object result;
-
-        LoopResult(Object element, int index, Object result) {
-            this.element = element;
-            this.index = index;
-            this.result = result;
-        }
-    }
-
-    static Invokable toInvokable(Object[] args) {
-        if (args.length > 0) {
-            if (args[0] instanceof Invokable) {
-                return (Invokable) args[0];
-            }
-        }
-        return null;
-    }
 
     static ArrayLike toArrayLike(Map<String, Object> map) {
         List<Object> list = new ArrayList<>();
@@ -183,19 +168,6 @@ public class JsCommon {
         return array;
     }
 
-    static void loop(ArrayLike array, Object instance, Invokable invokable, Function<LoopResult, Boolean> action) {
-        array = thisArray(array, instance);
-        int count = array.size();
-        for (int i = 0; i < count; i++) {
-            Object value = array.get(i);
-            Object result = invokable == null ? value : invokable.invoke(null, value, i);
-            Boolean doNext = action.apply(new LoopResult(value, i, result));
-            if (doNext != null && !doNext) { // return a boolean false to stop loop
-                break;
-            }
-        }
-    }
-
     static final Object[] EMPTY = new Object[0];
 
     static class ShiftArgs {
@@ -219,25 +191,22 @@ public class JsCommon {
     @SuppressWarnings("unchecked")
     static Iterable<KeyValue> toIterable(Object object) {
         if (object instanceof Map) {
-            return new Iterable<>() {
-                @Override
-                public Iterator<KeyValue> iterator() {
-                    final Iterator<Map.Entry<String, Object>> entries = ((Map<String, Object>) object).entrySet().iterator();
-                    return new Iterator<>() {
-                        int index = 0;
+            return () -> {
+                final Iterator<Map.Entry<String, Object>> entries = ((Map<String, Object>) object).entrySet().iterator();
+                return new Iterator<>() {
+                    int index = 0;
 
-                        @Override
-                        public boolean hasNext() {
-                            return entries.hasNext();
-                        }
+                    @Override
+                    public boolean hasNext() {
+                        return entries.hasNext();
+                    }
 
-                        @Override
-                        public KeyValue next() {
-                            Map.Entry<String, Object> entry = entries.next();
-                            return new KeyValue(object, index++, entry.getKey(), entry.getValue());
-                        }
-                    };
-                }
+                    @Override
+                    public KeyValue next() {
+                        Map.Entry<String, Object> entry = entries.next();
+                        return new KeyValue(object, index++, entry.getKey(), entry.getValue());
+                    }
+                };
             };
         } else if (object instanceof ObjectLike) {
             return () -> {
@@ -309,7 +278,12 @@ public class JsCommon {
             @Override
             public Object invoke(Object instance, Object... args) {
                 List<Object> results = new ArrayList<>();
-                loop(array, instance, toInvokable(args), r -> results.add(r.result));
+                ArrayLike thisArray = thisArray(array, instance);
+                Invokable invokable = (Invokable) args[0];
+                for (KeyValue kv : toIterable(thisArray)) {
+                    Object result = invokable.invoke(null, kv.value, kv.index);
+                    results.add(result);
+                }
                 return results;
             }
         });
@@ -317,12 +291,14 @@ public class JsCommon {
             @Override
             public Object invoke(Object instance, Object... args) {
                 List<Object> results = new ArrayList<>();
-                loop(array, instance, toInvokable(args), r -> {
-                    if (Terms.isTruthy(r.result)) {
-                        results.add(r.element);
+                ArrayLike thisArray = thisArray(array, instance);
+                Invokable invokable = (Invokable) args[0];
+                for (KeyValue kv : toIterable(thisArray)) {
+                    Object result = invokable.invoke(null, kv.value, kv.index);
+                    if (Terms.isTruthy(result)) {
+                        results.add(kv.value);
                     }
-                    return null;
-                });
+                }
                 return results;
             }
         });
@@ -336,28 +312,28 @@ public class JsCommon {
                 } else {
                     delimiter = ",";
                 }
-                loop(array, instance, null, r -> {
+                ArrayLike thisArray = thisArray(array, instance);
+                for (KeyValue kv : toIterable(thisArray)) {
                     if (sb.length() != 0) {
                         sb.append(delimiter);
                     }
-                    sb.append(r.element);
-                    return null;
-                });
+                    sb.append(kv.value);
+                }
                 return sb.toString();
             }
         });
         prototype.put("find", new JsFunction() {
             @Override
             public Object invoke(Object instance, Object... args) {
-                AtomicReference<Object> result = new AtomicReference<>(Undefined.INSTANCE);
-                loop(array, instance, toInvokable(args), r -> {
-                    if (Terms.isTruthy(r.result)) {
-                        result.set(r.element);
-                        return false;
+                ArrayLike thisArray = thisArray(array, instance);
+                Invokable invokable = (Invokable) args[0];
+                for (KeyValue kv : toIterable(thisArray)) {
+                    Object result = invokable.invoke(null, kv.value, kv.index);
+                    if (Terms.isTruthy(result)) {
+                        return kv.value;
                     }
-                    return null;
-                });
-                return result.get();
+                }
+                return Undefined.INSTANCE;
             }
         });
         prototype.put("push", new JsFunction() {
@@ -368,6 +344,42 @@ public class JsCommon {
                     thisArray.add(o);
                 }
                 return thisArray.size();
+            }
+        });
+        prototype.put("reverse", new JsFunction() {
+            @Override
+            public Object invoke(Object instance, Object... args) {
+                ArrayLike thisArray = thisArray(array, instance);
+                int size = thisArray.size();
+                List<Object> result = new ArrayList<>();
+                for (int i = size; i > 0; i--) {
+                    result.add(thisArray.get(i - 1));
+                }
+                return result;
+            }
+        });
+        prototype.put("includes", new JsFunction() {
+            @Override
+            public Object invoke(Object instance, Object... args) {
+                ArrayLike thisArray = thisArray(array, instance);
+                for (KeyValue kv : toIterable(thisArray)) {
+                    if (Terms.eq(kv.value, args[0], false)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
+        prototype.put("indexOf", new JsFunction() {
+            @Override
+            public Object invoke(Object instance, Object... args) {
+                ArrayLike thisArray = thisArray(array, instance);
+                for (KeyValue kv : toIterable(thisArray)) {
+                    if (Terms.eq(kv.value, args[0], false)) {
+                        return kv.index;
+                    }
+                }
+                return -1;
             }
         });
         return prototype;
