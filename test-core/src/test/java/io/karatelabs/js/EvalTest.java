@@ -499,6 +499,18 @@ class EvalTest {
     }
 
     @Test
+    void testForInLoop() {
+        eval("var a = []; for (var x in [1, 2, 3]) a.push(x)");
+        match(get("a"), "['0', '1', '2']");
+    }
+
+    @Test
+    void testForOfLoop() {
+        eval("var a = []; var x; for (x of [1, 2, 3]) a.push(x)");
+        match(get("a"), "[1, 2, 3]");
+    }
+
+    @Test
     void testWhileLoop() {
         eval("a = 0; while(a < 5) a++");
         assertEquals(5, get("a"));

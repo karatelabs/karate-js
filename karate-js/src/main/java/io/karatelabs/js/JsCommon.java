@@ -216,6 +216,90 @@ public class JsCommon {
 
     }
 
+    @SuppressWarnings("unchecked")
+    static Iterable<KeyValue> toIterable(Object object) {
+        if (object instanceof Map) {
+            return new Iterable<>() {
+                @Override
+                public Iterator<KeyValue> iterator() {
+                    final Iterator<Map.Entry<String, Object>> entries = ((Map<String, Object>) object).entrySet().iterator();
+                    return new Iterator<>() {
+                        int index = 0;
+
+                        @Override
+                        public boolean hasNext() {
+                            return entries.hasNext();
+                        }
+
+                        @Override
+                        public KeyValue next() {
+                            Map.Entry<String, Object> entry = entries.next();
+                            return new KeyValue(object, index++, entry.getKey(), entry.getValue());
+                        }
+                    };
+                }
+            };
+        } else if (object instanceof ObjectLike) {
+            return () -> {
+                final ObjectLike objectLike = ((ObjectLike) object);
+                final Iterator<String> keys = objectLike.keys().iterator();
+                return new Iterator<>() {
+                    int index = 0;
+
+                    @Override
+                    public boolean hasNext() {
+                        return keys.hasNext();
+                    }
+
+                    @Override
+                    public KeyValue next() {
+                        String key = keys.next();
+                        return new KeyValue(object, index++, key, objectLike.get(key));
+                    }
+                };
+            };
+        } else if (object instanceof List) {
+            return () -> {
+                final Iterator<Object> items = ((List<Object>) object).iterator();
+                return new Iterator<>() {
+                    int index = 0;
+
+                    @Override
+                    public boolean hasNext() {
+                        return items.hasNext();
+                    }
+
+                    @Override
+                    public KeyValue next() {
+                        int i = index++;
+                        return new KeyValue(object, i, i + "", items.next());
+                    }
+                };
+            };
+        } else if (object instanceof ArrayLike) {
+            return () -> {
+                final ArrayLike arrayLike = (ArrayLike) object;
+                final int size = arrayLike.size();
+                return new Iterator<>() {
+                    int index = 0;
+
+                    @Override
+                    public boolean hasNext() {
+                        return index < size;
+                    }
+
+                    @Override
+                    public KeyValue next() {
+                        int i = index++;
+                        return new KeyValue(object, i, i + "", arrayLike.get(i));
+                    }
+                };
+            };
+        } else {
+            return null;
+        }
+    }
+
     static Map<String, Object> getBaseArrayPrototype(ArrayLike array) {
         Map<String, Object> prototype = new HashMap<>();
         prototype.put("toString", TO_STRING);
