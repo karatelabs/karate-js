@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -611,11 +612,17 @@ class EvalTest {
         assertEquals("hello", get("c"));
         eval("var DemoPojo = Java.type('io.karatelabs.js.DemoPojo'); var b = new DemoPojo(); b.stringValue = 'foo'; var c = b.stringValue");
         assertEquals("foo", get("c"));
+        eval("var DemoPojo = Java.type('io.karatelabs.js.DemoPojo'); var b = new DemoPojo('foo'); var c = b.stringValue");
+        assertEquals("foo", get("c"));
+        eval("var DemoPojo = Java.type('io.karatelabs.js.DemoPojo'); var b = new DemoPojo('foo', 42); var c = b.stringValue; var d = b.intValue");
+        assertEquals("foo", get("c"));
+        assertEquals(42, get("d"));
     }
 
     @Test
     void testJavaInteropJdk() {
         assertEquals("bar", eval("var props = new java.util.Properties(); props.put('foo', 'bar'); props.get('foo')"));
+        assertEquals(new BigDecimal(123123123123L), eval("new java.math.BigDecimal(123123123123)"));
     }
 
 }

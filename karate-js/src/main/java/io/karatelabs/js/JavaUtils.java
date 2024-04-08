@@ -43,7 +43,12 @@ public class JavaUtils {
 
     public static Object construct(Class<?> clazz, Object[] args) {
         try {
-            return findConstructor(clazz, args).newInstance(args);
+            Constructor<?> constructor = findConstructor(clazz, args);
+            if (args.length > 0) {
+                return constructor.newInstance(args);
+            } else {
+                return constructor.newInstance();
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -184,6 +189,9 @@ public class JavaUtils {
             Class<?> argType = types[i];
             if (argType.equals(Object[].class) && i == (types.length - 1)) {
                 return true;
+            }
+            if (i >= args.length) {
+                return false;
             }
             Object arg = args[i];
             if (arg != null) {

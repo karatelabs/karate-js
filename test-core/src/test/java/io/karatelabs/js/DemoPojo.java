@@ -2,6 +2,19 @@ package io.karatelabs.js;
 
 public class DemoPojo {
 
+    public DemoPojo() {
+
+    }
+
+    public DemoPojo(String s) {
+        this.stringValue = s;
+    }
+
+    public DemoPojo(String s, int i) {
+        this.stringValue = s;
+        this.intValue = i;
+    }
+
     private boolean booleanValue;
     private String stringValue;
     private int intValue;

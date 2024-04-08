@@ -23,6 +23,7 @@
  */
 package io.karatelabs.js;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -246,7 +247,7 @@ public class Terms {
             return true;
         }
         if (value instanceof String
-                || value instanceof Number
+                || (value instanceof Number && !(value instanceof BigDecimal))
                 || value instanceof Boolean) {
             return true;
         }
