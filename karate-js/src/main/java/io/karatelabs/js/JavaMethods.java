@@ -26,6 +26,6 @@ package io.karatelabs.js;
 @FunctionalInterface
 public interface JavaMethods {
 
-    Object invoke(String name, Object... args);
+    Object call(String name, Object... args);
 
 }

@@ -16,9 +16,9 @@ class JavaObjectTest {
         JavaClass cp = new JavaClass("java.util.Properties");
         Object o = cp.construct(JavaUtils.EMPTY);
         JavaObject op = new JavaObject(o);
-        assertEquals(0, op.invoke(null, "size", JavaUtils.EMPTY));
-        op.invoke(null, "put", new Object[]{"foo", 5});
-        assertEquals(5, op.invoke(null, "get", new Object[]{"foo"}));
+        assertEquals(0, op.call("size", JavaUtils.EMPTY));
+        op.call("put", "foo", 5);
+        assertEquals(5, op.call("get", "foo"));
     }
 
     @Test

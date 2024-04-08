@@ -35,7 +35,7 @@ public class JavaObject implements JavaMethods, JavaFields, ObjectLike {
     }
 
     @Override
-    public Object invoke(String name, Object... args) {
+    public Object call(String name, Object... args) {
         return JavaUtils.invoke(object, name, args);
     }
 
