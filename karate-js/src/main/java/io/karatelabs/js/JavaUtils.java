@@ -24,6 +24,7 @@
 package io.karatelabs.js;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -131,6 +132,15 @@ public class JavaUtils {
         }
         try {
             return method.invoke(object, EMPTY);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Object get(Class<?> clazz, String name) {
+        try {
+            Field field = clazz.getDeclaredField(name);
+            return field.get(null);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

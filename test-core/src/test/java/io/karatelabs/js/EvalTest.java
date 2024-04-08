@@ -637,6 +637,7 @@ class EvalTest {
     void testJavaInteropJdk() {
         assertEquals("bar", eval("var props = new java.util.Properties(); props.put('foo', 'bar'); props.get('foo')"));
         assertEquals(new BigDecimal(123123123123L), eval("new java.math.BigDecimal(123123123123)"));
+        assertEquals(String.CASE_INSENSITIVE_ORDER, eval("java.lang.String.CASE_INSENSITIVE_ORDER"));
     }
 
 }

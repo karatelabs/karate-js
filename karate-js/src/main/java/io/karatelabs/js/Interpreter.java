@@ -127,6 +127,22 @@ public class Interpreter {
         return context.isStopped() ? context.getReturnValue() : blockResult;
     }
 
+    private static Object evalDotExpr(Node node, Context context) {
+        // TODO refactor and merge into JsProperty
+        Object result = new JsProperty(node, context).get();
+        if (result == null) { // java interop failed else would be undefined
+            String className = node.children.get(0).getText();
+            String name = node.children.get(2).getText();
+            try {
+                Class<?> clazz = JavaUtils.forClass(className);
+                return JavaUtils.get(clazz, name);
+            } catch (Exception e) {
+                // fall through
+            }
+        }
+        return result;
+    }
+
     @SuppressWarnings("unchecked")
     private static Object evalFnCall(Node node, Context context) {
         JsProperty prop = new JsProperty(node.children.get(0), context);
@@ -658,8 +674,9 @@ public class Interpreter {
             case REF_EXPR:
                 return context.get(node.getText());
             case REF_BRACKET_EXPR:
-            case REF_DOT_EXPR:
                 return new JsProperty(node, context).get();
+            case REF_DOT_EXPR:
+                return evalDotExpr(node, context);
             case RETURN_STMT:
                 return evalReturnStmt(node, context);
             case STATEMENT:

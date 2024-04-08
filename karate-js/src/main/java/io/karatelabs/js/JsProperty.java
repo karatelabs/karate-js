@@ -34,12 +34,14 @@ public class JsProperty {
 
     static final Logger logger = LoggerFactory.getLogger(JsProperty.class);
 
+    final Node node;
     final Object object;
     final Context context;
     String name;
     Object index;
 
     JsProperty(Node node, Context context) {
+        this.node = node;
         this.context = context;
         if (node.type == Type.EXPR) {
             node = node.children.get(0);
