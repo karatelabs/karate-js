@@ -35,6 +35,7 @@ public class Context {
     static final Logger logger = LoggerFactory.getLogger(Context.class);
 
     public static final Context EMPTY = new Context(null, Collections.emptyMap(), null);
+    private static final Map<String, Object> GLOBALS = Collections.unmodifiableMap(globals());
 
     private final Context parent;
     private final Context caller;
@@ -46,7 +47,7 @@ public class Context {
         this.caller = caller;
     }
 
-    public static Map<String, Object> globals() {
+    private static Map<String, Object> globals() {
         Map<String, Object> globals = new HashMap<>();
         globals.put("Java", JavaGlobal.INSTANCE);
         globals.put("undefined", Undefined.INSTANCE);
@@ -59,11 +60,12 @@ public class Context {
         globals.put("Infinity", Terms.POSITIVE_INFINITY);
         globals.put("NaN", Terms.NAN);
         globals.put("Math", JsCommon.MATH);
+        globals.put("parseInt", JsCommon.PARSE_INT);
         return globals;
     }
 
     public static Context root() {
-        Context root = new Context(null, globals(), null);
+        Context root = new Context(null, GLOBALS, null);
         return new Context(root);
     }
 

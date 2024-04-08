@@ -44,11 +44,7 @@ public class JavaUtils {
     public static Object construct(Class<?> clazz, Object[] args) {
         try {
             Constructor<?> constructor = findConstructor(clazz, args);
-            if (args.length > 0) {
-                return constructor.newInstance(args);
-            } else {
-                return constructor.newInstance();
-            }
+            return constructor.newInstance(args);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

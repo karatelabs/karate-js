@@ -519,4 +519,6 @@ public class JsCommon {
         }
     };
 
+    static Invokable PARSE_INT = (instance, args) -> Terms.toNumber(args[0]);
+
 }

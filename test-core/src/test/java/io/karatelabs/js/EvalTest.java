@@ -282,6 +282,15 @@ class EvalTest {
     }
 
     @Test
+    void testStringWithEscapes() {
+        assertEquals("foo\nbar", eval("'foo\nbar'"));
+        assertEquals("foo\nbar", eval("\"foo\nbar\""));
+        assertEquals("foo\nbarxxxbaz", eval("var a = 'xxx'; 'foo\nbar' + a + 'baz'"));
+        assertEquals("fooxxxbar", eval("'foo\nbar'.replaceAll('\n', 'xxx')"));
+        assertEquals("fooxxxbar", eval("'foo\nbar'.replaceAll(\"\n\", 'xxx')"));
+    }
+
+    @Test
     void testStringConcatExpr() {
         assertEquals("foobar", eval("var a = function(){ return 'bar' }; 'foo' + a()"));
         assertEquals("foobar", eval("var a = ['bar']; b = 'foo' + a[0]; b"));
@@ -474,6 +483,11 @@ class EvalTest {
         assertEquals(1, eval("Math.trunc(1.9)"));
         assertEquals(-1, eval("Math.trunc(-1.9)"));
         assertEquals(-0.0, eval("Math.trunc(-0.9)"));
+    }
+
+    @Test
+    void testParseInt() {
+        assertEquals(42, eval("parseInt('042')"));
     }
 
     @Test
