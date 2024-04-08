@@ -32,7 +32,7 @@ class JavaGlobal implements JavaMethods {
     }
 
     @Override
-    public Object invoke(Object instance, String name, Object[] args) {
+    public Object invoke(String name, Object[] args) {
         if ("type".equals(name)) {
             String className = (String) args[0];
             return new JavaClass(className);

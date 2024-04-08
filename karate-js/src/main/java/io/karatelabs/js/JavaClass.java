@@ -37,7 +37,7 @@ public class JavaClass implements Creatable, JavaMethods, JavaFields {
     }
 
     @Override
-    public Object invoke(Object instance, String name, Object[] args) {
+    public Object invoke(String name, Object[] args) {
         return JavaUtils.invoke(clazz, name, args);
     }
 
