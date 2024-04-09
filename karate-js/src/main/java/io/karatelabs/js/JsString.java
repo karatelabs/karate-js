@@ -37,11 +37,11 @@ public class JsString extends JsObject {
     @Override
     Map<String, Object> initPrototype() {
         Map<String, Object> prototype = super.initPrototype();
-        prototype.put("indexOf", (Invokable) (instance, args) -> text.indexOf((String) args[0]));
-        prototype.put("startsWith", (Invokable) (instance, args) -> text.startsWith((String) args[0]));
+        prototype.put("indexOf", (Invokable) args -> text.indexOf((String) args[0]));
+        prototype.put("startsWith", (Invokable) args -> text.startsWith((String) args[0]));
         prototype.put("length", new Property(text::length));
-        prototype.put("replaceAll", (Invokable) (instance, args) -> text.replaceAll((String) args[0], (String) args[1]));
-        prototype.put("getBytes", (Invokable) (instance, args) -> text.getBytes(StandardCharsets.UTF_8));
+        prototype.put("replaceAll", (Invokable) args -> text.replaceAll((String) args[0], (String) args[1]));
+        prototype.put("getBytes", (Invokable) args -> text.getBytes(StandardCharsets.UTF_8));
         return prototype;
     }
 

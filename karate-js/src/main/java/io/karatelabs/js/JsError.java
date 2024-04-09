@@ -32,7 +32,7 @@ public class JsError extends JsFunction {
     }
 
     @Override
-    public Object invoke(Object instance, Object... args) {
+    public Object invoke(Object... args) {
         JsObject object = new JsObject();
         if (args.length > 0) {
             object.put("message", args[0]);

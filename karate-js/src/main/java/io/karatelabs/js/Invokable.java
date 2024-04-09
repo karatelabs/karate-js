@@ -26,34 +26,6 @@ package io.karatelabs.js;
 @FunctionalInterface
 public interface Invokable {
 
-    Object invoke(Object instance, Object... args);
-
-    class Instance implements Invokable {
-
-        final Object instance;
-        final Invokable invokable;
-
-        Instance(Object instance, Invokable invokable) {
-            this.instance = instance;
-            this.invokable = invokable;
-        }
-
-        @Override
-        public Object invoke(Object _unused, Object... args) {
-            return invokable.invoke(instance, args);
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder sb = new StringBuilder();
-            sb.append('[');
-            if (instance != null) {
-                sb.append("instance:").append(instance).append(',');
-            }
-            sb.append("invokable:").append(invokable).append(']');
-            return sb.toString();
-        }
-
-    }
+    Object invoke(Object... args);
 
 }

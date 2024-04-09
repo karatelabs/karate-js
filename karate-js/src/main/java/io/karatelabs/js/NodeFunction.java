@@ -39,8 +39,6 @@ public class NodeFunction extends JsFunction {
     final int argCount;
     final Context originalContext;
 
-    Context invokeContext;
-
     public NodeFunction(boolean arrow, List<String> argNames, Node body, Context context) {
         this.arrow = arrow;
         this.argNames = argNames;
@@ -50,7 +48,7 @@ public class NodeFunction extends JsFunction {
     }
 
     @Override
-    public Object invoke(Object instance, Object... args) {
+    public Object invoke(Object... args) {
         Context childContext = originalContext.merge(invokeContext);
         if (!childContext.hasKey("arguments")) {
             childContext.declare("arguments", Arrays.asList(args));
@@ -67,7 +65,7 @@ public class NodeFunction extends JsFunction {
             }
         }
         if (!arrow) {
-            childContext.declare("this", instance);
+            childContext.declare("this", thisObject);
         }
         if (logger.isTraceEnabled()) {
             logger.trace(">> {}", this);

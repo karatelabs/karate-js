@@ -29,7 +29,7 @@ import java.util.function.Function;
 
 public class JsCommon {
 
-    static final Invokable ARRAY_CONSTRUCTOR = (instance, args) -> new JsArray();
+    static final Invokable ARRAY_CONSTRUCTOR = args -> new JsArray();
 
     static boolean instanceOf(Object lhs, Object rhs) {
         if (lhs instanceof JsObject && rhs instanceof JsObject) {
@@ -47,27 +47,11 @@ public class JsCommon {
         return false;
     }
 
-    static final Invokable STRING_CONSTRUCTOR = (instance, args) -> {
+    static final Invokable STRING_CONSTRUCTOR = args -> {
         if (args.length > 0 && args[0] != null) {
             return args[0].toString();
         }
         return null;
-    };
-
-    static final JsFunction TO_STRING = new JsFunction() {
-        @Override
-        public Object invoke(Object instance, Object... args) {
-            if (instance == null) {
-                return "[object Null]";
-            }
-            if (instance instanceof ArrayLike || instance instanceof List) {
-                return "[object Array]";
-            }
-            if (instance instanceof String || instance instanceof Number || instance instanceof Boolean) {
-                return instance.toString();
-            }
-            return "[object Object]";
-        }
     };
 
     static final JsObject CONSOLE = createConsole();
@@ -76,7 +60,7 @@ public class JsCommon {
         JsObject object = new JsObject();
         object.put("log", new Invokable() {
             @Override
-            public Object invoke(Object instance, Object... args) {
+            public Object invoke(Object... args) {
                 StringBuilder sb = new StringBuilder();
                 for (Object arg : args) {
                     if (arg instanceof ObjectLike) {
@@ -84,10 +68,10 @@ public class JsCommon {
                         if (toString instanceof Invokable) {
                             sb.append(((Invokable) toString).invoke(arg));
                         } else {
-                            sb.append(TO_STRING.invoke(arg));
+                            sb.append(new JsToString(arg).invoke());
                         }
                     } else {
-                        sb.append(TO_STRING.invoke(arg));
+                        sb.append(new JsToString(arg).invoke());
                     }
                     sb.append(' ');
                 }
@@ -104,7 +88,7 @@ public class JsCommon {
             Map<String, Object> prototype = super.initPrototype();
             prototype.put("keys", new JsFunction() {
                 @Override
-                public Object invoke(Object instance, Object... args) {
+                public Object invoke(Object... args) {
                     List<Object> result = new ArrayList<>();
                     for (KeyValue kv : toIterable(args[0])) {
                         result.add(kv.key);
@@ -123,7 +107,7 @@ public class JsCommon {
             Map<String, Object> prototype = super.initPrototype();
             prototype.put("from", new JsFunction() {
                 @Override
-                public Object invoke(Object instance, Object... args) {
+                public Object invoke(Object... args) {
                     List<Object> results = new ArrayList<>();
                     Invokable invokable;
                     if (args.length > 1 && args[1] instanceof Invokable) {
@@ -136,7 +120,7 @@ public class JsCommon {
                         array = toArrayLike((Map<String, Object>) args[0]);
                     }
                     for (KeyValue kv : toIterable(array)) {
-                        Object result = invokable == null ? kv.value : invokable.invoke(null, kv.value, kv.index);
+                        Object result = invokable == null ? kv.value : invokable.invoke(kv.value, kv.index);
                         results.add(result);
                     }
                     return results;
@@ -188,16 +172,16 @@ public class JsCommon {
 
     static class ShiftArgs {
 
-        final Object instance;
+        final Object thisObject;
         final Object[] args;
 
         ShiftArgs(Object[] args) {
             if (args.length == 0) {
-                instance = null;
+                thisObject = null;
                 this.args = EMPTY;
             } else {
                 List<Object> list = new ArrayList<>(Arrays.asList(args));
-                instance = list.remove(0);
+                thisObject = list.remove(0);
                 this.args = list.toArray();
             }
         }
@@ -287,17 +271,17 @@ public class JsCommon {
 
     static Map<String, Object> getBaseArrayPrototype(ArrayLike array) {
         Map<String, Object> prototype = new HashMap<>();
-        prototype.put("toString", TO_STRING);
+        prototype.put("toString", new JsToString(array));
         prototype.put("constructor", ARRAY_CONSTRUCTOR);
         prototype.put("length", new Property(array::size));
         prototype.put("map", new JsFunction() {
             @Override
-            public Object invoke(Object instance, Object... args) {
+            public Object invoke(Object... args) {
                 List<Object> results = new ArrayList<>();
-                ArrayLike thisArray = thisArray(array, instance);
+                ArrayLike thisArray = thisArray(array, thisObject);
                 Invokable invokable = (Invokable) args[0];
                 for (KeyValue kv : toIterable(thisArray)) {
-                    Object result = invokable.invoke(null, kv.value, kv.index);
+                    Object result = invokable.invoke(kv.value, kv.index);
                     results.add(result);
                 }
                 return results;
@@ -305,12 +289,12 @@ public class JsCommon {
         });
         prototype.put("filter", new JsFunction() {
             @Override
-            public Object invoke(Object instance, Object... args) {
+            public Object invoke(Object... args) {
                 List<Object> results = new ArrayList<>();
-                ArrayLike thisArray = thisArray(array, instance);
+                ArrayLike thisArray = thisArray(array, thisObject);
                 Invokable invokable = (Invokable) args[0];
                 for (KeyValue kv : toIterable(thisArray)) {
-                    Object result = invokable.invoke(null, kv.value, kv.index);
+                    Object result = invokable.invoke(kv.value, kv.index);
                     if (Terms.isTruthy(result)) {
                         results.add(kv.value);
                     }
@@ -320,7 +304,7 @@ public class JsCommon {
         });
         prototype.put("join", new JsFunction() {
             @Override
-            public Object invoke(Object instance, Object... args) {
+            public Object invoke(Object... args) {
                 StringBuilder sb = new StringBuilder();
                 String delimiter;
                 if (args.length > 0 && args[0] != null) {
@@ -328,7 +312,7 @@ public class JsCommon {
                 } else {
                     delimiter = ",";
                 }
-                ArrayLike thisArray = thisArray(array, instance);
+                ArrayLike thisArray = thisArray(array, thisObject);
                 for (KeyValue kv : toIterable(thisArray)) {
                     if (sb.length() != 0) {
                         sb.append(delimiter);
@@ -340,11 +324,11 @@ public class JsCommon {
         });
         prototype.put("find", new JsFunction() {
             @Override
-            public Object invoke(Object instance, Object... args) {
-                ArrayLike thisArray = thisArray(array, instance);
+            public Object invoke(Object... args) {
+                ArrayLike thisArray = thisArray(array, thisObject);
                 Invokable invokable = (Invokable) args[0];
                 for (KeyValue kv : toIterable(thisArray)) {
-                    Object result = invokable.invoke(null, kv.value, kv.index);
+                    Object result = invokable.invoke(kv.value, kv.index);
                     if (Terms.isTruthy(result)) {
                         return kv.value;
                     }
@@ -354,8 +338,8 @@ public class JsCommon {
         });
         prototype.put("push", new JsFunction() {
             @Override
-            public Object invoke(Object instance, Object... args) {
-                ArrayLike thisArray = thisArray(array, instance);
+            public Object invoke(Object... args) {
+                ArrayLike thisArray = thisArray(array, thisObject);
                 for (Object o : args) {
                     thisArray.add(o);
                 }
@@ -364,8 +348,8 @@ public class JsCommon {
         });
         prototype.put("reverse", new JsFunction() {
             @Override
-            public Object invoke(Object instance, Object... args) {
-                ArrayLike thisArray = thisArray(array, instance);
+            public Object invoke(Object... args) {
+                ArrayLike thisArray = thisArray(array, thisObject);
                 int size = thisArray.size();
                 List<Object> result = new ArrayList<>();
                 for (int i = size; i > 0; i--) {
@@ -376,8 +360,8 @@ public class JsCommon {
         });
         prototype.put("includes", new JsFunction() {
             @Override
-            public Object invoke(Object instance, Object... args) {
-                ArrayLike thisArray = thisArray(array, instance);
+            public Object invoke(Object... args) {
+                ArrayLike thisArray = thisArray(array, thisObject);
                 for (KeyValue kv : toIterable(thisArray)) {
                     if (Terms.eq(kv.value, args[0], false)) {
                         return true;
@@ -388,8 +372,8 @@ public class JsCommon {
         });
         prototype.put("indexOf", new JsFunction() {
             @Override
-            public Object invoke(Object instance, Object... args) {
-                ArrayLike thisArray = thisArray(array, instance);
+            public Object invoke(Object... args) {
+                ArrayLike thisArray = thisArray(array, thisObject);
                 for (KeyValue kv : toIterable(thisArray)) {
                     if (Terms.eq(kv.value, args[0], false)) {
                         return kv.index;
@@ -403,10 +387,10 @@ public class JsCommon {
 
     static Map<String, Object> getBaseObjectPrototype(JsObject object) {
         Map<String, Object> prototype = new HashMap<>();
-        prototype.put("toString", TO_STRING);
+        prototype.put("toString", new JsToString(object));
         prototype.put("constructor", new JsFunction() {
             @Override
-            public Object invoke(Object instance, Object... args) {
+            public Object invoke(Object... args) {
                 return new JsObject();
             }
 
@@ -420,11 +404,11 @@ public class JsCommon {
 
     static Map<String, Object> getBaseFunctionPrototype(JsFunction function) {
         Map<String, Object> prototype = new HashMap<>();
-        prototype.put("toString", TO_STRING);
+        prototype.put("toString", new JsToString(function));
         prototype.put("constructor", new JsFunction() {
             @Override
-            public Object invoke(Object instance, Object... args) {
-                return function.invoke(instance, args);
+            public Object invoke(Object... args) {
+                return function.invoke(args);
             }
 
             @Override
@@ -432,15 +416,16 @@ public class JsCommon {
                 return function.equals(obj);
             }
         });
-        prototype.put("call", (Invokable) (instance, args) -> {
+        prototype.put("call", (Invokable) args -> {
             ShiftArgs shifted = new ShiftArgs(args);
-            return function.invoke(shifted.instance, shifted.args);
+            function.thisObject = shifted.thisObject;
+            return function.invoke(shifted.args);
         });
         return prototype;
     }
 
     private static Invokable math(Function<Double, Double> fn) {
-        return (instance, args) -> {
+        return args -> {
             try {
                 Number x = Terms.toNumber(args[0]);
                 Double y = fn.apply(x.doubleValue());
@@ -452,7 +437,7 @@ public class JsCommon {
     }
 
     private static Invokable math(BiFunction<Double, Double, Double> fn) {
-        return (instance, args) -> {
+        return args -> {
             try {
                 Number x = Terms.toNumber(args[0]);
                 Number y = Terms.toNumber(args[1]);
@@ -495,7 +480,7 @@ public class JsCommon {
             }));
             prototype.put("cbrt", math(Math::cbrt));
             prototype.put("ceil", math(Math::ceil));
-            prototype.put("clz32", (Invokable) (instance, args) -> {
+            prototype.put("clz32", (Invokable) args -> {
                 Number x = Terms.toNumber(args[0]);
                 return Integer.numberOfLeadingZeros(x.intValue());
             });
@@ -504,13 +489,13 @@ public class JsCommon {
             prototype.put("exp", math(Math::exp));
             prototype.put("expm1", math(Math::expm1));
             prototype.put("floor", math(Math::floor));
-            prototype.put("fround", (Invokable) (instance, args) -> {
+            prototype.put("fround", (Invokable) args -> {
                 Number x = Terms.toNumber(args[0]);
                 float y = (float) x.doubleValue();
                 return (double) y;
             });
             prototype.put("hypot", math(Math::hypot));
-            prototype.put("imul", (Invokable) (instance, args) -> {
+            prototype.put("imul", (Invokable) args -> {
                 Number x = Terms.toNumber(args[0]);
                 Number y = Terms.toNumber(args[1]);
                 return x.intValue() * y.intValue();
@@ -522,12 +507,12 @@ public class JsCommon {
             prototype.put("max", math(Math::max));
             prototype.put("min", math(Math::min));
             prototype.put("pow", math(Math::pow));
-            prototype.put("random", (Invokable) (instance, args) -> Math.random());
-            prototype.put("round", (Invokable) (instance, args) -> {
+            prototype.put("random", (Invokable) args -> Math.random());
+            prototype.put("round", (Invokable) args -> {
                 Number x = Terms.toNumber(args[0]);
                 return Terms.narrow(Math.round(x.doubleValue()));
             });
-            prototype.put("sign", (Invokable) (instance, args) -> {
+            prototype.put("sign", (Invokable) args -> {
                 Number x = Terms.toNumber(args[0]);
                 if (Terms.NEGATIVE_ZERO.equals(x)) {
                     return Terms.NEGATIVE_ZERO;
@@ -547,6 +532,6 @@ public class JsCommon {
         }
     };
 
-    static Invokable PARSE_INT = (instance, args) -> Terms.toNumber(args[0]);
+    static Invokable PARSE_INT = args -> Terms.toNumber(args[0]);
 
 }

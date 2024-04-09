@@ -78,9 +78,9 @@ class JavaObjectTest {
         DemoPojo dp = new DemoPojo();
         JavaObject jo = new JavaObject(dp);
         JavaInvokable method = new JavaInvokable("doWork", jo);
-        assertEquals("hello", method.invoke(null));
-        assertEquals("hellofoo", method.invoke(null, "foo"));
-        assertEquals("hellofootrue", method.invoke(null, "foo", true));
+        assertEquals("hello", method.invoke());
+        assertEquals("hellofoo", method.invoke("foo"));
+        assertEquals("hellofootrue", method.invoke("foo", true));
     }
 
 }

@@ -15,8 +15,8 @@ class JsArrayTest {
         JsArray jl = new JsArray(list);
         assertEquals(2, jl.get("length"));
         Invokable invokable = (Invokable) jl.get("map");
-        Invokable transform = (instance, args) -> args[0] + "bar";
-        Object results = invokable.invoke(null, transform);
+        Invokable transform = args -> args[0] + "bar";
+        Object results = invokable.invoke(transform);
         assertEquals(List.of("foobar", "barbar"), results);
     }
 
@@ -25,8 +25,8 @@ class JsArrayTest {
         List<Object> list = JsonUtils.fromJson("[1, 2, 3, 4]");
         JsArray jl = new JsArray(list);
         Invokable invokable = (Invokable) jl.get("filter");
-        Invokable transform = (instance, args) -> ((Integer) args[0]) % 2 == 0;
-        Object results = invokable.invoke(null, transform);
+        Invokable transform = args -> ((Integer) args[0]) % 2 == 0;
+        Object results = invokable.invoke(transform);
         assertEquals(List.of(2, 4), results);
     }
 

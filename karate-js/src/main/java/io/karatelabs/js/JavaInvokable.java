@@ -34,7 +34,7 @@ public class JavaInvokable implements Invokable {
     }
 
     @Override
-    public Object invoke(Object instance, Object... args) {
+    public Object invoke(Object... args) {
         return methods.call(name, args);
     }
 

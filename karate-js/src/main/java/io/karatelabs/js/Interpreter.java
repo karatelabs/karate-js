@@ -131,7 +131,7 @@ public class Interpreter {
     private static Object evalDeleteStmt(Node node, Context context) {
         JsProperty prop = new JsProperty(node.children.get(1), context);
         String key = prop.name == null ? prop.index + "" : prop.name;
-        if (prop.object instanceof  Map) {
+        if (prop.object instanceof Map) {
             ((Map<String, Object>) prop.object).remove(key);
         } else if (prop.object instanceof ObjectLike) {
             ((ObjectLike) prop.object).remove(key);
@@ -164,13 +164,13 @@ public class Interpreter {
             invokable = (Invokable) o;
         } else if (o instanceof JavaClass) {
             JavaClass jc = (JavaClass) o;
-            invokable = (instance, args) -> jc.construct(args);
+            invokable = jc::construct;
         } else { // try java interop
             if (o == Undefined.INSTANCE) { // constructor
                 String className = node.children.get(0).getText();
                 try {
                     Class<?> clazz = Class.forName(className);
-                    invokable = (instance, args) -> JavaUtils.construct(clazz, args);
+                    invokable = args -> JavaUtils.construct(clazz, args);
                 } catch (Exception e) {
                     throw new RuntimeException("not a function: " + className);
                 }
@@ -178,16 +178,6 @@ public class Interpreter {
                 JavaObject jo = new JavaObject(o);
                 invokable = new JavaInvokable(prop.name, jo);
             }
-        }
-        if (invokable instanceof Invokable.Instance) {
-            Invokable.Instance ii = (Invokable.Instance) invokable;
-            if (ii.invokable instanceof NodeFunction) {
-                NodeFunction nf = (NodeFunction) ii.invokable;
-                nf.invokeContext = context;
-            }
-        } else if (invokable instanceof NodeFunction) {
-            NodeFunction nf = (NodeFunction) invokable;
-            nf.invokeContext = context;
         }
         Node fnArgsNode = node.children.get(2);
         int argsCount = fnArgsNode.children.size();
@@ -209,18 +199,31 @@ public class Interpreter {
             }
         }
         Object[] args = argsList.toArray();
-        Object instance;
+        Object thisObject;
+        JsFunction jsFunction;
+        if (invokable instanceof JsFunction) {
+            jsFunction = (JsFunction) invokable;
+            jsFunction.invokeContext = context;
+        } else {
+            jsFunction = null;
+        }
         if (context.newInstance != null) {
             if (invokable instanceof JsFunction) {
                 context.newInstance.setPrototype(((JsFunction) invokable).getPrototype());
             }
-            instance = context.newInstance;
+            thisObject = context.newInstance;
             context.newInstance = null;
-            Object result = invokable.invoke(instance, args);
-            return Terms.isPrimitive(result) ? instance : result;
+            if (jsFunction != null) {
+                jsFunction.thisObject = thisObject;
+            }
+            Object result = invokable.invoke(args);
+            return Terms.isPrimitive(result) ? thisObject : result;
         } else {
-            instance = prop.object == null ? invokable : prop.object;
-            return invokable.invoke(instance, args);
+            thisObject = prop.object == null ? invokable : prop.object;
+            if (jsFunction != null) {
+                jsFunction.thisObject = thisObject;
+            }
+            return invokable.invoke(args);
         }
     }
 
