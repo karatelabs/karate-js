@@ -35,8 +35,6 @@ public class Terms {
     static final Number POSITIVE_ZERO = 0;
     static final Number NEGATIVE_ZERO = -0.0;
 
-    static final Number NAN = Double.NaN;
-
     final Number lhs;
     final Number rhs;
 
@@ -73,7 +71,7 @@ public class Terms {
                     return narrow(longValue);
                 }
             }
-            return NAN;
+            return Undefined.NAN;
         }
     }
 
@@ -227,7 +225,7 @@ public class Terms {
     }
 
     public static boolean isTruthy(Object value) {
-        if (value == null || value.equals(Undefined.INSTANCE) || value.equals(NAN)) {
+        if (value == null || value.equals(Undefined.INSTANCE) || value.equals(Undefined.NAN)) {
             return false;
         }
         if (value instanceof Boolean) {

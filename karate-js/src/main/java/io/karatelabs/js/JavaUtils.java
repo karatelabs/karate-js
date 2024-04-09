@@ -130,7 +130,7 @@ public class JavaUtils {
                         return new JavaInvokable(name, jo);
                     }
                 }
-                return null;
+                throw new RuntimeException("no instance property: " + name);
             }
         }
         try {

@@ -163,9 +163,7 @@ public class JsProperty {
         }
         if (object instanceof Map) {
             Map<String, Object> map = (Map<String, Object>) object;
-            // fall back to java interop in-case this happens to implement Map
-            // but the intent is to call a java method
-            if (map.containsKey(name) || !function) {
+            if (map.containsKey(name)) {
                 return map.get(name);
             }
         }
@@ -174,6 +172,9 @@ public class JsProperty {
         }
         if (object instanceof String) {
             return new JsString((String) object).get(name);
+        }
+        if (object instanceof byte[]) {
+            return new JsBytes((byte[]) object).get(name);
         }
         if (function && object instanceof JavaMethods) {
             return new JavaInvokable(name, (JavaMethods) object);

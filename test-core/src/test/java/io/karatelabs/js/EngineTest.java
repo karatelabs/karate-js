@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class EngineTest {
 
@@ -19,6 +20,15 @@ class EngineTest {
         Object result = engine.eval(file);
         assertEquals("foobar", result);
         assertEquals("foo", engine.context.get("foo"));
+    }
+
+    @Test
+    void testUndefined() {
+        Engine engine = new Engine();
+        Object result = engine.eval("1 * 'a'");
+        assertTrue(Engine.isUndefined(result));
+        result = engine.eval("foo.bar");
+        assertTrue(Engine.isUndefined(result));
     }
 
 }

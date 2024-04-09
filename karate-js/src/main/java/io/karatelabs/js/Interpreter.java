@@ -151,9 +151,6 @@ public class Interpreter {
             } catch (Exception e) {
                 // fall through
             }
-            // if (prop.object == Undefined.INSTANCE) {
-                throw new RuntimeException(className + " is undefined");
-            // }
         }
         return result;
     }
@@ -383,8 +380,8 @@ public class Interpreter {
         Object lhs = eval(node.children.get(0), context);
         Object rhs = eval(node.children.get(2), context);
         Token logicOp = node.children.get(1).chunk.token;
-        if (Terms.NAN.equals(lhs) || Terms.NAN.equals(rhs)) {
-            if (Terms.NAN.equals(lhs) && Terms.NAN.equals(rhs)) {
+        if (Undefined.NAN.equals(lhs) || Undefined.NAN.equals(rhs)) {
+            if (Undefined.NAN.equals(lhs) && Undefined.NAN.equals(rhs)) {
                 return logicOp == Token.NOT_EQ || logicOp == Token.NOT_EQ_EQ;
             }
             return false;

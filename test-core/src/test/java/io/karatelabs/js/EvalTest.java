@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -455,7 +456,7 @@ class EvalTest {
         assertEquals(1.4142135623730951, eval("Math.SQRT2"));
         assertEquals(5, eval("Math.abs(-5)"));
         assertEquals(Math.PI, eval("Math.acos(-1)"));
-        assertEquals(Terms.NAN, eval("Math.acosh(0.5)"));
+        assertEquals(Undefined.NAN, eval("Math.acosh(0.5)"));
         assertEquals(1.5667992369724109, (double) eval("Math.acosh(2.5)"), 0.01);
         assertEquals(1.5707963267948966, eval("Math.asin(1)"));
         assertEquals(0.8813735870195429, eval("Math.asinh(1)"));
@@ -577,18 +578,9 @@ class EvalTest {
     }
 
     @Test
-    void testGoodDotExpression() {
-        eval("var foo = {}; foo.bar");
-    }
-
-    @Test
-    void testBadDotExpression() {
-        try {
-            eval("foo.bar");
-            fail("error expected");
-        } catch (Exception e) {
-            assertTrue(e.getMessage().contains("foo"));
-        }
+    void testDotExpressionUndefined() {
+        assertEquals(Undefined.INSTANCE, eval("var foo = {}; foo.bar"));
+        assertEquals(Undefined.INSTANCE, eval("foo.bar"));
     }
 
     @Test
@@ -652,6 +644,11 @@ class EvalTest {
     @Test
     void testObjectApi() {
         match(eval("Object.keys({ a: 1, b: 2 })"), "['a', 'b']");
+    }
+
+    @Test
+    void testBytes() {
+        assertEquals(3, eval("var a = 'foo'.getBytes(); a.length"));
     }
 
     @Test

@@ -446,7 +446,7 @@ public class JsCommon {
                 Double y = fn.apply(x.doubleValue());
                 return Terms.narrow(y);
             } catch (Exception e) {
-                return Terms.NAN;
+                return Undefined.NAN;
             }
         };
     }
@@ -459,7 +459,7 @@ public class JsCommon {
                 Double r = fn.apply(x.doubleValue(), y.doubleValue());
                 return Terms.narrow(r);
             } catch (Exception e) {
-                return Terms.NAN;
+                return Undefined.NAN;
             }
         };
     }

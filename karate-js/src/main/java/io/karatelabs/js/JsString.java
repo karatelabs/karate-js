@@ -26,7 +26,7 @@ package io.karatelabs.js;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-public class JsString extends JsFunction {
+public class JsString extends JsObject {
 
     final String text;
 
@@ -43,11 +43,6 @@ public class JsString extends JsFunction {
         prototype.put("replaceAll", (Invokable) (instance, args) -> text.replaceAll((String) args[0], (String) args[1]));
         prototype.put("getBytes", (Invokable) (instance, args) -> text.getBytes(StandardCharsets.UTF_8));
         return prototype;
-    }
-
-    @Override
-    public Object invoke(Object instance, Object... args) {
-        return new JsString(args[0].toString());
     }
 
 }

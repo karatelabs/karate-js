@@ -51,6 +51,10 @@ public class Engine {
         return evalInternal(new Source(null, text));
     }
 
+    public static boolean isUndefined(Object o) {
+        return o == Undefined.INSTANCE || Undefined.NAN.equals(o);
+    }
+
     private Object evalInternal(Source source) {
         this.source = source;
         try {
