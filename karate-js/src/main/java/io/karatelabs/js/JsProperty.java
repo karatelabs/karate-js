@@ -52,7 +52,15 @@ public class JsProperty {
                 name = node.getText();
                 break;
             case REF_DOT_EXPR:
-                object = Interpreter.eval(node.children.get(0), context);
+                Object temp;
+                try {
+                    // ignore any nested failures, the caller (interpreter) will check for java interop
+                    // before bubbling up the "undefined" as an exception
+                    temp = Interpreter.eval(node.children.get(0), context);
+                } catch (Exception e) {
+                    temp = Undefined.INSTANCE;
+                }
+                object = temp;
                 name = node.children.get(2).getText();
                 break;
             case REF_BRACKET_EXPR:
@@ -111,6 +119,9 @@ public class JsProperty {
     }
 
     Object get(boolean function) {
+        if (object == Undefined.INSTANCE) {
+            return object;
+        }
         if (index instanceof Number) {
             int num = ((Number) index).intValue();
             if (object instanceof List) {

@@ -574,10 +574,20 @@ class EvalTest {
     }
 
     @Test
+    void testBadDotExpression() {
+        try {
+            eval("foo.bar");
+            fail("error expected");
+        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("foo"));
+        }
+    }
+
+    @Test
     void testThrow() {
         try {
             eval("function a(b){ b() }; a(() => { throw new Error('foo') })");
-            fail("expected exception");
+            fail("error expected");
         } catch (Exception e) {
             assertTrue(e.getMessage().contains("foo"));
         }
@@ -587,7 +597,7 @@ class EvalTest {
     void testThrowFunction() {
         try {
             eval("function a(b){ this.bar = 'baz'; b() }; a(function(){ throw new Error('foo') })");
-            fail("expected exception");
+            fail("error expected");
         } catch (Exception e) {
             assertTrue(e.getMessage().contains("foo"));
             JsFunction fn = (JsFunction) get("a");

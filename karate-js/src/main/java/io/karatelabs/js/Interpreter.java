@@ -129,16 +129,17 @@ public class Interpreter {
 
     private static Object evalDotExpr(Node node, Context context) {
         // TODO refactor and merge code from evalFnCall into JsProperty
-        Object result = new JsProperty(node, context).get();
-        if (result == null) { // java interop failed else would be undefined
-            String className = node.children.get(0).getText();
-            String name = node.children.get(2).getText();
+        JsProperty prop = new JsProperty(node, context);
+        Object result = prop.get();
+        if (result == Undefined.INSTANCE || result == null) {
+            String className = node.getText();
             try {
                 Class<?> clazz = JavaUtils.forClass(className);
-                return JavaUtils.get(clazz, name);
+                return new JavaClass(clazz);
             } catch (Exception e) {
                 // fall through
             }
+            throw new RuntimeException(className + " is undefined");
         }
         if (result instanceof JavaInvokable) {
             JavaInvokable ji = (JavaInvokable) result;
