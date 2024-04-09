@@ -270,6 +270,10 @@ class EvalTest {
     void testObjectMutation() {
         assertEquals(3, eval("a.b = 1 + 2", "{ a: {} }"));
         NodeUtils.match(get("a"), "{ b: 3 }");
+        eval("var a = { foo: 1, bar: 2 }; delete a.foo");
+        NodeUtils.match(get("a"), "{ bar: 2 }");
+        eval("var a = { foo: 1, bar: 2 }; delete a['bar']");
+        NodeUtils.match(get("a"), "{ foo: 1 }");
     }
 
     @Test

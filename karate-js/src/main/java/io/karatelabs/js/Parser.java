@@ -305,6 +305,7 @@ public class Parser {
         result = result || while_stmt();
         result = result || switch_stmt();
         result = result || (break_stmt() && eos());
+        result = result || (delete_stmt() && eos());
         result = result || (expr(-1, false) && eos());
         result = result || block(false);
         result = result || consumeIf(Token.SEMI); // empty statement
@@ -478,6 +479,15 @@ public class Parser {
         if (!enter(Type.BREAK_STMT, Token.BREAK)) {
             return false;
         }
+        return exit();
+    }
+
+    // as per spec this is an expression
+    private boolean delete_stmt() {
+        if (!enter(Type.DELETE_STMT, Token.DELETE)) {
+            return false;
+        }
+        expr(8, true);
         return exit();
     }
 

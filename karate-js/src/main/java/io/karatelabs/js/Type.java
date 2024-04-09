@@ -41,6 +41,7 @@ public enum Type {
     CASE_BLOCK,
     DEFAULT_BLOCK,
     BREAK_STMT,
+    DELETE_STMT,
     BLOCK,
     EOS,
     EXPR,
