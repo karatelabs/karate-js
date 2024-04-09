@@ -98,7 +98,23 @@ public class JsCommon {
         return object;
     }
 
-    static final JsObject GLOBAL_OBJECT = new JsObject();
+    static final JsObject GLOBAL_OBJECT = new JsObject() {
+        @Override
+        Map<String, Object> initPrototype() {
+            Map<String, Object> prototype = super.initPrototype();
+            prototype.put("keys", new JsFunction() {
+                @Override
+                public Object invoke(Object instance, Object... args) {
+                    List<Object> result = new ArrayList<>();
+                    for (KeyValue kv : toIterable(args[0])) {
+                        result.add(kv.key);
+                    }
+                    return result;
+                }
+            });
+            return prototype;
+        }
+    };
 
     @SuppressWarnings("unchecked")
     static final JsArray GLOBAL_ARRAY = new JsArray() {

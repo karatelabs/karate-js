@@ -23,6 +23,7 @@
  */
 package io.karatelabs.js;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 public class JsString extends JsFunction {
@@ -40,6 +41,7 @@ public class JsString extends JsFunction {
         prototype.put("startsWith", (Invokable) (instance, args) -> text.startsWith((String) args[0]));
         prototype.put("length", new Property(text::length));
         prototype.put("replaceAll", (Invokable) (instance, args) -> text.replaceAll((String) args[0], (String) args[1]));
+        prototype.put("getBytes", (Invokable) (instance, args) -> text.getBytes(StandardCharsets.UTF_8));
         return prototype;
     }
 

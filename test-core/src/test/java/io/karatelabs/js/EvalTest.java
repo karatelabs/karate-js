@@ -6,8 +6,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -430,6 +432,13 @@ class EvalTest {
         assertEquals(3, eval("a = 'foo'; a.length"));
         assertEquals(true, eval("a = 'foobar'; a.startsWith('foo')"));
         assertEquals("FOObar", eval("a = 'foobar'; a.replaceAll('foo', 'FOO')"));
+        // this is non-standard but useful for java interop
+        eval("var a = 'foo'; var b = a.getBytes()");
+        byte[] bytes = (byte[]) get("b");
+        assertEquals(3, bytes.length);
+        assertEquals('f', bytes[0]);
+        assertEquals('o', bytes[1]);
+        assertEquals('o', bytes[2]);
     }
 
     @Test
@@ -623,6 +632,11 @@ class EvalTest {
     }
 
     @Test
+    void testObjectApi() {
+        match(eval("Object.keys({ a: 1, b: 2 })"), "['a', 'b']");
+    }
+
+    @Test
     void testJavaInterop() {
         eval("var DemoUtils = Java.type('io.karatelabs.js.DemoUtils'); var b = DemoUtils.doWork()");
         assertEquals("hello", get("b"));
@@ -644,6 +658,8 @@ class EvalTest {
         assertEquals("bar", eval("var props = new java.util.Properties(); props.put('foo', 'bar'); props.get('foo')"));
         assertEquals(new BigDecimal(123123123123L), eval("new java.math.BigDecimal(123123123123)"));
         assertEquals(String.CASE_INSENSITIVE_ORDER, eval("java.lang.String.CASE_INSENSITIVE_ORDER"));
+        assertEquals("aGVsbG8=", eval("var Base64 = Java.type('java.util.Base64'); Base64.getEncoder().encodeToString('hello'.getBytes())"));
+        assertInstanceOf(UUID.class, eval("java.util.UUID.randomUUID()"));
     }
 
 }

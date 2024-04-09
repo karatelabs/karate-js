@@ -144,9 +144,6 @@ public class JsProperty {
         if (name == null) {
             return object;
         }
-        if (object == null) {
-            return context.get(name);
-        }
         if (object instanceof List) {
             return (new JsArray((List<Object>) object).get(name));
         }
@@ -169,6 +166,18 @@ public class JsProperty {
         }
         if (object instanceof JavaMethods) {
             return new JavaInvokable(name, (JavaMethods) object);
+        }
+        if (object == null) {
+            if (context.hasKey(name)) {
+                return context.get(name);
+            }
+            try {
+                String className = node.getText();
+                Class<?> clazz = JavaUtils.forClass(className);
+                return new JavaClass(clazz);
+            } catch (Exception e) {
+
+            }
         }
         try {
             JavaObject jo = new JavaObject(object);

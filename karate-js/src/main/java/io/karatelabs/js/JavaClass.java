@@ -27,6 +27,10 @@ public class JavaClass implements Creatable, JavaMethods, JavaFields {
 
     private final Class<?> clazz;
 
+    public JavaClass(Class<?> clazz) {
+        this.clazz = clazz;
+    }
+
     public JavaClass(String className) {
         clazz = JavaUtils.forClass(className);
     }
