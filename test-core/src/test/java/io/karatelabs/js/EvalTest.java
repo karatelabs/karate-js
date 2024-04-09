@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -575,6 +574,11 @@ class EvalTest {
         assertEquals(2, get("b"));
         eval("var a; try { } finally { a = 3 }");
         assertEquals(3, get("a"));
+    }
+
+    @Test
+    void testGoodDotExpression() {
+        eval("var foo = {}; foo.bar");
     }
 
     @Test

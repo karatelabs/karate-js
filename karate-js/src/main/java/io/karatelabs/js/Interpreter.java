@@ -151,7 +151,9 @@ public class Interpreter {
             } catch (Exception e) {
                 // fall through
             }
-            throw new RuntimeException(className + " is undefined");
+            // if (prop.object == Undefined.INSTANCE) {
+                throw new RuntimeException(className + " is undefined");
+            // }
         }
         return result;
     }
