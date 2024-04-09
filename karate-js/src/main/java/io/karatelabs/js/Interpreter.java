@@ -131,7 +131,7 @@ public class Interpreter {
         // TODO refactor and merge code from evalFnCall into JsProperty
         JsProperty prop = new JsProperty(node, context);
         Object result = prop.get();
-        if (result == Undefined.INSTANCE || result == null) {
+        if (result == Undefined.INSTANCE) {
             String className = node.getText();
             try {
                 Class<?> clazz = JavaUtils.forClass(className);
