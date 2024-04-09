@@ -153,14 +153,14 @@ public class Interpreter {
             }
             throw new RuntimeException(className + " is undefined");
         }
-        if (result instanceof JavaInvokable) {
-            JavaInvokable ji = (JavaInvokable) result;
-            JavaMethods methods = ji.methods;
-            if (methods instanceof JavaFields) {
-                String name = node.children.get(2).getText();
-                return ((JavaFields) methods).read(name);
-            }
-        }
+//        if (result instanceof JavaInvokable) {
+//            JavaInvokable ji = (JavaInvokable) result;
+//            JavaMethods methods = ji.methods;
+//            if (methods instanceof JavaFields) {
+//                String name = node.children.get(2).getText();
+//                return ((JavaFields) methods).read(name);
+//            }
+//        }
         return result;
     }
 

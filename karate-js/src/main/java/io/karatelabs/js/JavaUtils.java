@@ -132,6 +132,12 @@ public class JavaUtils {
                 Field field = object.getClass().getDeclaredField(name);
                 return field.get(object);
             } catch (Exception e) {
+                for (Method m : object.getClass().getDeclaredMethods()) {
+                    if (m.getName().equals(name)) {
+                        JavaObject jo = new JavaObject(object);
+                        return new JavaInvokable(name, jo);
+                    }
+                }
                 return null;
             }
         }
@@ -147,6 +153,12 @@ public class JavaUtils {
             Field field = clazz.getDeclaredField(name);
             return field.get(null);
         } catch (Exception e) {
+            for (Method m : clazz.getDeclaredMethods()) {
+                if (m.getName().equals(name)) {
+                    JavaClass jc = new JavaClass(clazz);
+                    return new JavaInvokable(name, jc);
+                }
+            }
             throw new RuntimeException(e);
         }
     }

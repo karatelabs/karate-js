@@ -175,8 +175,11 @@ public class JsProperty {
         if (object instanceof String) {
             return new JsString((String) object).get(name);
         }
-        if (object instanceof JavaMethods) {
+        if (function && object instanceof JavaMethods) {
             return new JavaInvokable(name, (JavaMethods) object);
+        }
+        if (!function && object instanceof JavaFields) {
+            return ((JavaFields) object).read(name);
         }
         if (object == null) {
             if (context.hasKey(name)) {
