@@ -51,14 +51,6 @@ public class JavaUtils {
         }
     }
 
-    public static Class<?> forClass(String className) {
-        try {
-            return Class.forName(className);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public static Object invoke(Class<?> clazz, String name, Object[] args) {
         try {
             Method method = findMethod(clazz, name, args);

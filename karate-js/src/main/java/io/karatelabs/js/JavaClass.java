@@ -32,7 +32,11 @@ public class JavaClass implements Creatable, JavaMethods, JavaFields {
     }
 
     public JavaClass(String className) {
-        clazz = JavaUtils.forClass(className);
+        try {
+            clazz = Class.forName(className);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

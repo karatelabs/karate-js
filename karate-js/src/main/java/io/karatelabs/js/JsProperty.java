@@ -185,13 +185,6 @@ public class JsProperty {
             if (context.hasKey(name)) {
                 return context.get(name);
             }
-            try {
-                String className = node.getText();
-                Class<?> clazz = JavaUtils.forClass(className);
-                return new JavaClass(clazz);
-            } catch (Exception e) {
-
-            }
         }
         try {
             JavaObject jo = new JavaObject(object);

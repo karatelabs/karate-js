@@ -146,21 +146,13 @@ public class Interpreter {
         if (result == Undefined.INSTANCE) {
             String className = node.getText();
             try {
-                Class<?> clazz = JavaUtils.forClass(className);
+                Class<?> clazz = Class.forName(className);
                 return new JavaClass(clazz);
             } catch (Exception e) {
                 // fall through
             }
             throw new RuntimeException(className + " is undefined");
         }
-//        if (result instanceof JavaInvokable) {
-//            JavaInvokable ji = (JavaInvokable) result;
-//            JavaMethods methods = ji.methods;
-//            if (methods instanceof JavaFields) {
-//                String name = node.children.get(2).getText();
-//                return ((JavaFields) methods).read(name);
-//            }
-//        }
         return result;
     }
 
@@ -175,7 +167,7 @@ public class Interpreter {
             JavaClass jc = (JavaClass) o;
             invokable = (instance, args) -> jc.construct(args);
         } else { // try java interop
-            if (o == null || o == Undefined.INSTANCE) { // constructor
+            if (o == Undefined.INSTANCE) { // constructor
                 String className = node.children.get(0).getText();
                 try {
                     Class<?> clazz = Class.forName(className);
