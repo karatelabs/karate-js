@@ -75,7 +75,9 @@ To get a sense of what is already supported, take a look at the [main unit-test]
 
 We are far from 100% compliance, but we may never need to be. Of course, we will gladly welcome contributions in case there is interest in supporting some of the below. But making Karate-JS 100% ECMA conformant or Node JS compatible is currently NOT the objective of this project. If you have feedback, feel free to open an issue and start a discussion.
 
-In other words, our immediate goal is to support the most common things that Karate users do with JS. The next step for us is to replace Graal-JS in Karate, and the large suite of regression-tests and demos we have will guide us.
+In other words, our immediate goal is to support the most common things that Karate users do with JS.
+
+As of 2024-April-10 we have [completed the swap of the JS in Karate from Graal](https://github.com/karatelabs/karate/issues/2546#issuecomment-2046655380), and all tests pass. This is a good demonstration that Karate-JS is ready for use by any JVM app that needs to embed some scripting and Java interop.
 
 Here is a list of what we *don't* plan to support:
 
