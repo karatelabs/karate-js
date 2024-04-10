@@ -77,7 +77,7 @@ We are far from 100% compliance, but we may never need to be. Of course, we will
 
 In other words, our immediate goal is to support the most common things that Karate users do with JS.
 
-As of 2024-April-10 we have [completed the swap of the JS in Karate from Graal](https://github.com/karatelabs/karate/issues/2546#issuecomment-2046655380), and all tests pass. This is a good demonstration that Karate-JS is ready for use by any JVM app that needs to embed some scripting and Java interop.
+As of 2024-April-10 we have [completed the swap of the JS engine in Karate from Graal](https://github.com/karatelabs/karate/issues/2546#issuecomment-2046655380), and all tests pass. This is a good demonstration that Karate-JS is ready for use by any JVM app that needs to embed some scripting and Java interop.
 
 Here is a list of what we *don't* plan to support:
 
