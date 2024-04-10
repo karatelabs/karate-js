@@ -99,7 +99,8 @@ public class Tc262Item {
             "nativeFunctionMatcher.js",
             "detachArrayBuffer.js",
             "deepEqual.js", // uses symbols and unusual types
-            "assertRelativeDateMs.js"
+            "assertRelativeDateMs.js",
+            "proxyTrapsHelper.js"
     );
 
     @SuppressWarnings("unchecked")

@@ -1,3 +1,7 @@
+<a href="https://central.sonatype.com/namespace/io.karatelabs.js">
+<img src="https://img.shields.io/maven-central/v/io.karatelabs.js/karate-js.svg"/>
+</a>
+
 # Karate JS
 Lightweight JavaScript engine for the JVM.
 
@@ -121,7 +125,7 @@ graal: 1874.445704
 
 ### Selected TC262 Tests
 
-Below is a summary of 35 tests picked out of the [TC262 suite](https://github.com/tc39/test262) (that Karate-JS can run as of now).
+Below is a summary of 33 tests picked out of the [TC262 suite](https://github.com/tc39/test262) (that Karate-JS is able to run as of now).
 
 > Nashorn is not included in this test because it fails on some of them, but we haven't spent time on investigating the cause.
 
@@ -136,48 +140,7 @@ rhino: 1033.519628
 
 Karate-JS seems to be significantly faster, by almost 10 times.
 
-Click below to expand the full list. Each test requires 2 "harness" scripts and one or more "include" scripts to be evaluated as a pre-requisite. These are non-trivial examples.
-
-<details>
-<summary>Selected TC262 tests</summary>
-<code>
-{karate=31.346476, graal=153.42322, rhino=203.938031} ../test262/test/harness/byteConversionValues.js
-{karate=10.404436, graal=102.730443, rhino=43.454042} ../test262/test/harness/compare-array-same-elements-different-order.js
-{karate=1.380339, graal=24.910275, rhino=36.32686} ../test262/test/harness/assert-throws-no-error.js
-{karate=1.260335, graal=46.623505, rhino=34.82269} ../test262/test/harness/assert-throws-no-arg.js
-{karate=6.5113, graal=29.918356, rhino=23.442804} ../test262/test/harness/compare-array-different-elements.js
-{karate=1.162093, graal=26.952822, rhino=12.905361} ../test262/test/harness/sta.js
-{karate=1.284922, graal=22.234956, rhino=14.096732} ../test262/test/harness/assert-notsamevalue-nan.js
-{karate=2.892012, graal=27.844384, rhino=20.672626} ../test262/test/harness/compare-array-falsy-arguments.js
-{karate=1.497407, graal=18.549832, rhino=14.13164} ../test262/test/harness/assert-throws-null.js
-{karate=1.644141, graal=23.946783, rhino=13.121041} ../test262/test/harness/assert-throws-incorrect-ctor.js
-{karate=10.733911, graal=67.751932, rhino=41.508719} ../test262/test/harness/decimalToHexString.js
-{karate=2.071781, graal=23.1043, rhino=14.723381} ../test262/test/harness/assert-throws-custom-typeerror.js
-{karate=2.305647, graal=21.783431, rhino=16.546349} ../test262/test/harness/compare-array-different-length.js
-{karate=1.578118, graal=16.636708, rhino=11.69767} ../test262/test/harness/assert-notsamevalue-zeros.js
-{karate=2.66137, graal=31.764918, rhino=19.469539} ../test262/test/harness/proxytrapshelper-overrides.js
-{karate=2.324731, graal=20.688917, rhino=14.756707} ../test262/test/harness/compare-array-samevalue.js
-{karate=1.194873, graal=22.010736, rhino=11.011961} ../test262/test/harness/assert-throws-single-arg.js
-{karate=1.761691, graal=20.140233, rhino=27.157449} ../test262/test/harness/compare-array-empty.js
-{karate=1.769394, graal=29.388898, rhino=20.233155} ../test262/test/harness/assert-throws-null-fn.js
-{karate=3.296267, graal=26.54696, rhino=10.2788} ../test262/test/harness/assert-notsamevalue-notsame.js
-{karate=1.138327, graal=13.256363, rhino=10.375722} ../test262/test/harness/tcoHelper.js
-{karate=1.224388, graal=13.846154, rhino=10.298367} ../test262/test/harness/assert-throws-custom.js
-{karate=2.194729, graal=18.097066, rhino=21.57815} ../test262/test/harness/proxytrapshelper-default.js
-{karate=5.263274, graal=26.347448, rhino=16.792359} ../test262/test/harness/dateConstants.js
-{karate=4.678449, graal=45.385019, rhino=23.172637} ../test262/test/harness/compare-array-sparse.js
-{karate=2.489019, graal=40.616983, rhino=20.212067} ../test262/test/harness/assert-samevalue-zeros.js
-{karate=1.085547, graal=29.805906, rhino=17.882695} ../test262/test/harness/assert-false.js
-{karate=1.698903, graal=26.992804, rhino=14.97767} ../test262/test/harness/assert-samevalue-objects.js
-{karate=1.625638, graal=22.25891, rhino=11.640254} ../test262/test/harness/assert-true.js
-{karate=1.001353, graal=24.000473, rhino=14.904502} ../test262/test/harness/assert-samevalue-nan.js
-{karate=1.335304, graal=17.763893, rhino=8.534512} ../test262/test/harness/assert-throws-primitive.js
-{karate=1.188551, graal=12.356011, rhino=7.720842} ../test262/test/harness/assert-obj.js
-{karate=0.969882, graal=12.829482, rhino=16.073557} ../test262/test/harness/assert-notsamevalue-objects.js
-{karate=2.402838, graal=25.108444, rhino=16.303757} ../test262/test/harness/compare-array-same-elements-same-order.js
-{karate=1.741534, graal=18.699054, rhino=14.818949} ../test262/test/harness/assert-samevalue-same.js
-</code>
-</details>
+Each test requires 2 "harness" scripts and one or more "include" scripts to be evaluated as a pre-requisite. These are non-trivial examples.
 
 ### Dependency Size
 
