@@ -207,7 +207,7 @@ public class Interpreter {
         } else {
             jsFunction = null;
         }
-        if (context.newInstance != null) {
+        if (context.newInstance != null) { // new keyword, call constructor
             if (invokable instanceof JsFunction) {
                 context.newInstance.setPrototype(((JsFunction) invokable).getPrototype());
             }
@@ -218,7 +218,7 @@ public class Interpreter {
             }
             Object result = invokable.invoke(args);
             return Terms.isPrimitive(result) ? thisObject : result;
-        } else {
+        } else { // normal function call
             thisObject = prop.object == null ? invokable : prop.object;
             if (jsFunction != null) {
                 jsFunction.thisObject = thisObject;

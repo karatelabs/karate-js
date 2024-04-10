@@ -49,7 +49,7 @@ public class Context {
 
     private static Map<String, Object> globals() {
         Map<String, Object> globals = new HashMap<>();
-        globals.put("Java", JavaGlobal.INSTANCE);
+        globals.put("Java", JsCommon.JAVA_GLOBAL);
         globals.put("undefined", Undefined.INSTANCE);
         globals.put("Object", JsCommon.GLOBAL_OBJECT);
         globals.put("Array", JsCommon.GLOBAL_ARRAY);

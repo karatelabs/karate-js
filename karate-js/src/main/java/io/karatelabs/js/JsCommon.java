@@ -54,30 +54,48 @@ public class JsCommon {
         return null;
     };
 
+    static String TO_STRING(Object o) {
+        if (o == null) {
+            return "[object Null]";
+        }
+        if (o instanceof List) {
+            return "[object Array]";
+        }
+        if (Terms.isPrimitive(o)) {
+            return o.toString();
+        }
+        return "[object Object]";
+    }
+
+    static final JsObject JAVA_GLOBAL = createJavaGlobal();
+
+    private static JsObject createJavaGlobal() {
+        JsObject object = new JsObject();
+        object.put("type", (Invokable) args -> new JavaClass((String) args[0]));
+        return object;
+    }
+
     static final JsObject CONSOLE = createConsole();
 
     private static JsObject createConsole() {
         JsObject object = new JsObject();
-        object.put("log", new Invokable() {
-            @Override
-            public Object invoke(Object... args) {
-                StringBuilder sb = new StringBuilder();
-                for (Object arg : args) {
-                    if (arg instanceof ObjectLike) {
-                        Object toString = ((ObjectLike) arg).get("toString");
-                        if (toString instanceof Invokable) {
-                            sb.append(((Invokable) toString).invoke(arg));
-                        } else {
-                            sb.append(new JsToString(arg).invoke());
-                        }
+        object.put("log", (Invokable) args -> {
+            StringBuilder sb = new StringBuilder();
+            for (Object arg : args) {
+                if (arg instanceof ObjectLike) {
+                    Object toString = ((ObjectLike) arg).get("toString");
+                    if (toString instanceof Invokable) {
+                        sb.append(((Invokable) toString).invoke(arg));
                     } else {
-                        sb.append(new JsToString(arg).invoke());
+                        sb.append(TO_STRING(arg));
                     }
-                    sb.append(' ');
+                } else {
+                    sb.append(TO_STRING(arg));
                 }
-                System.out.println(sb);
-                return null;
+                sb.append(' ');
             }
+            System.out.println(sb);
+            return null;
         });
         return object;
     }
@@ -271,7 +289,12 @@ public class JsCommon {
 
     static Map<String, Object> getBaseArrayPrototype(ArrayLike array) {
         Map<String, Object> prototype = new HashMap<>();
-        prototype.put("toString", new JsToString(array));
+        prototype.put("toString", new JsFunction() {
+            @Override
+            public Object invoke(Object... args) {
+                return TO_STRING(thisObject == null ? array : thisObject);
+            }
+        });
         prototype.put("constructor", ARRAY_CONSTRUCTOR);
         prototype.put("length", new Property(array::size));
         prototype.put("map", new JsFunction() {
@@ -387,7 +410,12 @@ public class JsCommon {
 
     static Map<String, Object> getBaseObjectPrototype(JsObject object) {
         Map<String, Object> prototype = new HashMap<>();
-        prototype.put("toString", new JsToString(object));
+        prototype.put("toString", new JsFunction() {
+            @Override
+            public Object invoke(Object... args) {
+                return TO_STRING(thisObject == null ? object : thisObject);
+            }
+        });
         prototype.put("constructor", new JsFunction() {
             @Override
             public Object invoke(Object... args) {
@@ -404,7 +432,12 @@ public class JsCommon {
 
     static Map<String, Object> getBaseFunctionPrototype(JsFunction function) {
         Map<String, Object> prototype = new HashMap<>();
-        prototype.put("toString", new JsToString(function));
+        prototype.put("toString", new JsFunction() {
+            @Override
+            public Object invoke(Object... args) {
+                return TO_STRING(thisObject == null ? function : thisObject);
+            }
+        });
         prototype.put("constructor", new JsFunction() {
             @Override
             public Object invoke(Object... args) {
