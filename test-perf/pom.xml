@@ -7,7 +7,7 @@
     <parent>
         <groupId>io.karatelabs.js</groupId>
         <artifactId>karate-js-parent</artifactId>
-        <version>0.1.0</version>
+        <version>0.1.1</version>
     </parent>
 
     <artifactId>test-perf</artifactId>
@@ -48,18 +48,17 @@
         <dependency>
             <groupId>io.karatelabs.js</groupId>
             <artifactId>test-core</artifactId>
-            <version>0.1.0</version>
+            <version>0.1.1</version>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
             <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>${nexus.staging.plugin.version}</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
                 <configuration>
-                    <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
         </plugins>
