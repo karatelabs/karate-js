@@ -107,7 +107,7 @@ The time taken to initialize the JS engine is also counted. You can run the benc
 
 ```
 git clone --depth 1 https://github.com/tc39/test262.git ../test262
-mvn clean install -P test
+mvn clean install
 mvn -f test-perf/pom.xml package -P fatjar
 java -jar test-perf/target/benchmark.jar 
 ```

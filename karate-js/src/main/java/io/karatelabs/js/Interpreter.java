@@ -165,19 +165,21 @@ public class Interpreter {
         } else if (o instanceof JavaClass) {
             JavaClass jc = (JavaClass) o;
             invokable = jc::construct;
-        } else { // try java interop
-            if (o == Undefined.INSTANCE) { // constructor
-                String className = node.children.get(0).getText();
-                try {
-                    Class<?> clazz = Class.forName(className);
-                    invokable = args -> JavaUtils.construct(clazz, args);
-                } catch (Exception e) {
-                    throw new RuntimeException("not a function: " + className);
-                }
-            } else { // method
-                JavaObject jo = new JavaObject(o);
-                invokable = new JavaInvokable(prop.name, jo);
+        } else if (JavaFunction.isFunction(o)) {
+            invokable = new JavaFunction(o);
+        } else if (o == Undefined.INSTANCE) {
+            String className = node.children.get(0).getText();
+            try {
+                Class<?> clazz = Class.forName(className);
+                invokable = args -> JavaUtils.construct(clazz, args);
+            } catch (Exception e) {
+                throw new RuntimeException("not a function: " + className);
             }
+        } else if (o != null) { // try java interop
+            JavaObject jo = new JavaObject(o);
+            invokable = new JavaInvokable(prop.name, jo);
+        } else {
+            throw new RuntimeException("null is not a function");
         }
         Node fnArgsNode = node.children.get(2);
         int argsCount = fnArgsNode.children.size();

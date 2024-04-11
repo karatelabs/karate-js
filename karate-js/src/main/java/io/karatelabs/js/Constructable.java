@@ -24,7 +24,7 @@
 package io.karatelabs.js;
 
 @FunctionalInterface
-public interface Creatable {
+public interface Constructable {
 
     Object construct(Object... args);
 

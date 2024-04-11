@@ -1,5 +1,7 @@
 package io.karatelabs.js;
 
+import java.util.function.Function;
+
 public class DemoPojo {
 
     public DemoPojo() {
@@ -70,6 +72,10 @@ public class DemoPojo {
 
     public Object varArgs(Object[] args) {
         return args[args.length - 1];
+    }
+
+    public Function<Integer, String> doWorkFn() {
+        return x -> x + "";
     }
 
 }

@@ -4,7 +4,7 @@
 
     <groupId>io.karatelabs.js</groupId>
     <artifactId>karate-js-parent</artifactId>
-    <version>0.1.1</version>
+    <version>0.1.2</version>
     <packaging>pom</packaging>
 
     <name>${project.artifactId}</name>
@@ -39,13 +39,12 @@
         <nexus.staging.plugin.version>1.6.13</nexus.staging.plugin.version>
     </properties>
 
-    <modules>
-        <module>karate-js</module>
-    </modules>
-
     <profiles>
         <profile>
-            <id>test</id>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <modules>
                 <module>karate-js</module>
                 <module>test-core</module>
@@ -55,6 +54,9 @@
         </profile>
         <profile>
             <id>release</id>
+            <modules>
+                <module>karate-js</module>
+            </modules>
             <build>
                 <plugins>
                     <plugin>

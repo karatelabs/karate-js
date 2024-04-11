@@ -29,7 +29,7 @@ abstract class Prototype {
 
     private Map<String, Object> prototype;
 
-    Map<String, Object> getPrototype() {
+    public final Map<String, Object> getPrototype() {
         if (prototype == null) {
             prototype = initPrototype();
         }

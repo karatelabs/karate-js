@@ -23,7 +23,7 @@
  */
 package io.karatelabs.js;
 
-public class JavaClass implements Creatable, JavaMethods, JavaFields {
+public class JavaClass implements Constructable, JavaMethods, JavaFields {
 
     private final Class<?> clazz;
 
