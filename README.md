@@ -41,6 +41,8 @@ The request to the Graal team that someone raised in the open [GitHub issue](htt
 
 The discussion is about running JS within a JVM, and we suspect that most teams do not care about "pure Node JS or ECMA compatibility". What we *really* want is to be able to mix Java and JS custom code in novel ways on the JVM. It would be a shame to waste Java's ability to run concurrent and async code.
 
+Another complication on top of the Graal multi-threading limitation is that sharing of JavaScript objects across Graal "contexts" is not straight-forward and requires you to write some [two-way conversion code](https://github.com/oracle/graal/issues/631#issuecomment-862510038). All this works only if the contexts are not "closed" which is very hard to enforce in practice. We had to write a lot of code to keep JS contexts open and "re-hydrate" objects from one context to another.
+
 Two other areas where we are not happy with Graal is the [sheer size of the dependencies](#dependency-size) (more than 80 MB !) and the fact that they recently started providing [two different versions of the artifacts with different licenses](https://github.com/oracle/graaljs#maven-artifact).
 
 Projects like Quarkus and Spring Boot have support for GraalVM and we are seeing more instances of users [running into library conflicts](https://github.com/karatelabs/karate/issues/2536). Graal also seems to introduce [more CVEs than what you would expect](https://github.com/karatelabs/karate/issues/2148) because of possibly its large surface area - and we have had to scramble to release upgrades multiple times. One particular upgrade [forced us to require Java 17](https://github.com/karatelabs/karate/issues/2401) before we felt our users were really ready for it.
