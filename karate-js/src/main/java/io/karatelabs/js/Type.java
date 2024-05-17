@@ -37,6 +37,7 @@ public enum Type {
     THROW_STMT,
     FOR_STMT,
     WHILE_STMT,
+    DO_WHILE_STMT,
     SWITCH_STMT,
     CASE_BLOCK,
     DEFAULT_BLOCK,

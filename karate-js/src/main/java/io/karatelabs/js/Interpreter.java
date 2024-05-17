@@ -617,9 +617,10 @@ public class Interpreter {
     private static Object evalWhileStmt(Node node, Context context) {
         Context whileContext = new Context(context);
         Node whileBody = node.children.get(node.children.size() - 1);
+        Node whileExpr = node.children.get(2);
         Object whileResult = null;
         while (true) {
-            Object whileCondition = eval(node.children.get(2), whileContext);
+            Object whileCondition = eval(whileExpr, whileContext);
             if (!Terms.isTruthy(whileCondition)) {
                 break;
             }
@@ -630,6 +631,25 @@ public class Interpreter {
             }
         }
         return whileResult;
+    }
+
+    private static Object evalDoWhileStmt(Node node, Context context) {
+        Context doContext = new Context(context);
+        Node doBody = node.children.get(1);
+        Node doExpr = node.children.get(4);
+        Object doResult = null;
+        while (true) {
+            doResult = eval(doBody, doContext);
+            if (doContext.isStopped()) {
+                context.updateFrom(doContext);
+                break;
+            }
+            Object doCondition = eval(doExpr, doContext);
+            if (!Terms.isTruthy(doCondition)) {
+                break;
+            }
+        }
+        return doResult;
     }
 
     public static Object eval(Node node, Context context) {
@@ -714,6 +734,8 @@ public class Interpreter {
                 return evalVarStmt(node, context);
             case WHILE_STMT:
                 return evalWhileStmt(node, context);
+            case DO_WHILE_STMT:
+                return evalDoWhileStmt(node, context);
             default:
                 throw new RuntimeException(node.toStringError("eval - unexpected node"));
         }

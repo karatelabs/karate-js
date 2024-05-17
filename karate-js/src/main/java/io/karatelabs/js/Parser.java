@@ -303,6 +303,7 @@ public class Parser {
         result = result || try_stmt();
         result = result || for_stmt();
         result = result || while_stmt();
+        result = result || do_while_stmt();
         result = result || switch_stmt();
         result = result || (break_stmt() && eos());
         result = result || (delete_stmt() && eos());
@@ -428,6 +429,18 @@ public class Parser {
         expr(-1, true);
         consume(Token.R_PAREN);
         statement(true);
+        return exit();
+    }
+
+    private boolean do_while_stmt() {
+        if (!enter(Type.DO_WHILE_STMT, Token.DO)) {
+            return false;
+        }
+        statement(true);
+        consume(Token.WHILE);
+        consume(Token.L_PAREN);
+        expr(-1, true);
+        consume(Token.R_PAREN);
         return exit();
     }
 

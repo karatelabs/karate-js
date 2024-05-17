@@ -545,6 +545,12 @@ class EvalTest {
     }
 
     @Test
+    void testDoWhileLoop() {
+        eval("a = 0; do { a++ } while (a <= 5)");
+        assertEquals(6, get("a"));
+    }
+
+    @Test
     void testTernary() {
         eval("a = true ? 1 : 2");
         assertEquals(1, get("a"));
