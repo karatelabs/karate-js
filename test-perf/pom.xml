@@ -60,6 +60,7 @@
                 <configuration>
                     <skip>true</skip>
                 </configuration>
+                <version>${maven.deploy.plugin.version}</version>
             </plugin>
         </plugins>
     </build>
