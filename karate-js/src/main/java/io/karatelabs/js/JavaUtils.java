@@ -110,9 +110,9 @@ public class JavaUtils {
 
     public static Method findGetter(Object object, String name) {
         String getterSuffix = name.substring(0, 1).toUpperCase() + name.substring(1);
-        Method method = findMethod(object.getClass(), "is" + getterSuffix, EMPTY);
+        Method method = findMethod(object.getClass(), "get" + getterSuffix, EMPTY);
         if (method == null) {
-            method = findMethod(object.getClass(), "get" + getterSuffix, EMPTY);
+            method = findMethod(object.getClass(), "is" + getterSuffix, EMPTY);
         }
         return method;
     }
