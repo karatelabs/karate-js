@@ -95,9 +95,12 @@ public class JavaUtils {
 
     public static Collection<String> propertyNames(Object object) {
         List<String> list = new ArrayList<>();
-        for (Method method : object.getClass().getDeclaredMethods()) {
+        for (Method method : object.getClass().getMethods()) {
             if (method.getParameterTypes().length == 0) {
                 String methodName = method.getName();
+                if ("getClass".equals(methodName)) {
+                    continue;
+                }
                 if (methodName.startsWith("get") && methodName.length() > 3) {
                     list.add(methodName.substring(3, 4).toLowerCase() + methodName.substring(4));
                 } else if (methodName.startsWith("is") && methodName.length() > 2) {
@@ -121,10 +124,10 @@ public class JavaUtils {
         Method method = findGetter(object, name);
         if (method == null) {
             try {
-                Field field = object.getClass().getDeclaredField(name);
+                Field field = object.getClass().getField(name);
                 return field.get(object);
             } catch (Exception e) {
-                for (Method m : object.getClass().getDeclaredMethods()) {
+                for (Method m : object.getClass().getMethods()) {
                     if (m.getName().equals(name)) {
                         JavaObject jo = new JavaObject(object);
                         return new JavaInvokable(name, jo);
@@ -142,10 +145,10 @@ public class JavaUtils {
 
     public static Object get(Class<?> clazz, String name) {
         try {
-            Field field = clazz.getDeclaredField(name);
+            Field field = clazz.getField(name);
             return field.get(null);
         } catch (Exception e) {
-            for (Method m : clazz.getDeclaredMethods()) {
+            for (Method m : clazz.getMethods()) {
                 if (m.getName().equals(name)) {
                     JavaClass jc = new JavaClass(clazz);
                     return new JavaInvokable(name, jc);
@@ -173,7 +176,7 @@ public class JavaUtils {
         try {
             return clazz.getConstructor(paramTypes(args));
         } catch (Exception e) {
-            for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
+            for (Constructor<?> constructor : clazz.getConstructors()) {
                 Class<?>[] argTypes = constructor.getParameterTypes();
                 if (match(argTypes, args)) {
                     return constructor;
@@ -187,7 +190,7 @@ public class JavaUtils {
         try {
             return clazz.getMethod(name, paramTypes(args));
         } catch (Exception e) {
-            for (Method method : clazz.getDeclaredMethods()) {
+            for (Method method : clazz.getMethods()) {
                 if (method.getName().equals(name)) {
                     Class<?>[] argTypes = method.getParameterTypes();
                     if (match(argTypes, args)) {
