@@ -24,7 +24,7 @@ public class DemoPojo {
 
     public final String instanceField = "instance-field";
 
-    public static final String staticField = "static-field";
+    public static String staticField = "static-field";
 
     public boolean isBooleanValue() {
         return booleanValue;

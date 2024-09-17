@@ -107,9 +107,10 @@ public class JsProperty {
                 ((Map<String, Object>) object).put(name, value);
             } else if (object instanceof ObjectLike) {
                 ((ObjectLike) object).put(name, value);
+            } else if (object instanceof JavaClass) {
+                ((JavaClass) object).update(name, value);
             } else {
-                JavaObject jo = new JavaObject(object);
-                jo.put(name, value);
+                Engine.JAVA_BRIDGE.set(object, name, value);
             }
         }
     }
@@ -188,11 +189,14 @@ public class JsProperty {
             }
         }
         try {
-            JavaObject jo = new JavaObject(object);
             if (function) {
-                return new JavaInvokable(name, jo);
+                if (object instanceof Class) {
+                    return new JavaInvokable(name, new JavaClass((Class<?>) object));
+                } else {
+                    return new JavaInvokable(name, new JavaObject(object));
+                }
             } else {
-                return jo.get(name);
+                return Engine.JAVA_BRIDGE.get(object, name);
             }
         } catch (Exception e) {
             return Undefined.INSTANCE;

@@ -28,6 +28,10 @@ import java.nio.file.Files;
 
 public class Engine {
 
+    public static JavaBridge JAVA_BRIDGE = new JavaBridge() {
+        // non-final default that you can over-ride
+    };
+
     public final Context context;
     public Source source;
 

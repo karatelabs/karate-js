@@ -14,9 +14,9 @@ class JavaObjectTest {
     @Test
     void testCall() {
         JavaClass cp = new JavaClass("java.util.Properties");
-        Object o = cp.construct(JavaUtils.EMPTY);
+        Object o = cp.construct(JavaBridge.EMPTY);
         JavaObject op = new JavaObject(o);
-        assertEquals(0, op.call("size", JavaUtils.EMPTY));
+        assertEquals(0, op.call("size", JavaBridge.EMPTY));
         op.call("put", "foo", 5);
         assertEquals(5, op.call("get", "foo"));
     }

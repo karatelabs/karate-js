@@ -170,8 +170,7 @@ public class Interpreter {
         } else if (o == Undefined.INSTANCE) {
             String className = node.children.get(0).getText();
             try {
-                Class<?> clazz = Class.forName(className);
-                invokable = args -> JavaUtils.construct(clazz, args);
+                invokable = args -> Engine.JAVA_BRIDGE.construct(className, args);
             } catch (Exception e) {
                 throw new RuntimeException("not a function: " + className);
             }

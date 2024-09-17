@@ -25,33 +25,34 @@ package io.karatelabs.js;
 
 public class JavaClass implements Constructable, JavaMethods, JavaFields {
 
-    private final Class<?> clazz;
+    private final String className;
 
     public JavaClass(Class<?> clazz) {
-        this.clazz = clazz;
+        className = clazz.getName();
     }
 
     public JavaClass(String className) {
-        try {
-            clazz = Class.forName(className);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        this.className = className;
     }
 
     @Override
     public Object construct(Object[] args) {
-        return JavaUtils.construct(clazz, args);
+        return Engine.JAVA_BRIDGE.construct(className, args);
     }
 
     @Override
     public Object call(String name, Object[] args) {
-        return JavaUtils.invoke(clazz, name, args);
+        return Engine.JAVA_BRIDGE.invokeStatic(className, name, args);
     }
 
     @Override
     public Object read(String name) {
-        return JavaUtils.get(clazz, name);
+        return Engine.JAVA_BRIDGE.getStatic(className, name);
+    }
+
+    @Override
+    public void update(String name, Object value) {
+        Engine.JAVA_BRIDGE.setStatic(className, name, value);
     }
 
 }

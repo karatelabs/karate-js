@@ -29,21 +29,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
-public class JavaUtils {
+public interface JavaBridge {
 
-    public static final Object[] EMPTY = new Object[0];
-
-    public static Class<?>[] paramTypes(Object[] args) {
-        Class<?>[] paramTypes = new Class[args.length];
-        for (int i = 0; i < args.length; i++) {
-            Object arg = args[i];
-            paramTypes[i] = arg == null ? Object.class : arg.getClass();
-        }
-        return paramTypes;
-    }
-
-    public static Object construct(Class<?> clazz, Object[] args) {
+    default Object construct(String className, Object[] args) {
         try {
+            Class<?> clazz = Class.forName(className);
             Constructor<?> constructor = findConstructor(clazz, args);
             return constructor.newInstance(args);
         } catch (Exception e) {
@@ -51,8 +41,9 @@ public class JavaUtils {
         }
     }
 
-    public static Object invoke(Class<?> clazz, String name, Object[] args) {
+    default Object invokeStatic(String className, String name, Object[] args) {
         try {
+            Class<?> clazz = Class.forName(className);
             Method method = findMethod(clazz, name, args);
             if (method == null) {
                 throw new RuntimeException("cannot find method [" + name + "] on class: " + clazz);
@@ -63,7 +54,7 @@ public class JavaUtils {
         }
     }
 
-    public static Object invoke(Object object, String name, Object[] args) {
+    default Object invoke(Object object, String name, Object[] args) {
         try {
             Method method = findMethod(object.getClass(), name, args);
             if (method == null) {
@@ -73,6 +64,94 @@ public class JavaUtils {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    default Object getStatic(String className, String name) {
+        Class<?> clazz = null;
+        try {
+            clazz = Class.forName(className);
+            Field field = clazz.getField(name);
+            return field.get(null);
+        } catch (Exception e) {
+            if (clazz != null) {
+                for (Method m : clazz.getMethods()) {
+                    if (m.getName().equals(name)) {
+                        JavaClass jc = new JavaClass(clazz);
+                        return new JavaInvokable(name, jc);
+                    }
+                }
+            }
+            throw new RuntimeException(e);
+        }
+    }
+
+    default void setStatic(String className, String name, Object value) {
+        Class<?> clazz = null;
+        try {
+            clazz = Class.forName(className);
+            Field field = clazz.getField(name);
+            field.set(null, value);
+        } catch (Exception e) {
+            if (clazz != null) {
+                for (Method m : clazz.getMethods()) {
+                    if (m.getName().equals(name)) {
+                        JavaClass jc = new JavaClass(clazz);
+
+                    }
+                }
+            }
+            throw new RuntimeException(e);
+        }
+    }
+
+    default Object get(Object object, String name) {
+        Method method = findGetter(object, name);
+        if (method == null) {
+            try {
+                Field field = object.getClass().getField(name);
+                return field.get(object);
+            } catch (Exception e) {
+                for (Method m : object.getClass().getMethods()) {
+                    if (m.getName().equals(name)) {
+                        JavaObject jo = new JavaObject(object);
+                        return new JavaInvokable(name, jo);
+                    }
+                }
+                throw new RuntimeException("no instance property: " + name);
+            }
+        }
+        try {
+            return method.invoke(object, EMPTY);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    default void set(Object object, String name, Object value) {
+        String setterName = "set" + name.substring(0, 1).toUpperCase() + name.substring(1);
+        Object[] args = new Object[]{value};
+        try {
+            Method method = findMethod(object.getClass(), setterName, args);
+            if (method == null) {
+                return;
+            }
+            method.invoke(object, args);
+        } catch (Exception e) {
+
+        }
+    }
+
+    //==================================================================================================================
+    //
+    static final Object[] EMPTY = new Object[0];
+
+    static Class<?>[] paramTypes(Object[] args) {
+        Class<?>[] paramTypes = new Class[args.length];
+        for (int i = 0; i < args.length; i++) {
+            Object arg = args[i];
+            paramTypes[i] = arg == null ? Object.class : arg.getClass();
+        }
+        return paramTypes;
     }
 
     private static Object invoke(Object object, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
@@ -118,58 +197,6 @@ public class JavaUtils {
             method = findMethod(object.getClass(), "is" + getterSuffix, EMPTY);
         }
         return method;
-    }
-
-    public static Object get(Object object, String name) {
-        Method method = findGetter(object, name);
-        if (method == null) {
-            try {
-                Field field = object.getClass().getField(name);
-                return field.get(object);
-            } catch (Exception e) {
-                for (Method m : object.getClass().getMethods()) {
-                    if (m.getName().equals(name)) {
-                        JavaObject jo = new JavaObject(object);
-                        return new JavaInvokable(name, jo);
-                    }
-                }
-                throw new RuntimeException("no instance property: " + name);
-            }
-        }
-        try {
-            return method.invoke(object, EMPTY);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static Object get(Class<?> clazz, String name) {
-        try {
-            Field field = clazz.getField(name);
-            return field.get(null);
-        } catch (Exception e) {
-            for (Method m : clazz.getMethods()) {
-                if (m.getName().equals(name)) {
-                    JavaClass jc = new JavaClass(clazz);
-                    return new JavaInvokable(name, jc);
-                }
-            }
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static void set(Object object, String name, Object value) {
-        String setterName = "set" + name.substring(0, 1).toUpperCase() + name.substring(1);
-        Object[] args = new Object[]{value};
-        try {
-            Method method = findMethod(object.getClass(), setterName, args);
-            if (method == null) {
-                return;
-            }
-            method.invoke(object, args);
-        } catch (Exception e) {
-
-        }
     }
 
     public static Constructor<?> findConstructor(Class<?> clazz, Object[] args) {

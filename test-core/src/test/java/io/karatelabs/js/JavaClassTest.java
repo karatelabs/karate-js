@@ -9,7 +9,7 @@ class JavaClassTest {
     @Test
     void testConstruct() {
         JavaClass proxy = new JavaClass("java.util.Properties");
-        Object o = proxy.construct(JavaUtils.EMPTY);
+        Object o = proxy.construct(JavaBridge.EMPTY);
         assertEquals("java.util.Properties", o.getClass().getName());
     }
 

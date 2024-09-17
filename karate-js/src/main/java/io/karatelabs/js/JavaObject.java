@@ -36,22 +36,27 @@ public class JavaObject implements JavaMethods, JavaFields, ObjectLike {
 
     @Override
     public Object call(String name, Object... args) {
-        return JavaUtils.invoke(object, name, args);
+        return Engine.JAVA_BRIDGE.invoke(object, name, args);
     }
 
     @Override
     public Object read(String name) {
-        return JavaUtils.get(object, name);
+        return Engine.JAVA_BRIDGE.getStatic(object.getClass().getName(), name);
+    }
+
+    @Override
+    public void update(String name, Object value) {
+        Engine.JAVA_BRIDGE.setStatic(object.getClass().getName(), name, value);
     }
 
     @Override
     public Object get(String name) {
-        return JavaUtils.get(object, name);
+        return Engine.JAVA_BRIDGE.get(object, name);
     }
 
     @Override
     public void put(String name, Object value) {
-        JavaUtils.set(object, name, value);
+        Engine.JAVA_BRIDGE.set(object, name, value);
     }
 
     @Override
@@ -61,12 +66,12 @@ public class JavaObject implements JavaMethods, JavaFields, ObjectLike {
 
     @Override
     public boolean hasKey(String name) {
-        return JavaUtils.findGetter(object, name) != null;
+        return JavaBridge.findGetter(object, name) != null;
     }
 
     @Override
     public Collection<String> keys() {
-        return JavaUtils.propertyNames(object);
+        return JavaBridge.propertyNames(object);
     }
 
     @Override
@@ -77,7 +82,7 @@ public class JavaObject implements JavaMethods, JavaFields, ObjectLike {
     @SuppressWarnings("unchecked")
     @Override
     public Map<String, Object> toMap() {
-        return (Map<String, Object>) JavaUtils.toMapOrList(object);
+        return (Map<String, Object>) JavaBridge.toMapOrList(object);
     }
 
 }
