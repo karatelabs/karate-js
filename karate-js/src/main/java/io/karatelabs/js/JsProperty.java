@@ -26,6 +26,9 @@ package io.karatelabs.js;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -183,7 +186,7 @@ public class JsProperty {
         if (!function && object instanceof JavaFields) {
             return ((JavaFields) object).read(name);
         }
-        if (object == null) {
+        if (object == null) { // literal or function reference (see constructor switch case)
             if (context.hasKey(name)) {
                 return context.get(name);
             }
@@ -196,7 +199,11 @@ public class JsProperty {
                     return new JavaInvokable(name, new JavaObject(object));
                 }
             } else {
-                return Engine.JAVA_BRIDGE.get(object, name);
+                if (object instanceof Class) {
+                    return new JavaClass((Class<?>) object).read(name);
+                } else {
+                    return new JavaObject(object).get(name);
+                }
             }
         } catch (Exception e) {
             return Undefined.INSTANCE;

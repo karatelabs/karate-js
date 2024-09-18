@@ -61,7 +61,7 @@ class JavaObjectTest {
         JavaObject jo = new JavaObject(dp);
         List<String> keys = new ArrayList<>(jo.keys());
         Collections.sort(keys);
-        assertEquals(List.of("booleanValue", "doubleValue", "intValue", "stringValue"), keys);
+        assertEquals(List.of("booleanValue", "doubleValue", "intArray", "intValue", "integerArray", "stringValue"), keys);
     }
 
     @Test

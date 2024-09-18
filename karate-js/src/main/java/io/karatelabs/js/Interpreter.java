@@ -527,11 +527,14 @@ public class Interpreter {
 
     private static Object evalStatement(Node node, Context context) {
         Object statementResult = eval(node.children.get(0), context);
-        if (logger.isTraceEnabled()) {
+        if (logger.isTraceEnabled() || Engine.DEBUG) {
             Type childType = node.children.get(0).type;
             if (childType != Type.EXPR && childType != Type.BLOCK) {
                 Chunk first = node.getFirstChunk();
                 logger.trace("{}{} {} | {}", first.source, first.getPosition(), statementResult, node);
+                if (Engine.DEBUG) {
+                    System.out.println(first.source + first.getPosition() + " " + statementResult + " | " + node);
+                }
             }
         }
         return statementResult;

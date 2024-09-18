@@ -21,6 +21,8 @@ public class DemoPojo {
     private String stringValue;
     private int intValue;
     private double doubleValue;
+    private Integer[] integerArray;
+    private int[] intArray;
 
     public final String instanceField = "instance-field";
 
@@ -50,6 +52,22 @@ public class DemoPojo {
         this.intValue = intValue;
     }
 
+    public Integer[] getIntegerArray() {
+        return integerArray;
+    }
+
+    public void setIntegerArray(Integer[] integerArray) {
+        this.integerArray = integerArray;
+    }
+
+    public int[] getIntArray() {
+        return intArray;
+    }
+
+    public void setIntArray(int[] intArray) {
+        this.intArray = intArray;
+    }
+
     public void setStringValue(String stringValue) {
         this.stringValue = stringValue;
     }
@@ -72,6 +90,10 @@ public class DemoPojo {
 
     public Object varArgs(Object[] args) {
         return args[args.length - 1];
+    }
+
+    public Integer[] doIntegerArray() {
+        return integerArray;
     }
 
     public Function<Integer, String> doWorkFn() {

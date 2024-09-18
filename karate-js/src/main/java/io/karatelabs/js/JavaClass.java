@@ -42,12 +42,12 @@ public class JavaClass implements Constructable, JavaMethods, JavaFields {
 
     @Override
     public Object call(String name, Object[] args) {
-        return Engine.JAVA_BRIDGE.invokeStatic(className, name, args);
+        return JavaBridge.convertIfArray(Engine.JAVA_BRIDGE.invokeStatic(className, name, args));
     }
 
     @Override
     public Object read(String name) {
-        return Engine.JAVA_BRIDGE.getStatic(className, name);
+        return JavaBridge.convertIfArray(Engine.JAVA_BRIDGE.getStatic(className, name));
     }
 
     @Override

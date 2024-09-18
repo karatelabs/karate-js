@@ -23,10 +23,7 @@
  */
 package io.karatelabs.js;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.util.*;
 
 public interface JavaBridge {
@@ -137,7 +134,7 @@ public interface JavaBridge {
             }
             method.invoke(object, args);
         } catch (Exception e) {
-
+            throw new RuntimeException(e);
         }
     }
 
@@ -231,42 +228,59 @@ public interface JavaBridge {
 
     private static boolean match(Class<?>[] types, Object[] args) {
         for (int i = 0; i < types.length; i++) {
-            Class<?> argType = types[i];
-            if (argType.equals(Object[].class) && i == (types.length - 1)) {
-                return true;
-            }
             if (i >= args.length) {
                 return false;
             }
             Object arg = args[i];
-            if (arg != null) {
-                if (argType.equals(int.class) && arg instanceof Integer) {
-                    continue;
-                }
-                if (argType.equals(double.class) && arg instanceof Number) {
-                    continue;
-                }
-                if (argType.equals(long.class) && (arg instanceof Integer || arg instanceof Long)) {
-                    continue;
-                }
-                if (argType.equals(boolean.class) && arg instanceof Boolean) {
-                    continue;
-                }
-                if (argType.equals(byte.class) && arg instanceof Byte) {
-                    continue;
-                }
-                if (argType.equals(char.class) && arg instanceof Character) {
-                    continue;
-                }
-                if (argType.equals(float.class) && arg instanceof Number) {
-                    continue;
-                }
-                if (argType.equals(short.class) && arg instanceof Short) {
-                    continue;
-                }
-                if (!argType.isAssignableFrom(arg.getClass())) {
+            Class<?> argType = types[i];
+            if (argType.isArray()) {
+                if (arg instanceof List) {
+                    // convert list to array of correct type
+                    List<?> list = (List<?>) arg;
+                    Class<?> arrayType = argType.getComponentType();
+                    int count = list.size();
+                    Object result = Array.newInstance(arrayType, count);
+                    for (int j = 0; j < count; j++) {
+                        Array.set(result, j, list.get(j));
+                    }
+                    args[i] = result;
+                } else if (arg != null) { // nulls are ok
                     return false;
                 }
+                if (i == (types.length - 1)) { // var args
+                    return true;
+                }
+                continue;
+            }
+            if (arg == null) {
+                continue;
+            }
+            if (argType.equals(int.class) && arg instanceof Integer) {
+                continue;
+            }
+            if (argType.equals(double.class) && arg instanceof Number) {
+                continue;
+            }
+            if (argType.equals(long.class) && (arg instanceof Integer || arg instanceof Long)) {
+                continue;
+            }
+            if (argType.equals(boolean.class) && arg instanceof Boolean) {
+                continue;
+            }
+            if (argType.equals(byte.class) && arg instanceof Byte) {
+                continue;
+            }
+            if (argType.equals(char.class) && arg instanceof Character) {
+                continue;
+            }
+            if (argType.equals(float.class) && arg instanceof Number) {
+                continue;
+            }
+            if (argType.equals(short.class) && arg instanceof Short) {
+                continue;
+            }
+            if (!argType.isAssignableFrom(arg.getClass())) {
+                return false;
             }
         }
         return types.length == args.length;
@@ -301,6 +315,19 @@ public interface JavaBridge {
             return object;
         }
         return new JavaObject(object).toMap();
+    }
+
+    static Object convertIfArray(Object o) {
+        if (o != null && o.getClass().isArray()) {
+            List<Object> list = new ArrayList<>();
+            int count = Array.getLength(o);
+            for (int i = 0; i < count; i++) {
+                list.add(Array.get(o, i));
+            }
+            return list;
+        } else {
+            return o;
+        }
     }
 
 }

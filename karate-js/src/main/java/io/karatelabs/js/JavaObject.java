@@ -36,12 +36,12 @@ public class JavaObject implements JavaMethods, JavaFields, ObjectLike {
 
     @Override
     public Object call(String name, Object... args) {
-        return Engine.JAVA_BRIDGE.invoke(object, name, args);
+        return JavaBridge.convertIfArray(Engine.JAVA_BRIDGE.invoke(object, name, args));
     }
 
     @Override
     public Object read(String name) {
-        return Engine.JAVA_BRIDGE.getStatic(object.getClass().getName(), name);
+        return JavaBridge.convertIfArray(Engine.JAVA_BRIDGE.getStatic(object.getClass().getName(), name));
     }
 
     @Override
@@ -51,7 +51,7 @@ public class JavaObject implements JavaMethods, JavaFields, ObjectLike {
 
     @Override
     public Object get(String name) {
-        return Engine.JAVA_BRIDGE.get(object, name);
+        return JavaBridge.convertIfArray(Engine.JAVA_BRIDGE.get(object, name));
     }
 
     @Override

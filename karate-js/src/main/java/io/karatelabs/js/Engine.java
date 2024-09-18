@@ -32,6 +32,8 @@ public class Engine {
         // non-final default that you can over-ride
     };
 
+    public static boolean DEBUG = false;
+
     public final Context context;
     public Source source;
 
