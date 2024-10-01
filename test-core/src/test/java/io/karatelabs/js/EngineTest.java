@@ -6,8 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class EngineTest {
 
@@ -29,6 +28,17 @@ class EngineTest {
         assertTrue(Engine.isUndefined(result));
         result = engine.eval("foo.bar");
         assertTrue(Engine.isUndefined(result));
+    }
+
+    @Test
+    void testErrorLog() {
+        Engine engine = new Engine();
+        try {
+            engine.eval("var a = 1;\nvar b = a();");
+            fail("expected error");
+        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("cannot find method [a]"));
+        }
     }
 
 }

@@ -43,6 +43,11 @@ public class Chunk {
         this.text = text;
     }
 
+    public String getLine() {
+        String[] lines = source.text.split("\\r?\\n");
+        return lines[line];
+    }
+
     public String getPosition() {
         return "[" + (line + 1) + ":" + (col + 1) + "]";
     }
