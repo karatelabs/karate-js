@@ -44,8 +44,7 @@ public class Chunk {
     }
 
     public String getLine() {
-        String[] lines = source.text.split("\\r?\\n");
-        return lines[line];
+        return source.getLine(line);
     }
 
     public String getPosition() {

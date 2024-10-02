@@ -30,6 +30,8 @@ public class Source {
     public final String text;
     public final File file;
 
+    String[] lines;
+
     public Source(String text) {
         this.file = null;
         this.text = text;
@@ -38,6 +40,13 @@ public class Source {
     public Source(File file, String text) {
         this.file = file;
         this.text = text;
+    }
+
+    public String getLine(int index) {
+        if (lines == null) {
+            lines = text.split("\\r?\\n");
+        }
+        return lines[index];
     }
 
     @Override
