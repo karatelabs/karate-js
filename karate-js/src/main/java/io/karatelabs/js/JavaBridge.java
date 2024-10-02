@@ -28,6 +28,15 @@ import java.util.*;
 
 public interface JavaBridge {
 
+    default boolean typeExists(String className) {
+        try {
+            Class.forName(className);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     default Object construct(String className, Object[] args) {
         try {
             Class<?> clazz = Class.forName(className);

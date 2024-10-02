@@ -145,11 +145,8 @@ public class Interpreter {
         Object result = prop.get();
         if (result == Undefined.INSTANCE) {
             String className = node.getText();
-            try {
-                Class<?> clazz = Class.forName(className);
-                return new JavaClass(clazz);
-            } catch (Exception e) {
-                // fall through
+            if (Engine.JAVA_BRIDGE.typeExists(className)) {
+                return new JavaClass(className);
             }
         }
         return result;
