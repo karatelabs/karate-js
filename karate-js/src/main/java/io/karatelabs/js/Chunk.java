@@ -25,29 +25,31 @@ package io.karatelabs.js;
 
 public class Chunk {
 
-    static final Chunk _NODE = new Chunk(new Source(""), Token._NODE, 0, 0, "");
+    static final Chunk _NODE = new Chunk(new Source(""), Token._NODE, 0, 0, 0, "");
 
     Source source;
-    final int line;
-    final int col;
-    final Token token;
-    final String text;
+    public final long pos;
+    public final int line;
+    public final int col;
+    public final Token token;
+    public final String text;
     Chunk prev;
     Chunk next;
 
-    public Chunk(Source source, Token token, int line, int col, String text) {
+    public Chunk(Source source, Token token, long pos, int line, int col, String text) {
         this.source = source;
         this.token = token;
+        this.pos = pos;
         this.line = line;
         this.col = col;
         this.text = text;
     }
 
-    public String getLine() {
+    public String getLineText() {
         return source.getLine(line);
     }
 
-    public String getPosition() {
+    public String getPositionDisplay() {
         return "[" + (line + 1) + ":" + (col + 1) + "]";
     }
 

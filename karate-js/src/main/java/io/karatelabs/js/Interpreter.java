@@ -529,17 +529,17 @@ public class Interpreter {
                 Type childType = node.children.get(0).type;
                 if (childType != Type.EXPR && childType != Type.BLOCK) {
                     Chunk first = node.getFirstChunk();
-                    logger.trace("{}{} {} | {}", first.source, first.getPosition(), statementResult, node);
+                    logger.trace("{}{} {} | {}", first.source, first.getPositionDisplay(), statementResult, node);
                     if (Engine.DEBUG) {
-                        System.out.println(first.source + first.getPosition() + " " + statementResult + " | " + node);
+                        System.out.println(first.source + first.getPositionDisplay() + " " + statementResult + " | " + node);
                     }
                 }
             }
             return statementResult;
         } catch (Exception e) {
             Chunk first = node.getFirstChunk();
-            String message = "js failed:\n==========\n" + first.getLine() + "\n==========\n"
-                    + first.source + first.getPosition() + " " + e.getMessage();
+            String message = "js failed:\n==========\n" + first.getLineText() + "\n==========\n"
+                    + first.source + first.getPositionDisplay() + " " + e.getMessage();
             System.err.println(message);
             throw new RuntimeException(message, e);
         }

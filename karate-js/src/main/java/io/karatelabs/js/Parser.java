@@ -83,7 +83,7 @@ public class Parser {
             chunk = chunks.get(position);
         }
         throw new EvalError(message + "\n"
-                + chunk.getPosition()
+                + chunk.getPositionDisplay()
                 + " " + chunk + "\nparser state: " + this);
     }
 
@@ -180,6 +180,7 @@ public class Parser {
         Chunk prev = null;
         int line = 0;
         int col = 0;
+        long pos = 0;
         try {
             while (true) {
                 Token token = lexer.yylex();
@@ -187,8 +188,9 @@ public class Parser {
                     break;
                 }
                 String text = lexer.yytext();
+                Chunk chunk = new Chunk(source, token, pos, line, col, text);
                 int length = lexer.yylength();
-                Chunk chunk = new Chunk(source, token, line, col, text);
+                pos += length;
                 if (token == Token.WS_LF || token == Token.B_COMMENT) {
                     for (int i = 0; i < length; i++) {
                         if (text.charAt(i) == '\n') {

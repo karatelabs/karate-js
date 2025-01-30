@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,6 +20,14 @@ class EngineTest {
         Object result = engine.eval(file);
         assertEquals("foobar", result);
         assertEquals("foo", engine.context.get("foo"));
+    }
+
+    @Test
+    void test02() {
+        File file = new File("src/test/resources/test-02.js");
+        Engine engine = new Engine();
+        Object result = engine.eval(file);
+        assertEquals(Map.of("data", "{\\\"myKey\\\":\\\"myValue\\\"}"), result);
     }
 
     @Test

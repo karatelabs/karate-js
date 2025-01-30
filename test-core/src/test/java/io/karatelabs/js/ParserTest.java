@@ -124,11 +124,6 @@ class ParserTest {
     }
 
     @Test
-    void testString() {
-        expr("read('fooRbar')", "[$read,'(','fooRbar',')']");
-    }
-
-    @Test
     void testParen() {
         expr("(1)", "1");
         expr("(1 + 3) * 2", "[[1,'+',3],'*',2]]");
@@ -139,6 +134,9 @@ class ParserTest {
     void testStrings() {
         expr("'foo'", "foo");
         expr("\"foo\"", "foo");
+        expr("\"\\\"foo\\\"\"", "\\\"foo\\\"");
+        expr("'\\'foo\\''", "\\'foo\\'");
+        expr("read('fooRbar')", "[$read,'(','fooRbar',')']");
     }
 
     @Test
@@ -288,15 +286,21 @@ class ParserTest {
 
     @Test
     void testWhiteSpaceCounting() {
-        Chunk chunk = firstNumber("/* \n* \n*/\n 1");
+        Chunk chunk = firstNumber("/* */  1");
+        assertEquals(0, chunk.line);
+        assertEquals(7, chunk.col);
+        assertEquals(7, chunk.pos);
+        chunk = firstNumber("/* \n* \n*/\n 1");
         assertEquals(3, chunk.line);
         assertEquals(1, chunk.col);
+        assertEquals(11, chunk.pos);
         chunk = firstNumber("// foo \n // bar \n1");
         assertEquals(2, chunk.line);
         assertEquals(0, chunk.col);
         chunk = firstNumber("\n  \n  1");
         assertEquals(2, chunk.line);
         assertEquals(2, chunk.col);
+        assertEquals(6, chunk.pos);
     }
 
 }

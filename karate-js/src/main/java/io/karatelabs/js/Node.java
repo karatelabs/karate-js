@@ -33,9 +33,9 @@ public class Node {
 
     static final Logger logger = LoggerFactory.getLogger(Node.class);
 
-    final Type type;
-    final Chunk chunk;
-    final List<Node> children = new ArrayList<>();
+    public final Type type;
+    public final Chunk chunk;
+    public final List<Node> children = new ArrayList<>();
 
     public Node(Type type) {
         this.type = type;
@@ -63,7 +63,7 @@ public class Node {
 
     public String toStringError(String message) {
         Chunk first = getFirstChunk();
-        return first.getPosition() + " " + type + "\n" + first.source.getStringForLog() + "\n" + message;
+        return first.getPositionDisplay() + " " + type + "\n" + first.source.getStringForLog() + "\n" + message;
     }
 
     @Override
