@@ -31,6 +31,16 @@ class EngineTest {
     }
 
     @Test
+    void test03() {
+        File file = new File("src/test/resources/test-03.js");
+        Source source = Source.of(file);
+        Parser parser = new Parser(source);
+        Node node = parser.parse();
+        Node lastLine = node.findFirst(Token.CONST);
+        assertEquals(10, lastLine.chunk.line);
+    }
+
+    @Test
     void testUndefined() {
         Engine engine = new Engine();
         Object result = engine.eval("1 * 'a'");

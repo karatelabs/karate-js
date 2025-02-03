@@ -191,7 +191,7 @@ public class Parser {
                 Chunk chunk = new Chunk(source, token, pos, line, col, text);
                 int length = lexer.yylength();
                 pos += length;
-                if (token == Token.WS_LF || token == Token.B_COMMENT) {
+                if (token == Token.WS_LF || token == Token.B_COMMENT || token == Token.T_STRING) {
                     for (int i = 0; i < length; i++) {
                         if (text.charAt(i) == '\n') {
                             col = 0;

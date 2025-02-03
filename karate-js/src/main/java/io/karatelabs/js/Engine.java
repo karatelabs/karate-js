@@ -24,7 +24,6 @@
 package io.karatelabs.js;
 
 import java.io.File;
-import java.nio.file.Files;
 
 public class Engine {
 
@@ -50,11 +49,11 @@ public class Engine {
     }
 
     public Object eval(File file) {
-        return evalInternal(new Source(file, toString(file)));
+        return evalInternal(Source.of(file));
     }
 
     public Object eval(String text) {
-        return evalInternal(new Source(null, text));
+        return evalInternal(Source.of(text));
     }
 
     public static boolean isUndefined(Object o) {
@@ -89,18 +88,6 @@ public class Engine {
     public static Object exec(String text) {
         Engine engine = new Engine();
         return engine.eval(text);
-    }
-
-    private static String toString(File file) {
-        try {
-            return Files.readString(file.toPath());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static Source toSource(File file) {
-        return new Source(file, toString(file));
     }
 
 }

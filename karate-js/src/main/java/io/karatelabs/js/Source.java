@@ -24,6 +24,7 @@
 package io.karatelabs.js;
 
 import java.io.File;
+import java.nio.file.Files;
 
 public class Source {
 
@@ -32,12 +33,24 @@ public class Source {
 
     String[] lines;
 
-    public Source(String text) {
-        this.file = null;
-        this.text = text;
+    public static Source of(String text) {
+        return new Source(null, text);
     }
 
-    public Source(File file, String text) {
+    public static Source of(File file) {
+        String text = toString(file);
+        return new Source(file, text);
+    }
+
+    private static String toString(File file) {
+        try {
+            return Files.readString(file.toPath());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Source(File file, String text) {
         this.file = file;
         this.text = text;
     }

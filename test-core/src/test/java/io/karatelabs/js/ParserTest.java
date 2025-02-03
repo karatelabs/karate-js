@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 class ParserTest {
 
     private static void equals(String text, String json, Type type) {
-        Parser parser = new Parser(new Source(text));
+        Parser parser = new Parser(Source.of(text));
         Node node = parser.parse();
         Node child;
         if (type == null) {
@@ -21,7 +21,7 @@ class ParserTest {
     }
 
     private static Chunk firstNumber(String text) {
-        Parser parser = new Parser(new Source(text));
+        Parser parser = new Parser(Source.of(text));
         Node root = parser.parse();
         Node num = root.findFirst(Token.NUMBER);
         return num.chunk;
@@ -33,7 +33,7 @@ class ParserTest {
 
     private static <T> void error(String text, Class<T> type) {
         try {
-            Parser parser = new Parser(new Source(text));
+            Parser parser = new Parser(Source.of(text));
             parser.parse();
             fail("expected exception of type: " + type);
         } catch (Exception e) {

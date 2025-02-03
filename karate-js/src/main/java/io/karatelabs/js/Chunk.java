@@ -25,7 +25,7 @@ package io.karatelabs.js;
 
 public class Chunk {
 
-    static final Chunk _NODE = new Chunk(new Source(""), Token._NODE, 0, 0, 0, "");
+    static final Chunk _NODE = new Chunk(Source.of(""), Token._NODE, 0, 0, 0, "");
 
     Source source;
     public final long pos;
