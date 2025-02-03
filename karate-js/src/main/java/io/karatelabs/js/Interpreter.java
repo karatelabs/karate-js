@@ -339,9 +339,14 @@ public class Interpreter {
             } else { // IDENT, NUMBER
                 key = keyNode.getText();
             }
-            Node exprNode = elem.children.get(2);
-            Object value = eval(exprNode, context);
-            map.put(key, value);
+            if (elem.children.size() < 3) { // es6 enhanced object literals
+                Object value = context.get(key);
+                map.put(key, value);
+            } else {
+                Node exprNode = elem.children.get(2);
+                Object value = eval(exprNode, context);
+                map.put(key, value);
+            }
         }
         return map;
     }

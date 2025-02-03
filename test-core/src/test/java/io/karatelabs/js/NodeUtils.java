@@ -79,7 +79,11 @@ public class NodeUtils {
             case PAREN_EXPR:
                 return ser(node.children.get(1));
             case OBJECT_ELEM:
-                return List.of(ser(node.children.get(0)) + ":", ser(node.children.get(2)));
+                if (node.children.size() < 3) { // es6 enhanced object literals
+                    return ser(node.children.get(0));
+                } else {
+                    return List.of(ser(node.children.get(0)) + ":", ser(node.children.get(2)));
+                }
             case ARRAY_ELEM:
                 return ser(node.children.get(0));
             case PROGRAM:

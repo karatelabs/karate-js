@@ -287,6 +287,12 @@ class EvalTest {
     }
 
     @Test
+    void testObjectEnhanced() {
+        eval("a = 1; b = { a }");
+        NodeUtils.match(get("b"), "{ a: 1 }");
+    }
+
+    @Test
     void testStringWithEscapes() {
         assertEquals("foo\nbar", eval("'foo\nbar'"));
         assertEquals("foo\nbar", eval("\"foo\nbar\""));

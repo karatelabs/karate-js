@@ -760,6 +760,9 @@ public class Parser {
         if (!enter(Type.OBJECT_ELEM, Token.IDENT, Token.S_STRING, Token.D_STRING, Token.NUMBER)) {
             return false;
         }
+        if (consumeIf(Token.COMMA) || peekIf(Token.R_CURLY)) { // es6 enhanced object literals
+            return exit();
+        }
         if (!consumeIf(Token.COLON)) {
             return exit(false, false); // could be block
         }

@@ -186,6 +186,8 @@ class ParserTest {
         expr("function(){}", "[function,'(',[],')',['{','}']]");
         expr("function(){ return true }", "[function,'(',[],')',['{',['return',true],'}']]");
         expr("function(a){ return a }", "[function,'(',$a,')',['{',['return',$a],'}']]");
+        expr("function(a){ return { a } }", "[function,'(',$a,')',['{',['return',['{',$a,'}']],'}']]");
+        expr("function(a){ return { a, b } }", "[function,'(',$a,')',['{',['return',['{',$a,$b,'}']],'}']]");
     }
 
     @Test
