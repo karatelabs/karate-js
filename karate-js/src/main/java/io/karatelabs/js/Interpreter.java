@@ -577,10 +577,14 @@ public class Interpreter {
                 finallyBlock = node.children.get(8);
             }
             if (context.isError()) {
-                String errorName = node.children.get(4).getText();
                 Context catchContext = new Context(context);
-                catchContext.declare(errorName, context.getErrorThrown());
-                tryValue = eval(node.children.get(6), catchContext);
+                if (node.children.get(3).chunk.token == Token.L_PAREN) {
+                    String errorName = node.children.get(4).getText();
+                    catchContext.declare(errorName, context.getErrorThrown());
+                    tryValue = eval(node.children.get(6), catchContext);
+                } else { // catch without variable name, 3 is block
+                    tryValue = eval(node.children.get(3), context);
+                }
                 if (catchContext.isError()) { // catch threw error,
                     tryValue = null;
                 }

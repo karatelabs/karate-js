@@ -378,6 +378,8 @@ public class Parser {
                 if (consumeIf(Token.FINALLY)) {
                     block(true);
                 }
+            } else if (block(false)) { // catch without exception variable
+                // done
             } else {
                 error(Token.CATCH);
             }

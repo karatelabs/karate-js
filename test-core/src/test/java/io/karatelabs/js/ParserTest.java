@@ -259,6 +259,7 @@ class ParserTest {
         expr("try {} catch (e) {}", "['try',['{','}'],'catch','(',$e,')',['{','}']]");
         expr("try {} finally {}", "['try',['{','}'],'finally',['{','}']]");
         expr("try {} catch (e) {} finally {}", "['try',['{','}'],'catch','(',$e,')',['{','}'],'finally',['{','}']]");
+        expr("try {} catch {}", "['try',['{','}'],'catch',['{','}']]");
     }
 
     @Test

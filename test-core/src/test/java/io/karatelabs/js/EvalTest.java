@@ -586,6 +586,8 @@ class EvalTest {
         assertEquals(2, get("b"));
         eval("var a; try { } finally { a = 3 }");
         assertEquals(3, get("a"));
+        eval("var a; try { throw 'foo' } catch { a = 'bar' }");
+        assertEquals("bar", get("a"));
     }
 
     @Test
