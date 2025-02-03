@@ -227,6 +227,13 @@ public class Parser {
         return chunks.get(position).token == token;
     }
 
+    private Token peek() {
+        if (position == size) {
+            return Token._NODE;
+        }
+        return chunks.get(position).token;
+    }
+
     private void consumeNext() {
         Node node = new Node(chunks.get(position++));
         marker.node.children.add(node);
@@ -587,7 +594,13 @@ public class Parser {
                 consume(Token.R_PAREN);
                 exit(Shift.LEFT);
             } else if (enter(Type.REF_DOT_EXPR, Token.DOT)) {
-                consume(Token.IDENT);
+                Token next = peek();
+                // allow reserved words as property accessors
+                if (next == Token.IDENT || next.keyword) {
+                    consumeNext();
+                } else {
+                    error(Token.IDENT);
+                }
                 exit(Shift.LEFT);
             } else if (enter(Type.REF_BRACKET_EXPR, Token.L_BRACKET)) {
                 expr(-1, true);

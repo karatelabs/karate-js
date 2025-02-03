@@ -282,6 +282,11 @@ class EvalTest {
     }
 
     @Test
+    void testObjectPropReservedWords() {
+        assertEquals(2, eval("a = { 'null': 2 }; a.null"));
+    }
+
+    @Test
     void testObjectFunction() {
         assertEquals("foo", eval("a = { b: function(){ return this.c }, c: 'foo' }; a.b()"));
     }

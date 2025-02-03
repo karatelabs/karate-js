@@ -156,6 +156,11 @@ class ParserTest {
     }
 
     @Test
+    void testPathExprReservedWords() {
+        expr("a.null", "[$a,'.',null]");
+    }
+
+    @Test
     void testPathMix() {
         expr("(a)", "$a");
         expr("(a).b", "[$a,'.',$b]");

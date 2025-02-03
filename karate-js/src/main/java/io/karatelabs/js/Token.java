@@ -41,33 +41,33 @@ public enum Token {
     DOT_DOT_DOT,
     DOT,
     //====
-    NULL,
-    TRUE,
-    FALSE,
-    FUNCTION,
-    RETURN,
-    TRY,
-    CATCH,
-    FINALLY,
-    THROW,
-    NEW,
-    VAR,
-    LET,
-    CONST,
-    IF,
-    ELSE,
-    TYPEOF,
-    INSTANCEOF,
-    DELETE,
-    FOR,
-    IN,
-    OF,
-    DO,
-    WHILE,
-    SWITCH,
-    CASE,
-    DEFAULT,
-    BREAK,
+    NULL(true, true),
+    TRUE(true, true),
+    FALSE(true, true),
+    FUNCTION(true, true),
+    RETURN(true, true),
+    TRY(true, true),
+    CATCH(true, true),
+    FINALLY(true, true),
+    THROW(true, true),
+    NEW(true, true),
+    VAR(true, true),
+    LET(true, true),
+    CONST(true, true),
+    IF(true, true),
+    ELSE(true, true),
+    TYPEOF(true, true),
+    INSTANCEOF(true, true),
+    DELETE(true, true),
+    FOR(true, true),
+    IN(true, true),
+    OF(true, true),
+    DO(true, true),
+    WHILE(true, true),
+    SWITCH(true, true),
+    CASE(true, true),
+    DEFAULT(true, true),
+    BREAK(true, true),
     //====
     EQ_EQ_EQ,
     EQ_EQ,
@@ -127,13 +127,21 @@ public enum Token {
     T_STRING;
 
     public final boolean primary;
+    public final boolean keyword;
 
     Token() {
         primary = true;
+        keyword = false;
+    }
+
+    Token(boolean primary, boolean keyword) {
+        this.primary = primary;
+        this.keyword = keyword;
     }
 
     Token(boolean primary) {
         this.primary = primary;
+        this.keyword = false;
     }
 
 }
