@@ -99,6 +99,11 @@ class EvalTest {
     }
 
     @Test
+    void testExprList() {
+        assertEquals(3, eval("1, 2, 3"));
+    }
+
+    @Test
     void testAssign() {
         assertEquals(1, eval("a = 1"));
         assertEquals(1, get("a"));

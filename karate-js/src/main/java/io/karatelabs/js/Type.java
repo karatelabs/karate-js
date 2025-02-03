@@ -46,6 +46,7 @@ public enum Type {
     BLOCK,
     EOS,
     EXPR,
+    EXPR_LIST,
     FN_EXPR,
     FN_ARROW_EXPR,
     FN_DECL_ARGS,

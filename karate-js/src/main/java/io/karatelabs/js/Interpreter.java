@@ -127,6 +127,19 @@ public class Interpreter {
         return context.isStopped() ? context.getReturnValue() : blockResult;
     }
 
+    private static Object evalExprList(Node node, Context context) {
+        if (node.children.size() == 1) {
+            return eval(node.children.get(0), context);
+        }
+        Object result = null;
+        for (Node child : node.children) {
+            if (child.type == Type.EXPR) {
+                result = eval(child, context);
+            }
+        }
+        return result;
+    }
+
     @SuppressWarnings("unchecked")
     private static Object evalDeleteStmt(Node node, Context context) {
         JsProperty prop = new JsProperty(node.children.get(1), context);
@@ -681,6 +694,8 @@ public class Interpreter {
                 return context.stopAndReturn(null);
             case DELETE_STMT:
                 return evalDeleteStmt(node, context);
+            case EXPR_LIST:
+                return evalExprList(node, context);
             case EXPR:
             case LIT_EXPR:
                 return eval(node.children.get(0), context);

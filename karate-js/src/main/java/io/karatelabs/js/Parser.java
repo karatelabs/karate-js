@@ -316,10 +316,28 @@ public class Parser {
         result = result || switch_stmt();
         result = result || (break_stmt() && eos());
         result = result || (delete_stmt() && eos());
-        result = result || (expr(-1, false) && eos());
+        result = result || (expr_list() && eos());
         result = result || block(false);
         result = result || consumeIf(Token.SEMI); // empty statement
         return exit(result, mandatory);
+    }
+
+    private boolean expr_list() {
+        enter(Type.EXPR_LIST);
+        boolean atLeastOne = false;
+        while (true) {
+            if (expr(-1, false)) {
+                atLeastOne = true;
+            } else {
+                break;
+            }
+            if (consumeIf(Token.COMMA)) {
+                // continue;
+            } else {
+                break;
+            }
+        }
+        return exit(atLeastOne, false);
     }
 
     private boolean if_stmt() {

@@ -203,7 +203,7 @@ class ParserTest {
     }
 
     @Test
-    void testAfnExpr() {
+    void testFnExprArrow() {
         expr("() => true", "['(',[],')','=>',true]");
         expr("() => {}", "['(',[],')','=>',['{','}']]");
         expr("a => true", "[$a,'=>',true]");
@@ -229,6 +229,11 @@ class ParserTest {
         expr("a = 1 + 2", "[$a,'=',[1,'+',2]]");
         expr("a = 2 * 3", "[$a,'=',[2,'*',3]]");
         expr("a = function(){ return true }", "[$a,'=',[function,'(',[],')',['{',['return',true],'}']]]");
+    }
+
+    @Test
+    void testCommaExpression() {
+        expr("a, b, c", "[$a,',',$b,','$c]");
     }
 
     @Test
