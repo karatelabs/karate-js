@@ -123,6 +123,7 @@ public enum Token {
     NUMBER,
     IDENT,
     //====
+    REGEX,
     DOLLAR_L_CURLY,
     T_STRING;
 

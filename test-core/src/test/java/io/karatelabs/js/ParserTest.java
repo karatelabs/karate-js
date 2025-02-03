@@ -140,6 +140,13 @@ class ParserTest {
     }
 
     @Test
+    void testRegex() {
+        expr("(/foo/)", "/foo/");
+        expr("(/a\\/b/)", "/a\\/b/");
+        expr("(/foo/i)", "/foo/i");
+    }
+
+    @Test
     void testPathExpr() {
         expr("a", "$a");
         expr("a.b", "[$a,'.',$b]");

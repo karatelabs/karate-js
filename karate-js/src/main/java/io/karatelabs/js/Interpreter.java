@@ -67,6 +67,8 @@ public class Interpreter {
                 return true;
             case FALSE:
                 return false;
+            case REGEX:
+                throw new RuntimeException(node.toStringError("regexes not supported"));
             default:
                 throw new RuntimeException(node.toStringError("eval - unexpected chunk"));
         }

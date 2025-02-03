@@ -32,6 +32,7 @@ import java.util.ArrayDeque;
 %type Token
 
 %{
+boolean regexAllowed;
 ArrayDeque<Integer> kkStack;
 void kkPush() { if (kkStack == null) kkStack = new ArrayDeque<>(); kkStack.push(yystate()); }
 int kkPop() { return kkStack.pop(); }
@@ -52,6 +53,7 @@ D_STRING = \"([^\"]|\\\")*\"?
 S_STRING = '([^']|\\')*'?
 IDENT = [:jletter:][:jletterdigit:]*
 T_STRING = [^`$]+ ("$"[^{])?
+REGEX = "/" ([^/]|\\\/)+ "/" [:jletter:]*
 
 %state TEMPLATE PLACEHOLDER
 
@@ -65,8 +67,8 @@ T_STRING = [^`$]+ ("$"[^{])?
   //====                        { return R_CURLY; }
   "["                           { return L_BRACKET; }
   "]"                           { return R_BRACKET; }
-  "("                           { return L_PAREN; }
-  ")"                           { return R_PAREN; }
+  "("                           { regexAllowed = true; return L_PAREN; }
+  ")"                           { regexAllowed = false; return R_PAREN; }
   ","                           { return COMMA; }
   ":"                           { return COLON; }
   ";"                           { return SEMI; }
@@ -154,6 +156,7 @@ T_STRING = [^`$]+ ("$"[^{])?
   {D_STRING}                    { return D_STRING; }
   {NUMBER} | {HEX}              { return NUMBER; }
   {IDENT}                       { return IDENT; }
+  {REGEX}                       { if (regexAllowed) { return REGEX; } else { yypushback(yylength() - 1); return SLASH; } }
 }
 
 <YYINITIAL> "}"                 { return R_CURLY; }
