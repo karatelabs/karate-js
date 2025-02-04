@@ -542,9 +542,6 @@ public class Parser {
             return false;
         }
         while (true) {
-//            if (peekIf(Token.R_CURLY)) {
-//                break;
-//            }
             if (!statement(false)) {
                 break;
             }
