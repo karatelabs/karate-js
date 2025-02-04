@@ -41,6 +41,8 @@ public class Context {
     private final Context caller;
     private final Map<String, Object> bindings;
 
+    boolean ignoreErrors;
+
     private Context(Context parent, Map<String, Object> bindings, Context caller) {
         this.parent = parent;
         this.bindings = bindings;
@@ -62,6 +64,10 @@ public class Context {
         globals.put("Math", JsCommon.MATH);
         globals.put("parseInt", JsCommon.PARSE_INT);
         return globals;
+    }
+
+    public void setIgnoreErrors(boolean ignoreErrors) {
+        this.ignoreErrors = ignoreErrors;
     }
 
     public static Context root() {

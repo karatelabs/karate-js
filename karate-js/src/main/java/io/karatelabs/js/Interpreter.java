@@ -130,9 +130,6 @@ public class Interpreter {
     }
 
     private static Object evalExprList(Node node, Context context) {
-        if (node.children.size() == 1) {
-            return eval(node.children.get(0), context);
-        }
         Object result = null;
         for (Node child : node.children) {
             if (child.type == Type.EXPR) {
@@ -560,8 +557,13 @@ public class Interpreter {
             Chunk first = node.getFirstChunk();
             String message = "js failed:\n==========\n" + first.getLineText() + "\n==========\n"
                     + first.source + first.getPositionDisplay() + " " + e.getMessage();
-            System.err.println(message);
-            throw new RuntimeException(message, e);
+            if (context.ignoreErrors) {
+                System.out.println(message);
+                return null;
+            } else {
+                System.err.println(message);
+                throw new RuntimeException(message, e);
+            }
         }
     }
 

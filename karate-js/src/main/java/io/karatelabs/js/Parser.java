@@ -505,9 +505,9 @@ public class Parser {
         return exit();
     }
 
-    private void default_block() {
+    private boolean default_block() {
         if (!enter(Type.DEFAULT_BLOCK, Token.DEFAULT)) {
-            return;
+            return false;
         }
         consume(Token.COLON);
         while (true) {
@@ -515,6 +515,7 @@ public class Parser {
                 break;
             }
         }
+        return exit();
     }
 
     private boolean break_stmt() {
@@ -541,6 +542,9 @@ public class Parser {
             return false;
         }
         while (true) {
+//            if (peekIf(Token.R_CURLY)) {
+//                break;
+//            }
             if (!statement(false)) {
                 break;
             }
