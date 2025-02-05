@@ -107,6 +107,7 @@ public class JsCommon {
     private static JsObject createJson() {
         JsObject object = new JsObject();
         object.put("stringify", (Invokable) args -> JSONValue.toJSONString(args[0]));
+        object.put("parse", (Invokable) args -> JSONValue.parse((String) args[0]));
         return object;
     }
 

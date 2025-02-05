@@ -526,6 +526,7 @@ class EvalTest {
     @Test
     void testJsonApi() {
         assertEquals("{\"a\":\"b\"}", eval("JSON.stringify({a:'b'})"));
+        assertEquals(Map.of("a", "b"), eval("JSON.parse('{\"a\":\"b\"}')"));
     }
 
     @Test
