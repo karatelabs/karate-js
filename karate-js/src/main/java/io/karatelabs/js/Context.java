@@ -42,6 +42,8 @@ public class Context {
     private final Map<String, Object> bindings;
 
     boolean ignoreErrors;
+    int errorCount;
+    int statementCount;
 
     private Context(Context parent, Map<String, Object> bindings, Context caller) {
         this.parent = parent;
@@ -68,6 +70,14 @@ public class Context {
 
     public void setIgnoreErrors(boolean ignoreErrors) {
         this.ignoreErrors = ignoreErrors;
+    }
+
+    public int getErrorCount() {
+        return errorCount;
+    }
+
+    public int getStatementCount() {
+        return statementCount;
     }
 
     public static Context root() {

@@ -540,6 +540,7 @@ public class Interpreter {
     }
 
     private static Object evalStatement(Node node, Context context) {
+        context.statementCount++;
         try {
             Object statementResult = eval(node.children.get(0), context);
             if (logger.isTraceEnabled() || Engine.DEBUG) {
@@ -555,13 +556,15 @@ public class Interpreter {
             return statementResult;
         } catch (Exception e) {
             Chunk first = node.getFirstChunk();
-            String message = "js failed:\n==========\n" + first.getLineText() + "\n==========\n"
+            String message = "js failed:\n==========\n" + first.getLineText() + "\n"
                     + first.source + first.getPositionDisplay() + " " + e.getMessage();
+            message = message.trim() + "\n----------\n";
             if (context.ignoreErrors) {
-                System.out.println(message);
+                logger.debug(message);
+                context.errorCount++;
                 return null;
             } else {
-                System.err.println(message);
+                logger.error(message);
                 throw new RuntimeException(message, e);
             }
         }
