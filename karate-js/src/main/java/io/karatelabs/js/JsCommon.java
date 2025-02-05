@@ -23,6 +23,8 @@
  */
 package io.karatelabs.js;
 
+import net.minidev.json.JSONValue;
+
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -97,6 +99,14 @@ public class JsCommon {
             System.out.println(sb);
             return null;
         });
+        return object;
+    }
+
+    static final JsObject JSON = createJson();
+
+    private static JsObject createJson() {
+        JsObject object = new JsObject();
+        object.put("stringify", (Invokable) args -> JSONValue.toJSONString(args[0]));
         return object;
     }
 

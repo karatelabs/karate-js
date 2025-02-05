@@ -524,6 +524,11 @@ class EvalTest {
     }
 
     @Test
+    void testJsonApi() {
+        assertEquals("{\"a\":\"b\"}", eval("JSON.stringify({a:'b'})"));
+    }
+
+    @Test
     void testParseInt() {
         assertEquals(42, eval("parseInt('042')"));
     }

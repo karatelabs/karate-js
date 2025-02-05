@@ -65,6 +65,7 @@ public class Context {
         globals.put("NaN", Undefined.NAN);
         globals.put("Math", JsCommon.MATH);
         globals.put("parseInt", JsCommon.PARSE_INT);
+        globals.put("JSON", JsCommon.JSON);
         return globals;
     }
 
