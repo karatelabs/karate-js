@@ -461,6 +461,7 @@ class EvalTest {
         assertEquals(3, eval("a = 'foo'; a.length"));
         assertEquals(true, eval("a = 'foobar'; a.startsWith('foo')"));
         assertEquals("FOObar", eval("a = 'foobar'; a.replaceAll('foo', 'FOO')"));
+        assertEquals(List.of("foo", "bar"), eval("a = 'foo bar'; a.split(' ')"));
         // this is non-standard but useful for java interop
         eval("var a = 'foo'; var b = a.getBytes()");
         byte[] bytes = (byte[]) get("b");

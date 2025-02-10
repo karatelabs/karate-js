@@ -24,6 +24,7 @@
 package io.karatelabs.js;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Map;
 
 public class JsString extends JsObject {
@@ -42,6 +43,7 @@ public class JsString extends JsObject {
         prototype.put("length", new Property(text::length));
         prototype.put("replaceAll", (Invokable) args -> text.replaceAll((String) args[0], (String) args[1]));
         prototype.put("getBytes", (Invokable) args -> text.getBytes(StandardCharsets.UTF_8));
+        prototype.put("split", (Invokable) args -> Arrays.asList(text.split((String) args[0])));
         return prototype;
     }
 
