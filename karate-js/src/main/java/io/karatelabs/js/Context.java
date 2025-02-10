@@ -154,6 +154,10 @@ public class Context {
     private Object returnValue;
     private Object errorThrown;
 
+    public Node getCurrentNode() {
+        return currentNode;
+    }
+
     Object stopAndThrow(Object error) {
         stopped = true;
         errorThrown = error;
