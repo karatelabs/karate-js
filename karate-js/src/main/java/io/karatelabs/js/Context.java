@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 public class Context {
 
@@ -41,6 +42,7 @@ public class Context {
     private final Context caller;
     private final Map<String, Object> bindings;
 
+    BiConsumer<Node, Exception> onError;
     boolean ignoreErrors;
     int errorCount;
     int statementCount;
@@ -67,6 +69,10 @@ public class Context {
         globals.put("parseInt", JsCommon.PARSE_INT);
         globals.put("JSON", JsCommon.JSON);
         return globals;
+    }
+
+    public void setOnError(BiConsumer<Node, Exception> onError) {
+        this.onError = onError;
     }
 
     public void setIgnoreErrors(boolean ignoreErrors) {

@@ -562,6 +562,9 @@ public class Interpreter {
             if (context.ignoreErrors) {
                 logger.debug(message);
                 context.errorCount++;
+                if (context.onError != null) {
+                    context.onError.accept(node, e);
+                }
                 return null;
             } else {
                 logger.error(message);
