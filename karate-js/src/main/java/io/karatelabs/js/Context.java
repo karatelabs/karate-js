@@ -43,6 +43,7 @@ public class Context {
     private final Map<String, Object> bindings;
 
     BiConsumer<Node, Exception> onError;
+    BiConsumer<String, Object> onAssign;
     boolean ignoreErrors;
     int errorCount;
     int statementCount;
@@ -73,6 +74,10 @@ public class Context {
 
     public void setOnError(BiConsumer<Node, Exception> onError) {
         this.onError = onError;
+    }
+
+    public void setOnAssign(BiConsumer<String, Object> onAssign) {
+        this.onAssign = onAssign;
     }
 
     public void setIgnoreErrors(boolean ignoreErrors) {
@@ -144,6 +149,9 @@ public class Context {
             parent.update(name, value);
         } else {
             bindings.put(name, value);
+            if (onAssign != null) {
+                onAssign.accept(name, value);
+            }
         }
     }
 

@@ -79,8 +79,7 @@ public class Interpreter {
         Object value = eval(node.children.get(2), context);
         switch (node.children.get(1).chunk.token) {
             case EQ:
-                prop.set(value);
-                return value;
+                break;
             case PLUS_EQ:
                 value = Terms.add(prop.get(), value);
                 break;
@@ -555,18 +554,17 @@ public class Interpreter {
             }
             return statementResult;
         } catch (Exception e) {
-            Chunk first = node.getFirstChunk();
-            String message = "js failed:\n==========\n" + first.getLineText() + "\n"
-                    + first.source + first.getPositionDisplay() + " " + e.getMessage();
-            message = message.trim() + "\n----------\n";
             if (context.ignoreErrors) {
-                logger.debug(message);
                 context.errorCount++;
                 if (context.onError != null) {
                     context.onError.accept(node, e);
                 }
                 return null;
             } else {
+                Chunk first = node.getFirstChunk();
+                String message = "js failed:\n==========\n" + first.getLineText() + "\n"
+                        + first.source + first.getPositionDisplay() + " " + e.getMessage();
+                message = message.trim() + "\n----------\n";
                 logger.error(message);
                 throw new RuntimeException(message, e);
             }
@@ -649,6 +647,9 @@ public class Interpreter {
         // TODO let & const
         for (Node varName : varNames) {
             context.declare(varName.getText(), varValue);
+            if (context.onAssign != null) {
+                context.onAssign.accept(varName.getText(), varValue);
+            }
         }
         return varValue;
     }

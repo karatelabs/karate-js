@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -59,6 +60,29 @@ class EngineTest {
         assertTrue(Engine.isUndefined(result));
         result = engine.eval("foo.bar");
         assertTrue(Engine.isUndefined(result));
+    }
+
+    static class NameValue {
+
+        String name;
+        Object value;
+
+    }
+
+    @Test
+    void testOnAssign() {
+        Engine engine = new Engine();
+        NameValue nv = new NameValue();
+        engine.context.setOnAssign((name, value) -> {
+            nv.name = name;
+            nv.value = value;
+        });
+        engine.eval("var a = 'a'");
+        assertEquals("a", nv.name);
+        assertEquals("a", nv.value);
+        engine.eval("b = 'b'");
+        assertEquals("b", nv.name);
+        assertEquals("b", nv.value);
     }
 
     @Test
