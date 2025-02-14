@@ -92,6 +92,10 @@ public class Context {
         return statementCount;
     }
 
+    public Map<String, Object> getBindings() {
+        return bindings;
+    }
+
     public static Context root() {
         Context root = new Context(null, GLOBALS, null);
         return new Context(root);
