@@ -65,11 +65,6 @@ public class JsObject extends Prototype implements ObjectLike {
     }
 
     @Override
-    public void putAll(Map<String, Object> values) {
-        map.putAll(values);
-    }
-
-    @Override
     public boolean hasKey(String name) {
         if (map.containsKey(name)) {
             return true;

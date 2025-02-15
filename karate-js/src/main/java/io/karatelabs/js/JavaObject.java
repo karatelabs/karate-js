@@ -60,11 +60,6 @@ public class JavaObject implements JavaMethods, JavaFields, ObjectLike {
     }
 
     @Override
-    public void putAll(Map<String, Object> values) {
-        values.forEach(this::put);
-    }
-
-    @Override
     public boolean hasKey(String name) {
         return JavaBridge.findGetter(object, name) != null;
     }
