@@ -86,6 +86,18 @@ public class Engine {
         }
     }
 
+    public void set(String name, Object value) {
+        context.declare(name, value);
+    }
+
+    public Object get(String name) {
+        Object value = context.get(name);
+        if (isUndefined(value) && convertUndefined) {
+            return null;
+        }
+        return value;
+    }
+
     public Engine copy() {
         return new Engine(context.copy());
     }
