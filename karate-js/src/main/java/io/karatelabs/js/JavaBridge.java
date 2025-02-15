@@ -178,7 +178,7 @@ public interface JavaBridge {
         }
     }
 
-    public static Collection<String> propertyNames(Object object) {
+    static Collection<String> propertyNames(Object object) {
         List<String> list = new ArrayList<>();
         for (Method method : object.getClass().getMethods()) {
             if (method.getParameterTypes().length == 0) {
@@ -196,7 +196,7 @@ public interface JavaBridge {
         return list;
     }
 
-    public static Method findGetter(Object object, String name) {
+    static Method findGetter(Object object, String name) {
         String getterSuffix = name.substring(0, 1).toUpperCase() + name.substring(1);
         Method method = findMethod(object.getClass(), "get" + getterSuffix, EMPTY);
         if (method == null) {
@@ -205,7 +205,7 @@ public interface JavaBridge {
         return method;
     }
 
-    public static Constructor<?> findConstructor(Class<?> clazz, Object[] args) {
+    static Constructor<?> findConstructor(Class<?> clazz, Object[] args) {
         try {
             return clazz.getConstructor(paramTypes(args));
         } catch (Exception e) {
@@ -296,7 +296,7 @@ public interface JavaBridge {
     }
 
     @SuppressWarnings("unchecked")
-    public static Object toMapOrList(Object object) {
+    static Object toMapOrList(Object object) {
         if (object == null) {
             return object;
         }

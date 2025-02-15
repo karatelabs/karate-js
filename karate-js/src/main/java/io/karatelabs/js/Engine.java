@@ -31,6 +31,12 @@ public class Engine {
         // non-final default that you can over-ride
     };
 
+    private boolean convertUndefined = true;
+
+    public void setConvertUndefined(boolean convertUndefined) {
+        this.convertUndefined = convertUndefined;
+    }
+
     public static boolean DEBUG = false;
 
     public final Context context;
@@ -65,7 +71,11 @@ public class Engine {
         try {
             Parser parser = new Parser(source);
             Node node = parser.parse();
-            return Interpreter.eval(node, context);
+            Object result = Interpreter.eval(node, context);
+            if (isUndefined(result) && convertUndefined) {
+                return null;
+            }
+            return result;
         } catch (Throwable e) {
             String message = e.getMessage();
             if (message == null) {
