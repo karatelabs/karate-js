@@ -86,6 +86,10 @@ public class Engine {
         }
     }
 
+    public void setRootBinding(String name, Object value) {
+        context.setParent(name, value);
+    }
+
     public void set(String name, Object value) {
         context.declare(name, value);
     }

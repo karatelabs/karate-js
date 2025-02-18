@@ -36,7 +36,6 @@ public class Context {
     static final Logger logger = LoggerFactory.getLogger(Context.class);
 
     public static final Context EMPTY = new Context(null, Collections.emptyMap(), null);
-    private static final Map<String, Object> GLOBALS = Collections.unmodifiableMap(globals());
 
     private final Context parent;
     private final Context caller;
@@ -96,8 +95,12 @@ public class Context {
         return bindings;
     }
 
+    void setParent(String key, Object value) {
+        parent.bindings.put(key, value);
+    }
+
     public static Context root() {
-        Context root = new Context(null, GLOBALS, null);
+        Context root = new Context(null, globals(), null);
         return new Context(root);
     }
 
