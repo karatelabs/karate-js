@@ -368,7 +368,11 @@ public class Interpreter {
             if (child.chunk.token == Token.T_STRING) {
                 sb.append(child.chunk.text);
             } else if (child.type == Type.EXPR) {
-                sb.append(eval(child, context));
+                Object value = eval(child, context);
+                if (value == Undefined.INSTANCE) {
+                    throw new RuntimeException(child.getText() + " is not defined");
+                }
+                sb.append(value);
             }
         }
         return sb.toString();

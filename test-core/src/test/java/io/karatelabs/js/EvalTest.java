@@ -340,6 +340,16 @@ class EvalTest {
     }
 
     @Test
+    void testStringTemplateException() {
+        try {
+            eval("`${foo}`");
+            fail("should throw exception");
+        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("foo is not defined"));
+        }
+    }
+
+    @Test
     void testStringTemplateNested() {
         assertEquals("foofoo", eval("var name = 'foo'; `${ name + `${name}` }`"));
         assertEquals("[ xxfooxx ]", eval("var name = 'foo'; `[ ${name ? `xx${name}xx` : ''} ]`"));
