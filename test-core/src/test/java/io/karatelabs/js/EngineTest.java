@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -100,6 +101,16 @@ class EngineTest {
         } catch (Exception e) {
             assertTrue(e.getMessage().contains("cannot find method [a]"));
         }
+    }
+
+    @Test
+    void testWith() {
+        Engine engine = new Engine();
+        engine.set("foo", "parent");
+        Map<String, Object> vars = new HashMap<>();
+        vars.put("foo", "child");
+        assertEquals("child", engine.evalWith("foo", vars));
+        assertEquals("parent", engine.eval("foo"));
     }
 
 }

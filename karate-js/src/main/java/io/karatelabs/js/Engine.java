@@ -24,6 +24,7 @@
 package io.karatelabs.js;
 
 import java.io.File;
+import java.util.Map;
 
 public class Engine {
 
@@ -62,16 +63,31 @@ public class Engine {
         return evalInternal(Source.of(text));
     }
 
+    public Object evalWith(String text, Map<String, Object> vars) {
+        return evalInternal(Source.of(text), vars);
+    }
+
     public static boolean isUndefined(Object o) {
         return o == Undefined.INSTANCE || Undefined.NAN.equals(o);
     }
 
     private Object evalInternal(Source source) {
+        return evalInternal(source, null);
+    }
+
+    private Object evalInternal(Source source, Map<String, Object> localVars) {
         this.source = source;
         try {
             Parser parser = new Parser(source);
             Node node = parser.parse();
-            Object result = Interpreter.eval(node, context);
+            Context evalContext;
+            if (localVars == null) {
+                evalContext = context;
+            } else {
+                evalContext = new Context(context);
+                evalContext.getBindings().putAll(localVars);
+            }
+            Object result = Interpreter.eval(node, evalContext);
             if (isUndefined(result) && convertUndefined) {
                 return null;
             }
