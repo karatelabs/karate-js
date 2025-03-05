@@ -170,6 +170,9 @@ public class Interpreter {
         Invokable invokable;
         if (o instanceof Invokable) {
             invokable = (Invokable) o;
+        } else if (o instanceof Prototype) {
+            Prototype prototype = (Prototype) o;
+            invokable = (Invokable) prototype.getPrototype().get("constructor");
         } else if (o instanceof JavaClass) {
             JavaClass jc = (JavaClass) o;
             invokable = jc::construct;
@@ -188,23 +191,25 @@ public class Interpreter {
         } else {
             throw new RuntimeException("null is not a function");
         }
-        Node fnArgsNode = node.children.get(2);
-        int argsCount = fnArgsNode.children.size();
         List<Object> argsList = new ArrayList<>();
-        for (int i = 0; i < argsCount; i++) {
-            Node fnArgNode = fnArgsNode.children.get(i);
-            Node argNode = fnArgNode.children.get(0);
-            if (argNode.isChunk()) { // DOT_DOT_DOT
-                Object arg = eval(fnArgNode.children.get(1), context);
-                if (arg instanceof List) {
-                    argsList.addAll((List<Object>) arg);
-                } else if (arg instanceof ArrayLike) {
-                    ArrayLike arrayLike = (ArrayLike) arg;
-                    argsList.addAll(arrayLike.toList());
+        if (node.children.size() > 1) { // check for rare case, new syntax without parentheses
+            Node fnArgsNode = node.children.get(2);
+            int argsCount = fnArgsNode.children.size();
+            for (int i = 0; i < argsCount; i++) {
+                Node fnArgNode = fnArgsNode.children.get(i);
+                Node argNode = fnArgNode.children.get(0);
+                if (argNode.isChunk()) { // DOT_DOT_DOT
+                    Object arg = eval(fnArgNode.children.get(1), context);
+                    if (arg instanceof List) {
+                        argsList.addAll((List<Object>) arg);
+                    } else if (arg instanceof ArrayLike) {
+                        ArrayLike arrayLike = (ArrayLike) arg;
+                        argsList.addAll(arrayLike.toList());
+                    }
+                } else {
+                    Object arg = eval(argNode, context);
+                    argsList.add(arg);
                 }
-            } else {
-                Object arg = eval(argNode, context);
-                argsList.add(arg);
             }
         }
         Object[] args = argsList.toArray();
@@ -216,23 +221,27 @@ public class Interpreter {
         } else {
             jsFunction = null;
         }
-        if (context.newInstance != null) { // new keyword, call constructor
-            if (invokable instanceof JsFunction) {
-                context.newInstance.setPrototype(((JsFunction) invokable).getPrototype());
-            }
-            thisObject = context.newInstance;
-            context.newInstance = null;
+        if (context.construct) { // new keyword
+            context.construct = false;
+            thisObject = o;
             if (jsFunction != null) {
                 jsFunction.thisObject = thisObject;
             }
             Object result = invokable.invoke(args);
+            if (result instanceof JsString) {
+                return ((JsString) result).text;
+            }
             return Terms.isPrimitive(result) ? thisObject : result;
         } else { // normal function call
             thisObject = prop.object == null ? invokable : prop.object;
             if (jsFunction != null) {
                 jsFunction.thisObject = thisObject;
             }
-            return invokable.invoke(args);
+            Object result = invokable.invoke(args);
+            if (result instanceof JsString) {
+                return ((JsString) result).text;
+            }
+            return result;
         }
     }
 
@@ -510,8 +519,12 @@ public class Interpreter {
     }
 
     private static Object evalNewExpr(Node node, Context context) {
-        context.newInstance = new JsObject();
-        return eval(node.children.get(1), context);
+        context.construct = true;
+        Node fn = node.children.get(1);
+        if (fn.children.get(0).type == Type.REF_EXPR) { // rare case where there were no parentheses on constructor call
+            return evalFnCall(fn, context);
+        }
+        return eval(fn, context);
     }
 
     private static Object evalProgram(Node node, Context context) {
@@ -530,9 +543,6 @@ public class Interpreter {
                 String message = child.toStringError(errorMessage == null ? errorThrown.toString() : errorMessage);
                 throw new EvalError(message);
             }
-        }
-        if (progResult instanceof JsString) {
-            return ((JsString) progResult).text;
         }
         return progResult;
     }

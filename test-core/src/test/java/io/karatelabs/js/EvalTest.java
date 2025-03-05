@@ -336,7 +336,7 @@ class EvalTest {
     void testStringTemplate() {
         assertEquals("foobar", eval("var a = 'foo'; `${a}bar`"));
         assertEquals("foobar", eval("var a = x => 'foo'; `${a()}bar`"));
-        // assertEquals("[1, 2, 3]", eval("`[${[].map.call([1,2,3], String).join(', ')}]`"));
+        assertEquals("[1, 2, 3]", eval("`[${[].map.call([1,2,3], String).join(', ')}]`"));
     }
 
     @Test
@@ -465,21 +465,21 @@ class EvalTest {
         assertEquals(true, eval(js + "dog instanceof Dog"));
     }
 
-//    @Test
-//    void testStringConstructor() {
-//        assertEquals("", eval("String()"));
-//        assertEquals("undefined", eval("String(undefined)"));
-//        assertEquals("", eval("String(null)"));
-//        assertEquals("42", eval("String(42)"));
-//        assertEquals("true", eval("String(true)"));
-//        assertEquals(true, eval("typeof String() === 'string'"));
-//        assertEquals(true, eval("typeof new String() === 'object'"));
-//        assertEquals("", eval("new String().valueOf()"));
-//        assertEquals("hello", eval("new String('hello').valueOf()"));
-//        assertEquals(true, eval("new String('hello') instanceof String"));
-//        assertEquals("[object Object]", eval("String({})"));
-//        assertEquals("1,2,3", eval("String([1,2,3])"));
-//    }
+    @Test
+    void testStringConstructor() {
+        assertEquals("", eval("new String()"));
+        assertEquals("", eval("new String"));
+        assertEquals("", eval("String()"));
+        assertEquals("undefined", eval("String(undefined)"));
+        assertEquals("", eval("String(null)"));
+        assertEquals("42", eval("String(42)"));
+        assertEquals("true", eval("String(true)"));
+        assertEquals(true, eval("typeof String() === 'string'"));
+        assertEquals("", eval("new String().valueOf()"));
+        assertEquals("hello", eval("new String('hello').valueOf()"));
+        // assertEquals(true, eval("typeof new String() === 'object'")); intentional non-conformance
+        // assertEquals(true, eval("new String('hello') instanceof String")); intentional non-conformance
+    }
 
     @Test
     void testStringApi() {

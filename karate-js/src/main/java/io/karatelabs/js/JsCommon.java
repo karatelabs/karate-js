@@ -293,6 +293,17 @@ public class JsCommon {
         }
     }
 
+    static Invokable toInvokable(Object object) {
+        if (object instanceof Invokable) {
+            return (Invokable) object;
+        }
+        if (object instanceof Prototype) {
+            Prototype prototype = (Prototype) object;
+            return (Invokable) prototype.getPrototype().get("constructor");
+        }
+        return null;
+    }
+
     static Map<String, Object> getBaseArrayPrototype(ArrayLike array) {
         Map<String, Object> prototype = new HashMap<>();
         prototype.put("toString", new JsFunction() {
@@ -308,7 +319,7 @@ public class JsCommon {
             public Object invoke(Object... args) {
                 List<Object> results = new ArrayList<>();
                 ArrayLike thisArray = thisArray(array, thisObject);
-                Invokable invokable = (Invokable) args[0];
+                Invokable invokable = toInvokable(args[0]);
                 for (KeyValue kv : toIterable(thisArray)) {
                     Object result = invokable.invoke(kv.value, kv.index);
                     results.add(result);
@@ -321,7 +332,7 @@ public class JsCommon {
             public Object invoke(Object... args) {
                 List<Object> results = new ArrayList<>();
                 ArrayLike thisArray = thisArray(array, thisObject);
-                Invokable invokable = (Invokable) args[0];
+                Invokable invokable = toInvokable(args[0]);
                 for (KeyValue kv : toIterable(thisArray)) {
                     Object result = invokable.invoke(kv.value, kv.index);
                     if (Terms.isTruthy(result)) {
@@ -355,7 +366,7 @@ public class JsCommon {
             @Override
             public Object invoke(Object... args) {
                 ArrayLike thisArray = thisArray(array, thisObject);
-                Invokable invokable = (Invokable) args[0];
+                Invokable invokable = toInvokable(args[0]);
                 for (KeyValue kv : toIterable(thisArray)) {
                     Object result = invokable.invoke(kv.value, kv.index);
                     if (Terms.isTruthy(result)) {

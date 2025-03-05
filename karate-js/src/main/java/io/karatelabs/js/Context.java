@@ -168,7 +168,7 @@ public class Context {
 
     //==================================================================================================================
     //
-    JsObject newInstance;
+    boolean construct;
     Node currentNode;
 
     private boolean stopped;

@@ -36,8 +36,20 @@ public class JsString extends JsObject {
     }
 
     @Override
+    public String toString() {
+        return text;
+    }
+
+    @Override
     Map<String, Object> initPrototype() {
         Map<String, Object> prototype = super.initPrototype();
+        prototype.put("constructor", (Invokable) args -> {
+            String temp = "";
+            if (args.length > 0 && args[0] != null) {
+                temp = args[0].toString();
+            }
+            return new JsString(temp);
+        });
         prototype.put("indexOf", (Invokable) args -> {
             if (args.length > 1) {
                 return text.indexOf((String) args[0], ((Number) args[1]).intValue());
@@ -154,8 +166,8 @@ public class JsString extends JsObject {
             if (beginIndex < 0) beginIndex = Math.max(text.length() + beginIndex, 0);
             if (endIndex < 0) endIndex = Math.max(text.length() + endIndex, 0);
             // ensure proper range
-            beginIndex = Math.min(Math.max(beginIndex, 0), text.length());
-            endIndex = Math.min(Math.max(endIndex, 0), text.length());
+            beginIndex = Math.min(beginIndex, text.length());
+            endIndex = Math.min(endIndex, text.length());
             if (beginIndex >= endIndex) return "";
             return text.substring(beginIndex, endIndex);
         });

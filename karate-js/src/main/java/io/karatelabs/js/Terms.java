@@ -244,7 +244,7 @@ public class Terms {
         if (value == null) {
             return true;
         }
-        if (value instanceof String || value instanceof JsString
+        if (value instanceof String
                 || (value instanceof Number && !(value instanceof BigDecimal))
                 || value instanceof Boolean) {
             return true;
@@ -253,7 +253,7 @@ public class Terms {
     }
 
     public static String typeOf(Object value) {
-        if (value instanceof JsString || value instanceof String) {
+        if (value instanceof String) {
             return "string";
         }
         if (value instanceof Invokable) {
