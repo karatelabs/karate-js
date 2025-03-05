@@ -531,6 +531,9 @@ public class Interpreter {
                 throw new EvalError(message);
             }
         }
+        if (progResult instanceof JsString) {
+            return ((JsString) progResult).text;
+        }
         return progResult;
     }
 

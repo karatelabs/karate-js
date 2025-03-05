@@ -62,7 +62,7 @@ public class Context {
         globals.put("Error", new JsError("Error"));
         globals.put("TypeError", new JsError("TypeError"));
         globals.put("console", JsCommon.CONSOLE);
-        globals.put("String", JsCommon.STRING_CONSTRUCTOR);
+        globals.put("String", JsCommon.GLOBAL_STRING);
         globals.put("Infinity", Terms.POSITIVE_INFINITY);
         globals.put("NaN", Undefined.NAN);
         globals.put("Math", JsCommon.MATH);

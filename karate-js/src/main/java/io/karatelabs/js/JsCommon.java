@@ -49,12 +49,7 @@ public class JsCommon {
         return false;
     }
 
-    static final Invokable STRING_CONSTRUCTOR = args -> {
-        if (args.length > 0 && args[0] != null) {
-            return args[0].toString();
-        }
-        return null;
-    };
+    static final JsObject GLOBAL_STRING = new JsString("");
 
     static String TO_STRING(Object o) {
         if (o == null) {
