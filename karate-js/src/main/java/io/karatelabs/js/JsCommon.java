@@ -27,6 +27,7 @@ import net.minidev.json.JSONValue;
 
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class JsCommon {
@@ -72,9 +73,7 @@ public class JsCommon {
         return object;
     }
 
-    static final JsObject CONSOLE = createConsole();
-
-    private static JsObject createConsole() {
+    static JsObject createConsole(Consumer<String> logger) {
         JsObject object = new JsObject();
         object.put("log", (Invokable) args -> {
             StringBuilder sb = new StringBuilder();
@@ -91,7 +90,7 @@ public class JsCommon {
                 }
                 sb.append(' ');
             }
-            System.out.println(sb);
+            logger.accept(sb.toString());
             return null;
         });
         return object;

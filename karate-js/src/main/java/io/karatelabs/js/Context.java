@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class Context {
 
@@ -61,14 +62,18 @@ public class Context {
         globals.put("Array", JsCommon.GLOBAL_ARRAY);
         globals.put("Error", new JsError("Error"));
         globals.put("TypeError", new JsError("TypeError"));
-        globals.put("console", JsCommon.CONSOLE);
         globals.put("String", JsCommon.GLOBAL_STRING);
         globals.put("Infinity", Terms.POSITIVE_INFINITY);
         globals.put("NaN", Undefined.NAN);
         globals.put("Math", JsCommon.MATH);
         globals.put("parseInt", JsCommon.PARSE_INT);
         globals.put("JSON", JsCommon.JSON);
+        globals.put("console", JsCommon.createConsole(System.out::println));
         return globals;
+    }
+
+    public void setOnConsole(Consumer<String> onConsole) {
+        parent.bindings.put("console", JsCommon.createConsole(onConsole));
     }
 
     public void setOnError(BiConsumer<Node, Exception> onError) {
