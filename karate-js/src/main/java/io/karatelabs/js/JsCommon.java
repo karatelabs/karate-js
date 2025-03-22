@@ -453,6 +453,52 @@ public class JsCommon {
                 return result;
             }
         });
+        prototype.put("forEach", new JsFunction() {
+            @Override
+            public Object invoke(Object... args) {
+                ArrayLike thisArray = thisArray(array, thisObject);
+                Invokable invokable = toInvokable(args[0]);
+                for (KeyValue kv : toIterable(thisArray)) {
+                    invokable.invoke(kv.value, kv.index, thisArray);
+                }
+                return Undefined.INSTANCE;
+            }
+        });
+        prototype.put("concat", new JsFunction() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public Object invoke(Object... args) {
+                ArrayLike thisArray = thisArray(array, thisObject);
+                List<Object> result = new ArrayList<>(thisArray.toList());
+                for (Object arg : args) {
+                    if (arg instanceof List) {
+                        result.addAll((List<Object>) arg);
+                    } else if (arg instanceof ArrayLike) {
+                        result.addAll(((ArrayLike) arg).toList());
+                    } else {
+                        result.add(arg);
+                    }
+                }
+                return result;
+            }
+        });
+        prototype.put("every", new JsFunction() {
+            @Override
+            public Object invoke(Object... args) {
+                ArrayLike thisArray = thisArray(array, thisObject);
+                if (thisArray.size() == 0) {
+                    return true;
+                }
+                Invokable invokable = toInvokable(args[0]);
+                for (KeyValue kv : toIterable(thisArray)) {
+                    Object result = invokable.invoke(kv.value, kv.index, thisArray);
+                    if (!Terms.isTruthy(result)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        });
         return prototype;
     }
 

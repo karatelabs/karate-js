@@ -760,6 +760,18 @@ class EvalTest {
         match(eval("[1, 2, 3, 4, 5].slice(-3)"), "[3, 4, 5]");
         match(eval("[1, 2, 3, 4, 5].slice(0, 10)"), "[1, 2, 3, 4, 5]");
         match(eval("[1, 2, 3, 4, 5].slice(10, 1)"), "[]");
+        eval("var sum = 0; [1, 2, 3].forEach(function(value) { sum += value; });");
+        assertEquals(6, get("sum"));
+        eval("var result = []; [1, 2, 3].forEach(function(value, index) { result.push(value * index); });");
+        match(get("result"), "[0, 2, 6]");
+        match(eval("[1, 2, 3].concat([4, 5])"), "[1, 2, 3, 4, 5]");
+        match(eval("[1, 2, 3].concat(4, 5)"), "[1, 2, 3, 4, 5]");
+        match(eval("[1, 2, 3].concat([4, 5], 6, [7, 8])"), "[1, 2, 3, 4, 5, 6, 7, 8]");
+        match(eval("[].concat('a', 'b', 'c')"), "['a', 'b', 'c']");
+        assertEquals(true, eval("[2, 4, 6].every(x => x % 2 === 0)"));
+        assertEquals(false, eval("[2, 3, 6].every(x => x % 2 === 0)"));
+        assertEquals(true, eval("[].every(x => false)"));
+        assertEquals(true, eval("[1, 2, 3].every((val, idx, arr) => arr.length === 3)"));
     }
 
     @Test
