@@ -194,6 +194,30 @@ public class JsString extends JsObject {
         prototype.put("trimRight", (Invokable) args -> text.replaceAll("\\s+$", ""));
         prototype.put("trimLeft", (Invokable) args -> text.replaceAll("^\\s+", ""));
         prototype.put("valueOf", (Invokable) args -> text);
+        prototype.put("fromCharCode", (Invokable) args -> {
+            StringBuilder sb = new StringBuilder();
+            for (Object arg : args) {
+                if (arg instanceof Number) {
+                    Number num = (Number) arg;
+                    sb.append((char) num.intValue());
+                }
+            }
+            return sb.toString();
+        });
+        prototype.put("fromCodePoint", (Invokable) args -> {
+            StringBuilder sb = new StringBuilder();
+            for (Object arg : args) {
+                if (arg instanceof Number) {
+                    Number num = (Number) arg;
+                    int n = num.intValue();
+                    if (n < 0 || n > 0x10FFFF) {
+                        throw new RuntimeException("invalid code point: " + num);
+                    }
+                    sb.appendCodePoint(n);
+                }
+            }
+            return sb.toString();
+        });
         return prototype;
     }
 

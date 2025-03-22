@@ -534,9 +534,8 @@ class EvalTest {
         assertEquals("  foo", eval("a = '  foo  '; a.trimRight()"));
         assertEquals("foo  ", eval("a = '  foo  '; a.trimLeft()"));
         assertEquals("foobar", eval("a = 'foobar'; a.valueOf()"));
-        // static method tests
-//        assertEquals("ABC", eval("String.fromCharCode(65, 66, 67)"));
-//        assertEquals("😀", eval("String.fromCodePoint(128512)")); // emoji code point
+        assertEquals("ABC", eval("String.fromCharCode(65, 66, 67)"));
+        assertEquals("😀", eval("String.fromCodePoint(128512)"));
         // behavior beyond js spec for java interop convenience
         eval("var a = 'foo'; var b = a.getBytes()");
         byte[] bytes = (byte[]) get("b");
@@ -754,6 +753,13 @@ class EvalTest {
         assertEquals(true, eval("[1, 2, 3].includes(2)"));
         assertEquals(1, eval("[1, 2, 3].indexOf(2)"));
         assertEquals(-1, eval("[1, 2, 3].indexOf(5)"));
+        match(eval("[1, 2, 3, 4, 5].slice(1, 4)"), "[2, 3, 4]");
+        match(eval("[1, 2, 3, 4, 5].slice(2)"), "[3, 4, 5]");
+        match(eval("[1, 2, 3, 4, 5].slice(1, -1)"), "[2, 3, 4]");
+        match(eval("[1, 2, 3, 4, 5].slice(-3, -1)"), "[3, 4]");
+        match(eval("[1, 2, 3, 4, 5].slice(-3)"), "[3, 4, 5]");
+        match(eval("[1, 2, 3, 4, 5].slice(0, 10)"), "[1, 2, 3, 4, 5]");
+        match(eval("[1, 2, 3, 4, 5].slice(10, 1)"), "[]");
     }
 
     @Test

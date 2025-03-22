@@ -421,6 +421,38 @@ public class JsCommon {
                 return -1;
             }
         });
+        prototype.put("slice", new JsFunction() {
+            @Override
+            public Object invoke(Object... args) {
+                ArrayLike thisArray = thisArray(array, thisObject);
+                int size = thisArray.size();
+                int start = 0;
+                int end = size;
+                
+                if (args.length > 0 && args[0] != null) {
+                    start = Terms.toNumber(args[0]).intValue();
+                    if (start < 0) {
+                        start = Math.max(size + start, 0);
+                    }
+                }
+                
+                if (args.length > 1 && args[1] != null) {
+                    end = Terms.toNumber(args[1]).intValue();
+                    if (end < 0) {
+                        end = Math.max(size + end, 0);
+                    }
+                }
+                
+                start = Math.min(start, size);
+                end = Math.min(end, size);
+                
+                List<Object> result = new ArrayList<>();
+                for (int i = start; i < end; i++) {
+                    result.add(thisArray.get(i));
+                }
+                return result;
+            }
+        });
         return prototype;
     }
 
