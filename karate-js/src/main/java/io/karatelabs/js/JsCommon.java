@@ -549,6 +549,29 @@ public class JsCommon {
                 return accumulator;
             }
         });
+        prototype.put("reduceRight", new JsFunction() {
+            @Override
+            public Object invoke(Object... args) {
+                ArrayLike thisArray = thisArray(array, thisObject);
+                Invokable callback = toInvokable(args[0]);
+                if (thisArray.size() == 0 && args.length < 2) {
+                    throw new RuntimeException("reduceRight() called on empty array with no initial value");
+                }
+                int startIndex = thisArray.size() - 1;
+                Object accumulator;
+                if (args.length >= 2) {
+                    accumulator = args[1];
+                } else {
+                    accumulator = thisArray.get(startIndex);
+                    startIndex--;
+                }
+                for (int i = startIndex; i >= 0; i--) {
+                    Object currentValue = thisArray.get(i);
+                    accumulator = callback.invoke(accumulator, currentValue, i, thisArray);
+                }
+                return accumulator;
+            }
+        });
         return prototype;
     }
 

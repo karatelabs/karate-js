@@ -793,6 +793,17 @@ class EvalTest {
             assertTrue(e.getMessage().contains("empty array"));
         }
         assertEquals("initial", eval("[].reduce((acc, val) => acc + val, 'initial')"));
+        assertEquals(6, eval("[1, 2, 3].reduceRight((acc, val) => acc + val)"));
+        assertEquals("321", eval("[1, 2, 3].reduceRight((acc, val) => acc + val, '')"));
+        try {
+            eval("[].reduceRight((acc, val) => acc + val)");
+            fail("should throw exception for empty array with no initial value");
+        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("empty array"));
+        }
+        assertEquals("initial", eval("[].reduceRight((acc, val) => acc + val, 'initial')"));
+        eval("var indices = []; [10, 20, 30].reduceRight((acc, val, idx) => { indices.push(idx); return acc + val; }, 0);");
+        NodeUtils.match(get("indices"), "[2, 1, 0]"); // indices are in reverse order
     }
 
     @Test
