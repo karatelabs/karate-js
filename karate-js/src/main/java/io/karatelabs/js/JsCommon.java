@@ -149,6 +149,22 @@ public class JsCommon {
                     return results;
                 }
             });
+            prototype.put("isArray", new JsFunction() {
+                @Override
+                public Object invoke(Object... args) {
+                    if (args.length == 0) {
+                        return false;
+                    }
+                    Object arg = args[0];
+                    return arg instanceof List || arg instanceof ArrayLike;
+                }
+            });
+            prototype.put("of", new JsFunction() {
+                @Override
+                public Object invoke(Object... args) {
+                    return Arrays.asList(args);
+                }
+            });
             return prototype;
         }
     };
@@ -849,6 +865,194 @@ public class JsCommon {
                 originalList.clear();
                 originalList.addAll(newList);
                 return lastElement;
+            }
+        });
+        prototype.put("at", new JsFunction() {
+            @Override
+            public Object invoke(Object... args) {
+                ArrayLike thisArray = thisArray(array, thisObject);
+                int size = thisArray.size();
+                if (size == 0 || args.length == 0 || args[0] == null) {
+                    return Undefined.INSTANCE;
+                }
+                int index = Terms.toNumber(args[0]).intValue();
+                if (index < 0) {
+                    index = size + index;
+                }
+                if (index < 0 || index >= size) {
+                    return Undefined.INSTANCE;
+                }
+                return thisArray.get(index);
+            }
+        });
+        prototype.put("copyWithin", new JsFunction() {
+            @Override
+            public Object invoke(Object... args) {
+                ArrayLike thisArray = thisArray(array, thisObject);
+                int size = thisArray.size();
+                if (size == 0 || args.length == 0) {
+                    return thisArray.toList();
+                }
+                int target = Terms.toNumber(args[0]).intValue();
+                if (target < 0) {
+                    target = Math.max(size + target, 0);
+                }
+                int start = 0;
+                if (args.length > 1 && args[1] != null) {
+                    start = Terms.toNumber(args[1]).intValue();
+                    if (start < 0) {
+                        start = Math.max(size + start, 0);
+                    }
+                }
+                int end = size;
+                if (args.length > 2 && args[2] != null) {
+                    end = Terms.toNumber(args[2]).intValue();
+                    if (end < 0) {
+                        end = Math.max(size + end, 0);
+                    }
+                }
+                start = Math.min(start, size);
+                end = Math.min(end, size);
+                target = Math.min(target, size);
+                // The elements to be copied
+                List<Object> toCopy = new ArrayList<>();
+                for (int i = start; i < end; i++) {
+                    toCopy.add(thisArray.get(i));
+                }
+                if (toCopy.isEmpty()) {
+                    return thisArray.toList();
+                }
+                // Create a copy of the list to avoid concurrent modification issues
+                List<Object> list = new ArrayList<>(thisArray.toList());
+                // Copy elements over
+                int copyCount = 0;
+                for (int i = target; i < size && copyCount < toCopy.size(); i++) {
+                    list.set(i, toCopy.get(copyCount++));
+                }
+                // Update the original array
+                List<Object> originalList = thisArray.toList();
+                originalList.clear();
+                originalList.addAll(list);
+                return thisArray.toList();
+            }
+        });
+        prototype.put("keys", new JsFunction() {
+            @Override
+            public Object invoke(Object... args) {
+                ArrayLike thisArray = thisArray(array, thisObject);
+                List<Object> result = new ArrayList<>();
+                int size = thisArray.size();
+                for (int i = 0; i < size; i++) {
+                    result.add(i);
+                }
+                return result;
+            }
+        });
+        prototype.put("values", new JsFunction() {
+            @Override
+            public Object invoke(Object... args) {
+                ArrayLike thisArray = thisArray(array, thisObject);
+                return thisArray.toList();
+            }
+        });
+        prototype.put("entries", new JsFunction() {
+            @Override
+            public Object invoke(Object... args) {
+                ArrayLike thisArray = thisArray(array, thisObject);
+                List<Object> result = new ArrayList<>();
+                int size = thisArray.size();
+                for (int i = 0; i < size; i++) {
+                    List<Object> entry = new ArrayList<>();
+                    entry.add(i);
+                    entry.add(thisArray.get(i));
+                    result.add(entry);
+                }
+                return result;
+            }
+        });
+        prototype.put("findLast", new JsFunction() {
+            @Override
+            public Object invoke(Object... args) {
+                ArrayLike thisArray = thisArray(array, thisObject);
+                int size = thisArray.size();
+                if (size == 0 || args.length == 0) {
+                    return Undefined.INSTANCE;
+                }
+                Invokable invokable = toInvokable(args[0]);
+                for (int i = size - 1; i >= 0; i--) {
+                    Object value = thisArray.get(i);
+                    Object result = invokable.invoke(value, i, thisArray);
+                    if (Terms.isTruthy(result)) {
+                        return value;
+                    }
+                }
+                return Undefined.INSTANCE;
+            }
+        });
+        prototype.put("findLastIndex", new JsFunction() {
+            @Override
+            public Object invoke(Object... args) {
+                ArrayLike thisArray = thisArray(array, thisObject);
+                int size = thisArray.size();
+                if (size == 0 || args.length == 0) {
+                    return -1;
+                }
+                Invokable invokable = toInvokable(args[0]);
+                for (int i = size - 1; i >= 0; i--) {
+                    Object value = thisArray.get(i);
+                    Object result = invokable.invoke(value, i, thisArray);
+                    if (Terms.isTruthy(result)) {
+                        return i;
+                    }
+                }
+                return -1;
+            }
+        });
+        prototype.put("with", new JsFunction() {
+            @Override
+            public Object invoke(Object... args) {
+                ArrayLike thisArray = thisArray(array, thisObject);
+                int size = thisArray.size();
+                if (size == 0 || args.length < 2) {
+                    return thisArray.toList();
+                }
+                int index = Terms.toNumber(args[0]).intValue();
+                if (index < 0) {
+                    index = size + index;
+                }
+                if (index < 0 || index >= size) {
+                    return thisArray.toList(); // If index is out of bounds, return a copy of the array
+                }
+                Object value = args[1];
+                // Create a copy of the original array
+                List<Object> result = new ArrayList<>(thisArray.toList());
+                // Replace the value at the specified index
+                result.set(index, value);
+                return result;
+            }
+        });
+        prototype.put("group", new JsFunction() {
+            @Override
+            public Object invoke(Object... args) {
+                ArrayLike thisArray = thisArray(array, thisObject);
+                if (args.length == 0) {
+                    return new JsObject();
+                }
+                Invokable callbackFn = toInvokable(args[0]);
+                Map<String, List<Object>> groups = new HashMap<>();
+                for (KeyValue kv : toIterable(thisArray)) {
+                    Object key = callbackFn.invoke(kv.value, kv.index, thisArray);
+                    String keyStr = key == null ? "null" : key.toString();
+                    if (!groups.containsKey(keyStr)) {
+                        groups.put(keyStr, new ArrayList<>());
+                    }
+                    groups.get(keyStr).add(kv.value);
+                }
+                JsObject result = new JsObject();
+                for (Map.Entry<String, List<Object>> entry : groups.entrySet()) {
+                    result.put(entry.getKey(), entry.getValue());
+                }
+                return result;
             }
         });
         return prototype;

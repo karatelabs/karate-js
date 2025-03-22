@@ -43,6 +43,9 @@ public class NodeUtils {
                     Assertions.fail("List expected, actual is: " + actual);
                 }
             } else if (expected instanceof Map) {
+                if (actual instanceof ObjectLike) {
+                    actual = ((ObjectLike) actual).toMap();
+                }
                 if (actual instanceof Map) {
                     Map<String, Object> actMap = (Map<String, Object>) actual;
                     Map<String, Object> expMap = (Map<String, Object>) expected;

@@ -51,7 +51,8 @@ class EvalTest {
 
     @Test
     void testDev() {
-
+        eval("var result = [1, 2, 3, 4, 5].group(x => x % 2 === 0 ? 'even' : 'odd');");
+        match(get("result"), "{ even: [2, 4], odd: [1, 3, 5] }");
     }
 
     @Test
@@ -861,6 +862,55 @@ class EvalTest {
         match(eval("var a = [1, 2, 3]; var popped = a.pop(); popped"), "3");
         match(eval("var a = [1, 2, 3]; a.pop(); a"), "[1, 2]");
         match(eval("var a = []; var popped = a.pop(); popped"), "undefined");
+        // at() tests
+        assertEquals(2, eval("[1, 2, 3].at(1)"));
+        assertEquals(3, eval("[1, 2, 3].at(-1)"));
+        assertEquals(2, eval("[1, 2, 3].at(-2)"));
+        assertEquals(Undefined.INSTANCE, eval("[1, 2, 3].at(3)"));
+        assertEquals(Undefined.INSTANCE, eval("[1, 2, 3].at(-4)"));
+        assertEquals(Undefined.INSTANCE, eval("[].at(0)"));
+        // copyWithin() tests
+        match(eval("[1, 2, 3, 4, 5].copyWithin(0, 3)"), "[4, 5, 3, 4, 5]");
+        match(eval("[1, 2, 3, 4, 5].copyWithin(1, 3)"), "[1, 4, 5, 4, 5]");
+        match(eval("[1, 2, 3, 4, 5].copyWithin(0, 3, 4)"), "[4, 2, 3, 4, 5]");
+        match(eval("[1, 2, 3, 4, 5].copyWithin(1, 2, 4)"), "[1, 3, 4, 4, 5]");
+        match(eval("[1, 2, 3, 4, 5].copyWithin(-2, 0, 2)"), "[1, 2, 3, 1, 2]");
+        // keys(), values(), entries() tests
+        match(eval("[1, 2, 3].keys()"), "[0, 1, 2]");
+        match(eval("[1, 2, 3].values()"), "[1, 2, 3]");
+        match(eval("[].values()"), "[]");
+        match(eval("[1, 2, 3].entries()"), "[[0, 1], [1, 2], [2, 3]]");
+        // Array.isArray() and Array.of() tests
+        assertEquals(true, eval("Array.isArray([])"));
+        assertEquals(true, eval("Array.isArray([1, 2, 3])"));
+        assertEquals(false, eval("Array.isArray({})"));
+        assertEquals(false, eval("Array.isArray('foo')"));
+        assertEquals(false, eval("Array.isArray(123)"));
+        match(eval("Array.of(1, 2, 3)"), "[1, 2, 3]");
+        match(eval("Array.of('a', 'b', 'c')"), "['a', 'b', 'c']");
+        match(eval("Array.of(1, 'a', true)"), "[1, 'a', true]");
+        match(eval("Array.of()"), "[]");
+        // findLast() and findLastIndex() tests
+        assertEquals(4, eval("[1, 2, 3, 4, 5].findLast(x => x % 2 === 0)"));
+        assertEquals(Undefined.INSTANCE, eval("[1, 3, 5, 7].findLast(x => x % 2 === 0)"));
+        assertEquals(Undefined.INSTANCE, eval("[].findLast(x => true)"));
+        assertEquals(4, eval("[1, 2, 3, 4, 2].findLastIndex(x => x % 2 === 0)"));
+        assertEquals(2, eval("[1, 2, 3, 4, 2].findLastIndex(x => x === 3)"));
+        assertEquals(-1, eval("[1, 3, 5, 7].findLastIndex(x => x % 2 === 0)"));
+        assertEquals(-1, eval("[].findLastIndex(x => true)"));
+        // group() tests
+        eval("var result = [1, 2, 3, 4, 5].group(x => x % 2 === 0 ? 'even' : 'odd');");
+        match(get("result"), "{ even: [2, 4], odd: [1, 3, 5] }");
+        eval("var result = ['apple', 'banana', 'cherry'].group(x => x[0]);");
+        match(get("result"), "{ a: ['apple'], b: ['banana'], c: ['cherry'] }");
+        eval("var result = [].group(x => x);");
+        match(get("result"), "{}");
+        // with() tests
+        match(eval("[1, 2, 3, 4].with(1, 'a')"), "[1, 'a', 3, 4]");
+        match(eval("[1, 2, 3, 4].with(-1, 'a')"), "[1, 2, 3, 'a']");
+        match(eval("[1, 2, 3, 4].with(10, 'a')"), "[1, 2, 3, 4]"); // index out of bounds, returns copy
+        match(eval("[1, 2, 3, 4].with(-10, 'a')"), "[1, 2, 3, 4]"); // negative index out of bounds
+        match(eval("[].with(0, 'a')"), "[]"); // empty array returns copy
         // indexOf with fromIndex
         assertEquals(1, eval("[1, 2, 3, 2].indexOf(2)"));
         assertEquals(3, eval("[1, 2, 3, 2].indexOf(2, 2)"));
