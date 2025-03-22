@@ -428,24 +428,20 @@ public class JsCommon {
                 int size = thisArray.size();
                 int start = 0;
                 int end = size;
-                
                 if (args.length > 0 && args[0] != null) {
                     start = Terms.toNumber(args[0]).intValue();
                     if (start < 0) {
                         start = Math.max(size + start, 0);
                     }
                 }
-                
                 if (args.length > 1 && args[1] != null) {
                     end = Terms.toNumber(args[1]).intValue();
                     if (end < 0) {
                         end = Math.max(size + end, 0);
                     }
                 }
-                
                 start = Math.min(start, size);
                 end = Math.min(end, size);
-                
                 List<Object> result = new ArrayList<>();
                 for (int i = start; i < end; i++) {
                     result.add(thisArray.get(i));
@@ -497,6 +493,23 @@ public class JsCommon {
                     }
                 }
                 return true;
+            }
+        });
+        prototype.put("some", new JsFunction() {
+            @Override
+            public Object invoke(Object... args) {
+                ArrayLike thisArray = thisArray(array, thisObject);
+                if (thisArray.size() == 0) {
+                    return false;
+                }
+                Invokable invokable = toInvokable(args[0]);
+                for (KeyValue kv : toIterable(thisArray)) {
+                    Object result = invokable.invoke(kv.value, kv.index, thisArray);
+                    if (Terms.isTruthy(result)) {
+                        return true;
+                    }
+                }
+                return false;
             }
         });
         return prototype;

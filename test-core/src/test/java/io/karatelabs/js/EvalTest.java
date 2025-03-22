@@ -772,6 +772,10 @@ class EvalTest {
         assertEquals(false, eval("[2, 3, 6].every(x => x % 2 === 0)"));
         assertEquals(true, eval("[].every(x => false)"));
         assertEquals(true, eval("[1, 2, 3].every((val, idx, arr) => arr.length === 3)"));
+        assertEquals(true, eval("[1, 2, 3].some(x => x % 2 === 0)"));
+        assertEquals(false, eval("[1, 3, 5].some(x => x % 2 === 0)"));
+        assertEquals(false, eval("[].some(x => true)"));
+        assertEquals(true, eval("[1, 2, 3].some((val, idx, arr) => idx === 1)"));
     }
 
     @Test
