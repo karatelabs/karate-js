@@ -830,8 +830,6 @@ class EvalTest {
         eval("var items = [{name: 'Edward', value: 21}, {name: 'Sharpe', value: 37}, {name: 'And', value: 45}, {name: 'The', value: -12}];" +
                 "items.sort((a, b) => a.value - b.value);");
         NodeUtils.match(get("items"), "[{name: 'The', value: -12}, {name: 'Edward', value: 21}, {name: 'Sharpe', value: 37}, {name: 'And', value: 45}]");
-        // sort() with special values
-        // match(eval("['a', undefined, 'c', null].sort()"), "['a', 'c', null, undefined]");
         // fill() tests
         match(eval("[1, 2, 3].fill(4)"), "[4, 4, 4]");
         match(eval("[1, 2, 3].fill(4, 1)"), "[1, 4, 4]");
@@ -930,6 +928,12 @@ class EvalTest {
     @Test
     void testObjectApi() {
         match(eval("Object.keys({ a: 1, b: 2 })"), "['a', 'b']");
+        match(eval("Object.values({ a: 1, b: 2 })"), "[1, 2]");
+        match(eval("Object.entries({ a: 1, b: 2 })"), "[['a', 1], ['b', 2]]");
+        match(eval("Object.assign({}, { a: 1 }, { b: 2 })"), "{ a: 1, b: 2 }");
+        match(eval("Object.assign({ a: 0 }, { a: 1, b: 2 })"), "{ a: 1, b: 2 }");
+        match(eval("Object.fromEntries([['a', 1], ['b', 2]])"), "{ a: 1, b: 2 }");
+        match(eval("Object.fromEntries(Object.entries({ a: 1, b: 2 }))"), "{ a: 1, b: 2 }");
     }
 
     @Test

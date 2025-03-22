@@ -119,6 +119,100 @@ public class JsCommon {
                     return result;
                 }
             });
+            prototype.put("values", new JsFunction() {
+                @Override
+                public Object invoke(Object... args) {
+                    List<Object> result = new ArrayList<>();
+                    for (KeyValue kv : toIterable(args[0])) {
+                        result.add(kv.value);
+                    }
+                    return result;
+                }
+            });
+            prototype.put("entries", new JsFunction() {
+                @Override
+                public Object invoke(Object... args) {
+                    List<Object> result = new ArrayList<>();
+                    for (KeyValue kv : toIterable(args[0])) {
+                        List<Object> entry = new ArrayList<>();
+                        entry.add(kv.key);
+                        entry.add(kv.value);
+                        result.add(entry);
+                    }
+                    return result;
+                }
+            });
+            prototype.put("assign", new JsFunction() {
+                @Override
+                public Object invoke(Object... args) {
+                    if (args.length < 1) {
+                        return Undefined.INSTANCE;
+                    }
+                    Object target = args[0];
+                    if (target == null) {
+                        throw new RuntimeException("cannot convert undefined or null to object");
+                    }
+                    if (!(target instanceof JsObject) && !(target instanceof Map)) {
+                        target = new JsObject();
+                    }
+                    for (int i = 1; i < args.length; i++) {
+                        Object source = args[i];
+                        if (source == null) {
+                            continue; // Skip null/undefined sources
+                        }
+                        Iterable<KeyValue> properties = toIterable(source);
+                        if (properties != null) {
+                            for (KeyValue kv : properties) {
+                                if (target instanceof JsObject) {
+                                    ((JsObject) target).put(kv.key, kv.value);
+                                } else {
+                                    ((Map) target).put(kv.key, kv.value);
+                                }
+                            }
+                        }
+                    }
+                    return target;
+                }
+            });
+            prototype.put("fromEntries", new JsFunction() {
+                @Override
+                @SuppressWarnings("unchecked")
+                public Object invoke(Object... args) {
+                    if (args.length < 1 || args[0] == null) {
+                        throw new RuntimeException("cannot convert undefined or null to object");
+                    }
+                    Object entriesObj = args[0];
+                    JsObject result = new JsObject();
+                    Iterable<KeyValue> entries = toIterable(entriesObj);
+                    if (entries == null) {
+                        return result;
+                    }
+                    for (KeyValue kv : entries) {
+                        Object entry = kv.value;
+                        if (entry == null) {
+                            continue;
+                        }
+                        String key;
+                        Object value;
+                        if (entry instanceof List) {
+                            List<Object> entryList = (List<Object>) entry;
+                            if (entryList.size() >= 2) {
+                                key = entryList.get(0).toString();
+                                value = entryList.get(1);
+                                result.put(key, value);
+                            }
+                        } else if (entry instanceof ArrayLike) {
+                            ArrayLike entryArray = (ArrayLike) entry;
+                            if (entryArray.size() >= 2) {
+                                key = entryArray.get(0).toString();
+                                value = entryArray.get(1);
+                                result.put(key, value);
+                            }
+                        }
+                    }
+                    return result;
+                }
+            });
             return prototype;
         }
     };
