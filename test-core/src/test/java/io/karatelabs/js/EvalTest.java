@@ -779,6 +779,20 @@ class EvalTest {
         assertEquals(false, eval("[1, 3, 5].some(x => x % 2 === 0)"));
         assertEquals(false, eval("[].some(x => true)"));
         assertEquals(true, eval("[1, 2, 3].some((val, idx, arr) => idx === 1)"));
+        assertEquals(6, eval("[1, 2, 3].reduce((acc, val) => acc + val)"));
+        assertEquals(10, eval("[1, 2, 3].reduce((acc, val) => acc + val, 4)"));
+        assertEquals("123", eval("[1, 2, 3].reduce((acc, val) => acc + val, '')"));
+        assertEquals("0-1-2-3", eval("[1, 2, 3].reduce((acc, val, idx) => acc + '-' + val, 0)"));
+        eval("var indices = []; var arrayFirstItems = []; [10, 20, 30].reduce((acc, val, idx, arr) => { indices.push(idx); arrayFirstItems.push(arr[0]); return acc + val; }, 0);");
+        NodeUtils.match(get("indices"), "[0, 1, 2]");
+        NodeUtils.match(get("arrayFirstItems"), "[10, 10, 10]"); // verifying we receive the actual array
+        try {
+            eval("[].reduce((acc, val) => acc + val)");
+            fail("should throw exception for empty array with no initial value");
+        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("empty array"));
+        }
+        assertEquals("initial", eval("[].reduce((acc, val) => acc + val, 'initial')"));
     }
 
     @Test

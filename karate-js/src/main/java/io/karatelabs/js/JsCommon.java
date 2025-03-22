@@ -526,6 +526,29 @@ public class JsCommon {
                 return false;
             }
         });
+        prototype.put("reduce", new JsFunction() {
+            @Override
+            public Object invoke(Object... args) {
+                ArrayLike thisArray = thisArray(array, thisObject);
+                Invokable callback = toInvokable(args[0]);
+                if (thisArray.size() == 0 && args.length < 2) {
+                    throw new RuntimeException("reduce() called on empty array with no initial value");
+                }
+                int startIndex = 0;
+                Object accumulator;
+                if (args.length >= 2) {
+                    accumulator = args[1];
+                } else {
+                    accumulator = thisArray.get(0);
+                    startIndex = 1;
+                }
+                for (int i = startIndex; i < thisArray.size(); i++) {
+                    Object currentValue = thisArray.get(i);
+                    accumulator = callback.invoke(accumulator, currentValue, i, thisArray);
+                }
+                return accumulator;
+            }
+        });
         return prototype;
     }
 
