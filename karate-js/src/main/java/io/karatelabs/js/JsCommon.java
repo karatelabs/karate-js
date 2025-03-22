@@ -427,9 +427,27 @@ public class JsCommon {
             @Override
             public Object invoke(Object... args) {
                 ArrayLike thisArray = thisArray(array, thisObject);
-                for (KeyValue kv : toIterable(thisArray)) {
-                    if (Terms.eq(kv.value, args[0], false)) {
-                        return kv.index;
+                int size = thisArray.size();
+                if (size == 0) {
+                    return -1;
+                }
+                if (args.length == 0) {
+                    return -1;
+                }
+                Object searchElement = args[0];
+                int fromIndex = 0;
+                if (args.length > 1 && args[1] != null) {
+                    fromIndex = Terms.toNumber(args[1]).intValue();
+                    if (fromIndex < 0) {
+                        fromIndex = Math.max(size + fromIndex, 0);
+                    }
+                }
+                if (fromIndex >= size) {
+                    return -1;
+                }
+                for (int i = fromIndex; i < size; i++) {
+                    if (Terms.eq(thisArray.get(i), searchElement, false)) {
+                        return i;
                     }
                 }
                 return -1;
@@ -651,6 +669,186 @@ public class JsCommon {
                     }
                 }
                 return thisArray.toList();
+            }
+        });
+        prototype.put("fill", new JsFunction() {
+            @Override
+            public Object invoke(Object... args) {
+                if (args.length == 0) {
+                    return thisObject;
+                }
+                ArrayLike thisArray = thisArray(array, thisObject);
+                int size = thisArray.size();
+                if (size == 0) {
+                    return thisArray.toList();
+                }
+                Object value = args[0];
+                int start = 0;
+                int end = size;
+                if (args.length > 1 && args[1] != null) {
+                    start = Terms.toNumber(args[1]).intValue();
+                    if (start < 0) {
+                        start = Math.max(size + start, 0);
+                    }
+                }
+                if (args.length > 2 && args[2] != null) {
+                    end = Terms.toNumber(args[2]).intValue();
+                    if (end < 0) {
+                        end = Math.max(size + end, 0);
+                    }
+                }
+                start = Math.min(start, size);
+                end = Math.min(end, size);
+                for (int i = start; i < end; i++) {
+                    thisArray.set(i, value);
+                }
+                return thisArray.toList();
+            }
+        });
+        prototype.put("splice", new JsFunction() {
+            @Override
+            public Object invoke(Object... args) {
+                if (args.length == 0) {
+                    return new ArrayList<>();
+                }
+                ArrayLike thisArray = thisArray(array, thisObject);
+                int size = thisArray.size();
+                if (size == 0) {
+                    return new ArrayList<>();
+                }
+                int start = 0;
+                if (args[0] != null) {
+                    start = Terms.toNumber(args[0]).intValue();
+                    if (start < 0) {
+                        start = Math.max(size + start, 0);
+                    }
+                }
+                start = Math.min(start, size);
+                int deleteCount = size - start;
+                if (args.length > 1 && args[1] != null) {
+                    deleteCount = Terms.toNumber(args[1]).intValue();
+                    deleteCount = Math.min(Math.max(deleteCount, 0), size - start);
+                }
+                List<Object> elementsToAdd = new ArrayList<>();
+                if (args.length > 2) {
+                    for (int i = 2; i < args.length; i++) {
+                        elementsToAdd.add(args[i]);
+                    }
+                }
+                List<Object> removedElements = new ArrayList<>();
+                for (int i = start; i < start + deleteCount; i++) {
+                    removedElements.add(thisArray.get(i));
+                }
+                int newSize = size - deleteCount + elementsToAdd.size();
+                List<Object> newList = new ArrayList<>(newSize);
+                for (int i = 0; i < start; i++) {
+                    newList.add(thisArray.get(i));
+                }
+                newList.addAll(elementsToAdd);
+                for (int i = start + deleteCount; i < size; i++) {
+                    newList.add(thisArray.get(i));
+                }
+                // update original array
+                List<Object> originalList = thisArray.toList();
+                originalList.clear();
+                originalList.addAll(newList);
+                return removedElements;
+            }
+        });
+        prototype.put("shift", new JsFunction() {
+            @Override
+            public Object invoke(Object... args) {
+                ArrayLike thisArray = thisArray(array, thisObject);
+                int size = thisArray.size();
+                if (size == 0) {
+                    return Undefined.INSTANCE;
+                }
+                Object firstElement = thisArray.get(0);
+                List<Object> newList = new ArrayList<>(size - 1);
+                for (int i = 1; i < size; i++) {
+                    newList.add(thisArray.get(i));
+                }
+                // update original array
+                List<Object> originalList = thisArray.toList();
+                originalList.clear();
+                originalList.addAll(newList);
+                return firstElement;
+            }
+        });
+        prototype.put("unshift", new JsFunction() {
+            @Override
+            public Object invoke(Object... args) {
+                ArrayLike thisArray = thisArray(array, thisObject);
+                if (args.length == 0) {
+                    return thisArray.size();
+                }
+                List<Object> newList = new ArrayList<>(thisArray.size() + args.length);
+                newList.addAll(Arrays.asList(args));
+                for (int i = 0; i < thisArray.size(); i++) {
+                    newList.add(thisArray.get(i));
+                }
+                // update original array
+                List<Object> originalList = thisArray.toList();
+                originalList.clear();
+                originalList.addAll(newList);
+                return originalList.size();
+            }
+        });
+        prototype.put("lastIndexOf", new JsFunction() {
+            @Override
+            public Object invoke(Object... args) {
+                ArrayLike thisArray = thisArray(array, thisObject);
+                int size = thisArray.size();
+                if (size == 0) {
+                    return -1;
+                }
+                if (args.length == 0) {
+                    return -1;
+                }
+                Object searchElement = args[0];
+                int fromIndex = size - 1;
+                if (args.length > 1 && args[1] != null) {
+                    Number n = Terms.toNumber(args[1]);
+                    if (Double.isNaN(n.doubleValue())) {
+                        fromIndex = size - 1;
+                    } else {
+                        fromIndex = n.intValue();
+                        if (fromIndex < 0) {
+                            fromIndex = size + fromIndex;
+                        } else if (fromIndex >= size) {
+                            fromIndex = size - 1;
+                        }
+                    }
+                }
+                if (fromIndex < 0) {
+                    return -1;
+                }
+                for (int i = fromIndex; i >= 0; i--) {
+                    if (Terms.eq(thisArray.get(i), searchElement, false)) {
+                        return i;
+                    }
+                }
+                return -1;
+            }
+        });
+        prototype.put("pop", new JsFunction() {
+            @Override
+            public Object invoke(Object... args) {
+                ArrayLike thisArray = thisArray(array, thisObject);
+                int size = thisArray.size();
+                if (size == 0) {
+                    return Undefined.INSTANCE;
+                }
+                Object lastElement = thisArray.get(size - 1);
+                List<Object> newList = new ArrayList<>(size - 1);
+                for (int i = 0; i < size - 1; i++) {
+                    newList.add(thisArray.get(i));
+                }
+                // update original array
+                List<Object> originalList = thisArray.toList();
+                originalList.clear();
+                originalList.addAll(newList);
+                return lastElement;
             }
         });
         return prototype;

@@ -831,6 +831,50 @@ class EvalTest {
         NodeUtils.match(get("items"), "[{name: 'The', value: -12}, {name: 'Edward', value: 21}, {name: 'Sharpe', value: 37}, {name: 'And', value: 45}]");
         // sort() with special values
         // match(eval("['a', undefined, 'c', null].sort()"), "['a', 'c', null, undefined]");
+        // fill() tests
+        match(eval("[1, 2, 3].fill(4)"), "[4, 4, 4]");
+        match(eval("[1, 2, 3].fill(4, 1)"), "[1, 4, 4]");
+        match(eval("[1, 2, 3].fill(4, 1, 2)"), "[1, 4, 3]");
+        match(eval("[1, 2, 3].fill(4, 1, 1)"), "[1, 2, 3]");
+        match(eval("[1, 2, 3].fill(4, -3, -2)"), "[4, 2, 3]");
+        match(eval("[1, 2, 3].fill(4, NaN, NaN)"), "[1, 2, 3]");
+        match(eval("[1, 2, 3].fill(4, 3, 3)"), "[1, 2, 3]");
+        // splice() tests
+        match(eval("var a = [1, 2, 3]; a.splice(1, 1); a"), "[1, 3]");
+        match(eval("var a = [1, 2, 3]; a.splice(1, 1, 'a', 'b'); a"), "[1, 'a', 'b', 3]");
+        match(eval("var a = [1, 2, 3]; a.splice(1, 0, 'a'); a"), "[1, 'a', 2, 3]");
+        match(eval("var a = [1, 2, 3]; a.splice(0, 3); a"), "[]");
+        match(eval("var a = [1, 2, 3]; a.splice(-1, 1); a"), "[1, 2]");
+        match(eval("var a = [1, 2, 3]; a.splice(10, 1); a"), "[1, 2, 3]");
+        match(eval("var a = [1, 2, 3]; a.splice(0, 0, 'a', 'b'); a"), "['a', 'b', 1, 2, 3]");
+        match(eval("var a = [1, 2, 3]; var removed = a.splice(0, 2); removed"), "[1, 2]");
+        // shift() tests
+        match(eval("var a = [1, 2, 3]; var shifted = a.shift(); shifted"), "1");
+        match(eval("var a = [1, 2, 3]; a.shift(); a"), "[2, 3]");
+        match(eval("var a = []; var shifted = a.shift(); shifted"), "undefined");
+        // unshift() tests
+        match(eval("var a = [1, 2, 3]; var newLength = a.unshift(4, 5); newLength"), "5");
+        match(eval("var a = [1, 2, 3]; a.unshift(4, 5); a"), "[4, 5, 1, 2, 3]");
+        match(eval("var a = []; a.unshift(1); a"), "[1]");
+        match(eval("var a = []; var newLength = a.unshift(); newLength"), "0");
+        // pop() tests
+        match(eval("var a = [1, 2, 3]; var popped = a.pop(); popped"), "3");
+        match(eval("var a = [1, 2, 3]; a.pop(); a"), "[1, 2]");
+        match(eval("var a = []; var popped = a.pop(); popped"), "undefined");
+        // indexOf with fromIndex
+        assertEquals(1, eval("[1, 2, 3, 2].indexOf(2)"));
+        assertEquals(3, eval("[1, 2, 3, 2].indexOf(2, 2)"));
+        assertEquals(-1, eval("[1, 2, 3, 2].indexOf(2, 4)"));
+        assertEquals(1, eval("[1, 2, 3, 2].indexOf(2, -4)"));
+        assertEquals(3, eval("[1, 2, 3, 2].indexOf(2, -2)"));
+        assertEquals(-1, eval("[1, 2, 3, 2].indexOf(4, 0)"));
+        // lastIndexOf with fromIndex
+        assertEquals(3, eval("[1, 2, 3, 2].lastIndexOf(2)"));
+        assertEquals(1, eval("[1, 2, 3, 2].lastIndexOf(2, 2)"));
+        assertEquals(1, eval("[1, 2, 3, 2].lastIndexOf(2, 1)"));
+        assertEquals(-1, eval("[1, 2, 3, 2].lastIndexOf(2, 0)"));
+        assertEquals(1, eval("[1, 2, 3, 2].lastIndexOf(2, -2)"));
+        assertEquals(-1, eval("[1, 2, 3, 2].lastIndexOf(4, 0)"));
     }
 
     @Test
