@@ -813,14 +813,24 @@ class EvalTest {
         match(eval("[1, 2, null, undefined, [3, 4]].flat()"), "[1, 2, null, undefined, 3, 4]");
         // test flatMap() method
         match(eval("[1, 2, 3].flatMap(x => [x, x * 2])"), "[1, 2, 2, 4, 3, 6]");
-        match(eval("[1, 2, 3].flatMap(x => x * 2)"), "[2, 4, 6]"); // Non-array results are also valid
+        match(eval("[1, 2, 3].flatMap(x => x * 2)"), "[2, 4, 6]"); // non-array results are also valid
         match(eval("[\"hello\", \"world\"].flatMap(word => word.split(''))"), "['h', 'e', 'l', 'l', 'o', 'w', 'o', 'r', 'l', 'd']");
         match(eval("[].flatMap(x => [x, x * 2])"), "[]");
         match(eval("[[1], [2, 3], [4, 5, 6]].flatMap(x => x)"), "[1, 2, 3, 4, 5, 6]");
-        match(eval("[1, 2, 3].flatMap((x, i) => [x, i])"), "[1, 0, 2, 1, 3, 2]"); // Check index is passed correctly
+        match(eval("[1, 2, 3].flatMap((x, i) => [x, i])"), "[1, 0, 2, 1, 3, 2]"); // check index is passed correctly
         eval("var data = [{id: 1, values: [10, 20]}, {id: 2, values: [30, 40]}];"
                 + "var result = data.flatMap(item => item.values.map(val => ({id: item.id, value: val})));");
         NodeUtils.match(get("result"), "[{id: 1, value: 10}, {id: 1, value: 20}, {id: 2, value: 30}, {id: 2, value: 40}]");
+        match(eval("[3, 1, 4, 1, 5, 9].sort()"), "[1, 1, 3, 4, 5, 9]");
+        match(eval("['banana', 'apple', 'orange', 'grape'].sort()"), "['apple', 'banana', 'grape', 'orange']");
+        match(eval("[10, 2, 5, 1].sort((a, b) => a - b)"), "[1, 2, 5, 10]"); // numeric sort
+        match(eval("[10, 2, 5, 1].sort((a, b) => b - a)"), "[10, 5, 2, 1]"); // descending numeric sort
+        // sort() with objects
+        eval("var items = [{name: 'Edward', value: 21}, {name: 'Sharpe', value: 37}, {name: 'And', value: 45}, {name: 'The', value: -12}];" +
+                "items.sort((a, b) => a.value - b.value);");
+        NodeUtils.match(get("items"), "[{name: 'The', value: -12}, {name: 'Edward', value: 21}, {name: 'Sharpe', value: 37}, {name: 'And', value: 45}]");
+        // sort() with special values
+        // match(eval("['a', undefined, 'c', null].sort()"), "['a', 'c', null, undefined]");
     }
 
     @Test

@@ -617,6 +617,42 @@ public class JsCommon {
                 return mappedResult;
             }
         });
+        prototype.put("sort", new JsFunction() {
+            @Override
+            public Object invoke(Object... args) {
+                ArrayLike thisArray = thisArray(array, thisObject);
+                List<Object> list = new ArrayList<>(thisArray.toList());
+                if (list.isEmpty()) {
+                    return list;
+                }
+                if (args.length > 0 && args[0] instanceof Invokable) {
+                    Invokable compareFn = (Invokable) args[0];
+                    list.sort((a, b) -> {
+                        Object result = compareFn.invoke(a, b);
+                        if (result instanceof Number) {
+                            return ((Number) result).intValue();
+                        }
+                        return 0;
+                    });
+                } else {
+                    list.sort((a, b) -> {
+                        String strA = a != null ? a.toString() : "undefined";
+                        String strB = b != null ? b.toString() : "undefined";
+                        return strA.compareTo(strB);
+                    });
+                }
+                // in js, sort modifies the original array and returns it
+                // since we're creating a new list, we need to update the original array
+                for (int i = 0; i < list.size(); i++) {
+                    if (i < thisArray.size()) {
+                        thisArray.set(i, list.get(i));
+                    } else {
+                        thisArray.add(list.get(i));
+                    }
+                }
+                return thisArray.toList();
+            }
+        });
         return prototype;
     }
 
