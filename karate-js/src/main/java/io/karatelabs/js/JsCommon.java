@@ -375,6 +375,20 @@ public class JsCommon {
                 return Undefined.INSTANCE;
             }
         });
+        prototype.put("findIndex", new JsFunction() {
+            @Override
+            public Object invoke(Object... args) {
+                ArrayLike thisArray = thisArray(array, thisObject);
+                Invokable invokable = toInvokable(args[0]);
+                for (KeyValue kv : toIterable(thisArray)) {
+                    Object result = invokable.invoke(kv.value, kv.index);
+                    if (Terms.isTruthy(result)) {
+                        return kv.index;
+                    }
+                }
+                return -1;
+            }
+        });
         prototype.put("push", new JsFunction() {
             @Override
             public Object invoke(Object... args) {
