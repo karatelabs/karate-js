@@ -213,6 +213,15 @@ public class JsCommon {
                     return result;
                 }
             });
+            prototype.put("is", new JsFunction() {
+                @Override
+                public Object invoke(Object... args) {
+                    if (args.length < 2) {
+                        return false;
+                    }
+                    return Terms.eq(args[0], args[1], true);
+                }
+            });
             return prototype;
         }
     };
@@ -1186,6 +1195,31 @@ public class JsCommon {
             @Override
             public boolean equals(Object obj) {
                 return object.equals(obj);
+            }
+        });
+        prototype.put("hasOwnProperty", new JsFunction() {
+            @Override
+            public Object invoke(Object... args) {
+                if (args.length == 0) {
+                    return false;
+                }
+
+                Object target = thisObject == null ? object : thisObject;
+                String prop = args[0].toString();
+
+                if (target instanceof JsObject) {
+                    JsObject jsObj = (JsObject) target;
+                    return jsObj.toMap().containsKey(prop);
+                } else if (target instanceof ObjectLike) {
+                    ObjectLike objLike = (ObjectLike) target;
+                    Collection<String> keys = objLike.keys();
+                    return keys.contains(prop);
+                } else if (target instanceof Map) {
+                    Map map = (Map) target;
+                    return map.containsKey(prop);
+                }
+
+                return false;
             }
         });
         return prototype;

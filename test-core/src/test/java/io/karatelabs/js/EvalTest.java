@@ -934,6 +934,13 @@ class EvalTest {
         match(eval("Object.assign({ a: 0 }, { a: 1, b: 2 })"), "{ a: 1, b: 2 }");
         match(eval("Object.fromEntries([['a', 1], ['b', 2]])"), "{ a: 1, b: 2 }");
         match(eval("Object.fromEntries(Object.entries({ a: 1, b: 2 }))"), "{ a: 1, b: 2 }");
+        assertEquals(true, eval("Object.is(42, 42)"));
+        assertEquals(true, eval("Object.is('foo', 'foo')"));
+        assertEquals(false, eval("Object.is('foo', 'bar')"));
+        assertEquals(false, eval("Object.is(null, undefined)"));
+        assertEquals(true, eval("Object.is(null, null)"));
+        assertEquals(true, eval("Object.is(NaN, NaN)"));
+        // assertEquals(false, eval("Object.is(0, -0)"));
     }
 
     @Test
