@@ -65,6 +65,9 @@ public class NodeUtils {
                     Assertions.fail("Map expected, actual is: " + actual);
                 }
             } else { // string or primitive
+                if ("undefined".equals(expected)) {
+                    expected = Undefined.INSTANCE;
+                }
                 Assertions.assertEquals(expected, actual);
             }
         } catch (Throwable t) {

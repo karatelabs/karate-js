@@ -572,7 +572,69 @@ public class JsCommon {
                 return accumulator;
             }
         });
+        prototype.put("flat", new JsFunction() {
+            @Override
+            public Object invoke(Object... args) {
+                ArrayLike thisArray = thisArray(array, thisObject);
+                int depth = 1;
+                if (args.length > 0 && args[0] != null) {
+                    Number depthNum = Terms.toNumber(args[0]);
+                    if (!Double.isNaN(depthNum.doubleValue()) && !Double.isInfinite(depthNum.doubleValue())) {
+                        depth = depthNum.intValue();
+                    }
+                }
+                List<Object> result = new ArrayList<>();
+                flattenArray(thisArray.toList(), result, depth);
+                return result;
+            }
+        });
+        prototype.put("flatMap", new JsFunction() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public Object invoke(Object... args) {
+                ArrayLike thisArray = thisArray(array, thisObject);
+                Invokable callback = toInvokable(args[0]);
+                if (callback == null) {
+                    throw new RuntimeException("flatMap() requires a callback function");
+                }
+                List<Object> mappedResult = new ArrayList<>();
+                int index = 0;
+                for (Object item : thisArray.toList()) {
+                    Object mapped = callback.invoke(item, index, thisArray);
+                    if (mapped instanceof List || mapped instanceof ArrayLike) {
+                        List<Object> nestedList;
+                        if (mapped instanceof ArrayLike) {
+                            nestedList = ((ArrayLike) mapped).toList();
+                        } else {
+                            nestedList = (List<Object>) mapped;
+                        }
+                        mappedResult.addAll(nestedList);
+                    } else {
+                        mappedResult.add(mapped);
+                    }
+                    index++;
+                }
+                return mappedResult;
+            }
+        });
         return prototype;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void flattenArray(List<Object> source, List<Object> result, int depth) {
+        for (Object item : source) {
+            if (depth > 0 && (item instanceof List || item instanceof ArrayLike)) {
+                List<Object> nestedList;
+                if (item instanceof ArrayLike) {
+                    nestedList = ((ArrayLike) item).toList();
+                } else {
+                    nestedList = (List<Object>) item;
+                }
+                flattenArray(nestedList, result, depth - 1);
+            } else {
+                result.add(item);
+            }
+        }
     }
 
     static Map<String, Object> getBaseObjectPrototype(JsObject object) {

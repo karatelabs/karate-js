@@ -804,6 +804,23 @@ class EvalTest {
         assertEquals("initial", eval("[].reduceRight((acc, val) => acc + val, 'initial')"));
         eval("var indices = []; [10, 20, 30].reduceRight((acc, val, idx) => { indices.push(idx); return acc + val; }, 0);");
         NodeUtils.match(get("indices"), "[2, 1, 0]"); // indices are in reverse order
+        match(eval("[1, 2, [3, 4]].flat()"), "[1, 2, 3, 4]");
+        match(eval("[1, 2, [3, [4, 5]]].flat()"), "[1, 2, 3, [4, 5]]");
+        match(eval("[1, 2, [3, [4, 5]]].flat(2)"), "[1, 2, 3, 4, 5]");
+        // match(eval("[1, 2, [3, [4, [5, 6]]]].flat(Infinity)"), "[1, 2, 3, 4, 5, 6]");
+        match(eval("[1, 2, [3, 4]].flat(0)"), "[1, 2, [3, 4]]");
+        match(eval("[].flat()"), "[]");
+        match(eval("[1, 2, null, undefined, [3, 4]].flat()"), "[1, 2, null, undefined, 3, 4]");
+        // test flatMap() method
+        match(eval("[1, 2, 3].flatMap(x => [x, x * 2])"), "[1, 2, 2, 4, 3, 6]");
+        match(eval("[1, 2, 3].flatMap(x => x * 2)"), "[2, 4, 6]"); // Non-array results are also valid
+        match(eval("[\"hello\", \"world\"].flatMap(word => word.split(''))"), "['h', 'e', 'l', 'l', 'o', 'w', 'o', 'r', 'l', 'd']");
+        match(eval("[].flatMap(x => [x, x * 2])"), "[]");
+        match(eval("[[1], [2, 3], [4, 5, 6]].flatMap(x => x)"), "[1, 2, 3, 4, 5, 6]");
+        match(eval("[1, 2, 3].flatMap((x, i) => [x, i])"), "[1, 0, 2, 1, 3, 2]"); // Check index is passed correctly
+        eval("var data = [{id: 1, values: [10, 20]}, {id: 2, values: [30, 40]}];"
+                + "var result = data.flatMap(item => item.values.map(val => ({id: item.id, value: val})));");
+        NodeUtils.match(get("result"), "[{id: 1, value: 10}, {id: 1, value: 20}, {id: 2, value: 30}, {id: 2, value: 40}]");
     }
 
     @Test
