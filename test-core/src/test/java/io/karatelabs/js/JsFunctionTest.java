@@ -10,6 +10,11 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 class JsFunctionTest extends EvalBase {
 
     @Test
+    void testDev() {
+
+    }
+
+    @Test
     void testFunction() {
         assertEquals(true, eval("var a = function(){ return true }; a()"));
         assertEquals(2, eval("var a = 2; var b = function(){ return a }; b()"));
@@ -79,6 +84,21 @@ class JsFunctionTest extends EvalBase {
         assertEquals("a", eval("var a = function(){ }; a.constructor.name"));
         assertEquals("a", eval("function a(){ }; a.constructor.name"));
         assertEquals("foo", eval("var a = function(){ }; a.prototype.toString = function(){ return 'foo' }; a.toString()"));
+    }
+
+    @Test
+    void testFunctionDeclarationRest() {
+        assertEquals(List.of(1, 2, 3), eval("function sum(...args) { return args }; sum(1, 2, 3)"));
+        assertEquals(6, eval("function sum(...numbers) { return numbers.reduce((a, b) => a + b, 0) }; sum(1,2,3)"));
+        assertEquals("hello world", eval("function concat(first, ...rest) { return first + ' ' + rest.join(' ') }; concat('hello', 'world')"));
+        assertEquals("hello world and more", eval("function concat(first, ...rest) { return first + ' ' + rest.join(' ') }; concat('hello', 'world', 'and', 'more')"));
+    }
+
+    @Test
+    void testArrowFunctionRest() {
+        assertEquals("[1,2,3]", eval("var sum = (...args) => args; JSON.stringify(sum(1,2,3))"));
+        assertEquals(6, eval("var sum = (...numbers) => numbers.reduce((a, b) => a + b, 0); sum(1,2,3)"));
+        assertEquals("hello world", eval("var concat = (first, ...rest) => first + ' ' + rest.join(' '); concat('hello', 'world')"));
     }
 
 }

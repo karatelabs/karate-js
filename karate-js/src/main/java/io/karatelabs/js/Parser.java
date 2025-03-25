@@ -234,6 +234,13 @@ public class Parser {
         return chunks.get(position).token;
     }
 
+    private Token peekPrev() {
+        if (position == 0) {
+            return Token._NODE;
+        }
+        return chunks.get(position - 1).token;
+    }
+
     private void consumeNext() {
         Node node = new Node(chunks.get(position++));
         marker.node.children.add(node);
@@ -791,16 +798,27 @@ public class Parser {
     }
 
     private boolean object_elem() {
-        if (!enter(Type.OBJECT_ELEM, Token.IDENT, Token.S_STRING, Token.D_STRING, Token.NUMBER)) {
+        if (!enter(Type.OBJECT_ELEM, Token.IDENT, Token.S_STRING, Token.D_STRING, Token.NUMBER, Token.DOT_DOT_DOT)) {
             return false;
         }
         if (consumeIf(Token.COMMA) || peekIf(Token.R_CURLY)) { // es6 enhanced object literals
             return exit();
         }
+        boolean spread = false;
         if (!consumeIf(Token.COLON)) {
-            return exit(false, false); // could be block
+            if (peekPrev() == Token.DOT_DOT_DOT) { // spread operator
+                if (consumeIf(Token.IDENT)) {
+                    spread = true;
+                } else {
+                    error(Token.IDENT);
+                }
+            } else {
+                return exit(false, false); // could be block
+            }
         }
-        expr(-1, true);
+        if (!spread) {
+            expr(-1, true);
+        }
         if (consumeIf(Token.COMMA) || peekIf(Token.R_CURLY)) {
             // all good
         } else {

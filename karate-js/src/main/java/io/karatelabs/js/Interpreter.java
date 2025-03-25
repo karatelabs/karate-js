@@ -35,7 +35,12 @@ public class Interpreter {
     private static List<String> argNames(Node fnArgs) {
         List<String> list = new ArrayList<>(fnArgs.children.size());
         for (Node fnArg : fnArgs.children) {
-            list.add(fnArg.children.get(0).getText());
+            Node first = fnArg.children.get(0);
+            if (first.isChunk() && first.chunk.token == Token.DOT_DOT_DOT) { // varargs
+                list.add("." + fnArg.children.get(1).getText());
+            } else {
+                list.add(fnArg.children.get(0).getText());
+            }
         }
         return list;
     }
@@ -346,6 +351,7 @@ public class Interpreter {
         return list;
     }
 
+    @SuppressWarnings("unchecked")
     private static Object evalLitObject(Node node, Context context) {
         int last = node.children.size() - 1;
         Map<String, Object> map = new LinkedHashMap<>(last - 1);
@@ -354,12 +360,20 @@ public class Interpreter {
             Node keyNode = elem.children.get(0);
             Token token = keyNode.chunk.token;
             String key;
-            if (token == Token.S_STRING || token == Token.D_STRING) {
+            if (token == Token.DOT_DOT_DOT) {
+                key = elem.children.get(1).getText();
+            } else if (token == Token.S_STRING || token == Token.D_STRING) {
                 key = (String) eval(keyNode, context);
             } else { // IDENT, NUMBER
                 key = keyNode.getText();
             }
-            if (elem.children.size() < 3) { // es6 enhanced object literals
+            if (token == Token.DOT_DOT_DOT) {
+                Object value = context.get(key);
+                if (value instanceof Map) {
+                    Map<String, Object> temp = (Map<String, Object>) value;
+                    map.putAll(temp);
+                }
+            } else if (elem.children.size() < 3) { // es6 enhanced object literals
                 Object value = context.get(key);
                 map.put(key, value);
             } else {

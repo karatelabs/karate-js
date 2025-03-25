@@ -26,6 +26,7 @@ package io.karatelabs.js;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -56,7 +57,15 @@ public class NodeFunction extends JsFunction {
         int actualArgCount = Math.min(args.length, argCount);
         for (int i = 0; i < actualArgCount; i++) {
             String name = argNames.get(i);
-            childContext.declare(name, args[i]);
+            if (name.charAt(0) == '.') { // varargs hack
+                List<Object> remainingArgs = new ArrayList<>();
+                for (int j = i; j < args.length; j++) {
+                    remainingArgs.add(args[j]);
+                }
+                childContext.declare(name.substring(1), remainingArgs);
+            } else {
+                childContext.declare(name, args[i]);
+            }
         }
         if (args.length < argCount) {
             for (int i = args.length; i < argCount; i++) {

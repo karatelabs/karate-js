@@ -7,6 +7,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class JsObjectTest extends EvalBase {
 
     @Test
+    void testDev() {
+
+    }
+
+    @Test
     void testObject() {
         matchEval("{}", "{}");
         matchEval("{ a: 1 }", "{ a: 1 }");
@@ -62,13 +67,13 @@ class JsObjectTest extends EvalBase {
 
     @Test
     void testObjectApi() {
-        match(eval("Object.keys({ a: 1, b: 2 })"), "['a', 'b']");
-        match(eval("Object.values({ a: 1, b: 2 })"), "[1, 2]");
-        match(eval("Object.entries({ a: 1, b: 2 })"), "[['a', 1], ['b', 2]]");
-        match(eval("Object.assign({}, { a: 1 }, { b: 2 })"), "{ a: 1, b: 2 }");
-        match(eval("Object.assign({ a: 0 }, { a: 1, b: 2 })"), "{ a: 1, b: 2 }");
-        match(eval("Object.fromEntries([['a', 1], ['b', 2]])"), "{ a: 1, b: 2 }");
-        match(eval("Object.fromEntries(Object.entries({ a: 1, b: 2 }))"), "{ a: 1, b: 2 }");
+        matchEval("Object.keys({ a: 1, b: 2 })", "['a', 'b']");
+        matchEval("Object.values({ a: 1, b: 2 })", "[1, 2]");
+        matchEval("Object.entries({ a: 1, b: 2 })", "[['a', 1], ['b', 2]]");
+        matchEval("Object.assign({}, { a: 1 }, { b: 2 })", "{ a: 1, b: 2 }");
+        matchEval("Object.assign({ a: 0 }, { a: 1, b: 2 })", "{ a: 1, b: 2 }");
+        matchEval("Object.fromEntries([['a', 1], ['b', 2]])", "{ a: 1, b: 2 }");
+        matchEval("Object.fromEntries(Object.entries({ a: 1, b: 2 }))", "{ a: 1, b: 2 }");
         assertEquals(true, eval("Object.is(42, 42)"));
         assertEquals(true, eval("Object.is('foo', 'foo')"));
         assertEquals(false, eval("Object.is('foo', 'bar')"));
@@ -77,5 +82,15 @@ class JsObjectTest extends EvalBase {
         assertEquals(true, eval("Object.is(NaN, NaN)"));
         // assertEquals(false, eval("Object.is(0, -0)"));
     }
+
+    @Test
+    void testObjectSpread() {
+        matchEval("var obj1 = {a: 1, b: 2}; var obj2 = {...obj1}; obj2", "{ a: 1, b: 2 }");
+        matchEval("var obj1 = {a: 1, b: 2}; var obj2 = {...obj1, b: 3}; obj2", "{ a: 1, b: 3 }");
+        matchEval("var obj1 = {a: 1}; var obj2 = {b: 2}; var obj3 = {...obj1, ...obj2}; obj3", "{ a: 1, b: 2 }");
+        matchEval("var obj1 = {a: 1, b: 2}; var obj2 = {b: 3, c: 4}; var obj3 = {...obj1, ...obj2}; obj3", "{ a: 1, b: 3, c: 4 }");
+        matchEval("var obj1 = {a: 1, b: 2}; var obj2 = {b: 3, c: 4}; var obj3 = {...obj2, ...obj1}; obj3", "{ b: 2, c: 4, a: 1 }");
+    }
+    
 
 }
