@@ -238,8 +238,8 @@ public class Interpreter {
                 jsFunction.thisObject = thisObject;
             }
             Object result = invokable.invoke(args);
-            if (result instanceof JsString) {
-                return ((JsString) result).text;
+            if (result instanceof JsString || result instanceof JsDate) {
+                return result.toString();
             }
             return result;
         }

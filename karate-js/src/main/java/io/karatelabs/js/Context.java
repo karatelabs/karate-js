@@ -68,6 +68,7 @@ public class Context {
         globals.put("Math", JsCommon.MATH);
         globals.put("parseInt", JsCommon.PARSE_INT);
         globals.put("JSON", JsCommon.JSON);
+        globals.put("Date", new JsDate());
         globals.put("console", JsCommon.createConsole(System.out::println));
         return globals;
     }
