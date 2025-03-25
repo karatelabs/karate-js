@@ -3,9 +3,13 @@ package io.karatelabs.js;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class JsArrayTest extends EvalBase {
+
+    @Test
+    void testDev() {
+
+    }
 
 
     @Test
@@ -23,6 +27,18 @@ class JsArrayTest extends EvalBase {
     @Test
     void testArraySparse() {
         matchEval("[,]", "[null]");
+    }
+
+    @Test
+    void testArraySpread() {
+        matchEval("var arr1 = [1, 2, 3]; var arr2 = [...arr1]; arr2", "[1, 2, 3]");
+        matchEval("var arr1 = [1, 2]; var arr2 = [...arr1, 3, 4]; arr2", "[1, 2, 3, 4]");
+        matchEval("var arr1 = [2, 3]; var arr2 = [1, ...arr1, 4]; arr2", "[1, 2, 3, 4]");
+        matchEval("var arr1 = [3, 4]; var arr2 = [1, 2, ...arr1]; arr2", "[1, 2, 3, 4]");
+        matchEval("var arr1 = [1, 2]; var arr2 = [3, 4]; var arr3 = [...arr1, ...arr2]; arr3", "[1, 2, 3, 4]");
+        matchEval("var arr1 = [1, [2, 3]]; var arr2 = [...arr1, 4]; arr2", "[1, [2, 3], 4]");
+        // strings also get spread
+        matchEval("var str = 'abc'; var arr = [...str]; arr", "['a', 'b', 'c']");
     }
 
     @Test

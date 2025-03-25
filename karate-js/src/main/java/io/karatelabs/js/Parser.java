@@ -845,6 +845,7 @@ public class Parser {
 
     private boolean array_elem() {
         enter(Type.ARRAY_ELEM);
+        consumeIf(Token.DOT_DOT_DOT); // spread operator
         expr(-1, false); // optional for sparse array
         if (consumeIf(Token.COMMA) || peekIf(Token.R_BRACKET)) {
             // all good

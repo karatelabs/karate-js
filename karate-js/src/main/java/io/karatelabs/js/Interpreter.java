@@ -36,7 +36,7 @@ public class Interpreter {
         List<String> list = new ArrayList<>(fnArgs.children.size());
         for (Node fnArg : fnArgs.children) {
             Node first = fnArg.children.get(0);
-            if (first.isChunk() && first.chunk.token == Token.DOT_DOT_DOT) { // varargs
+            if (first.chunk.token == Token.DOT_DOT_DOT) { // varargs
                 list.add("." + fnArg.children.get(1).getText());
             } else {
                 list.add(fnArg.children.get(0).getText());
@@ -335,13 +335,25 @@ public class Interpreter {
         return JsCommon.instanceOf(eval(node.children.get(0), context), eval(node.children.get(2), context));
     }
 
+    @SuppressWarnings("unchecked")
     private static Object evalLitArray(Node node, Context context) {
         int last = node.children.size() - 1;
         List<Object> list = new ArrayList<>();
         for (int i = 1; i < last; i++) {
             Node elem = node.children.get(i);
             Node exprNode = elem.children.get(0);
-            if (exprNode.chunk.token == Token.COMMA) { // sparse
+            if (exprNode.chunk.token == Token.DOT_DOT_DOT) { // spread
+                Object value = eval(elem.children.get(1), context);
+                if (value instanceof List) {
+                    List<Object> temp = (List<Object>) value;
+                    list.addAll(temp);
+                } else if (value instanceof String) {
+                    String temp = (String) value;
+                    for (char c : temp.toCharArray()) {
+                        list.add(Character.toString(c));
+                    }
+                }
+            } else if (exprNode.chunk.token == Token.COMMA) { // sparse
                 list.add(null);
             } else {
                 Object value = eval(exprNode, context);
