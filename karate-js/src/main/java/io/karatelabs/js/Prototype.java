@@ -37,10 +37,6 @@ abstract class Prototype {
         return prototype;
     }
 
-    void setPrototype(Map<String, Object> prototype) {
-        this.prototype = prototype;
-    }
-
     abstract Map<String, Object> initPrototype();
 
     static String TO_STRING(Object o) {
