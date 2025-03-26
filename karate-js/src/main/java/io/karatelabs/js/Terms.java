@@ -271,4 +271,20 @@ public class Terms {
         return "object";
     }
 
+    public static boolean instanceOf(Object lhs, Object rhs) {
+        if (lhs instanceof JsObject && rhs instanceof JsObject) {
+            JsObject objectLhs = (JsObject) lhs;
+            Map<String, Object> prototypeLhs = objectLhs.getPrototype();
+            if (prototypeLhs != null) {
+                Object constructorLhs = prototypeLhs.get("constructor");
+                if (constructorLhs != null) {
+                    JsObject objectRhs = (JsObject) rhs;
+                    Object constructorRhs = objectRhs.get("constructor");
+                    return constructorLhs == constructorRhs;
+                }
+            }
+        }
+        return false;
+    }
+
 }

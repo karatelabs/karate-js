@@ -299,7 +299,7 @@ public class Interpreter {
         } else { // for in / of
             boolean in = node.children.get(3).chunk.token == Token.IN;
             Object forObject = eval(node.children.get(4), forContext);
-            Iterable<KeyValue> iterable = JsCommon.toIterable(forObject);
+            Iterable<KeyValue> iterable = JsArray.toIterable(forObject);
             if (iterable != null) {
                 String varName;
                 if (node.children.get(2).type == Type.VAR_STMT) {
@@ -332,7 +332,7 @@ public class Interpreter {
     }
 
     private static Object evalInstanceOfExpr(Node node, Context context) {
-        return JsCommon.instanceOf(eval(node.children.get(0), context), eval(node.children.get(2), context));
+        return Terms.instanceOf(eval(node.children.get(0), context), eval(node.children.get(2), context));
     }
 
     @SuppressWarnings("unchecked")

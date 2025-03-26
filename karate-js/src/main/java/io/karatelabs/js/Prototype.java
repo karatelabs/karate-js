@@ -23,6 +23,7 @@
  */
 package io.karatelabs.js;
 
+import java.util.List;
 import java.util.Map;
 
 abstract class Prototype {
@@ -41,5 +42,18 @@ abstract class Prototype {
     }
 
     abstract Map<String, Object> initPrototype();
+
+    static String TO_STRING(Object o) {
+        if (o == null) {
+            return "[object Null]";
+        }
+        if (o instanceof List) {
+            return "[object Array]";
+        }
+        if (Terms.isPrimitive(o)) {
+            return o.toString();
+        }
+        return "[object Object]";
+    }
 
 }

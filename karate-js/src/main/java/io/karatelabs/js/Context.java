@@ -65,7 +65,7 @@ public class Context {
         globals.put("String", JsCommon.GLOBAL_STRING);
         globals.put("Infinity", Terms.POSITIVE_INFINITY);
         globals.put("NaN", Undefined.NAN);
-        globals.put("Math", JsCommon.MATH);
+        globals.put("Math", JsCommon.GLOBAL_MATH);
         globals.put("parseInt", JsCommon.PARSE_INT);
         globals.put("JSON", JsCommon.JSON);
         globals.put("Date", JsCommon.GLOBAL_DATE);
