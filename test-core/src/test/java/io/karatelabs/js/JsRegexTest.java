@@ -9,10 +9,10 @@ class JsRegexTest extends EvalBase {
     @Test
     void testRegexLiteral() {
         eval("var re = /test/; var str = re.toString()");
-        assertTrue(get("re") instanceof JsRegex);
+        assertInstanceOf(JsRegex.class, get("re"));
         assertEquals("/test/", get("str"));
         eval("var re = /test/i; var str = re.toString()");
-        assertTrue(get("re") instanceof JsRegex);
+        assertInstanceOf(JsRegex.class, get("re"));
         assertEquals("/test/i", get("str"));
         eval("var x = 5 / 2;"); // division not regex
         assertEquals(2.5, get("x"));
@@ -32,15 +32,15 @@ class JsRegexTest extends EvalBase {
     @Test
     void testRegexConstructor() {
         eval("var re = /test/; var str = re.toString()");
-        assertTrue(get("re") instanceof JsRegex);
+        assertInstanceOf(JsRegex.class, get("re"));
         assertEquals("/test/", get("str"));
 
         eval("var re = new RegExp('test'); var str = re.toString()");
-        assertTrue(get("re") instanceof JsRegex);
+        assertInstanceOf(JsRegex.class, get("re"));
         assertEquals("/test/", get("str"));
 
         eval("var re = RegExp('test'); var str = re.toString()");
-        assertTrue(get("re") instanceof JsRegex);
+        assertInstanceOf(JsRegex.class, get("re"));
         assertEquals("/test/", get("str"));
 
         eval("var re = /test/i; var str = re.toString()");
@@ -108,7 +108,7 @@ class JsRegexTest extends EvalBase {
         assertEquals("", get("flags"));
         assertEquals(false, get("global"));
         assertEquals(false, get("ignore"));
-         assertEquals(false, get("multi"));
+        assertEquals(false, get("multi"));
 
         eval("var re = /test/i; var flags = re.flags; var global = re.global; var ignore = re.ignoreCase; var multi = re.multiline;");
         assertEquals("i", get("flags"));

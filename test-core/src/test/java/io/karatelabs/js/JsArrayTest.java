@@ -11,7 +11,6 @@ class JsArrayTest extends EvalBase {
 
     }
 
-
     @Test
     void testArray() {
         matchEval("[]", "[]");
