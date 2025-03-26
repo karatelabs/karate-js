@@ -141,9 +141,10 @@ class ParserTest {
 
     @Test
     void testRegex() {
-        expr("(/foo/)", "/foo/");
+        expr("/foo/", "/foo/");
         expr("(/a\\/b/)", "/a\\/b/");
-        expr("(/foo/i)", "/foo/i");
+        expr("/foo/i", "/foo/i");
+        expr("var re1 = /test/", "[var,$re1,'=','/test/']");
     }
 
     @Test
@@ -322,5 +323,6 @@ class ParserTest {
         assertEquals(2, chunk.col);
         assertEquals(6, chunk.pos);
     }
+
 
 }

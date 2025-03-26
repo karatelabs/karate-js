@@ -59,16 +59,6 @@ class EvalTest extends EvalBase {
     }
 
     @Test
-    void testRegex() {
-        try {
-            eval("(/abc/)");
-            fail("regex should fail");
-        } catch (Exception e) {
-            assertTrue(e.getMessage().contains("regexes not supported"));
-        }
-    }
-
-    @Test
     void testExprList() {
         assertEquals(3, eval("1, 2, 3"));
     }

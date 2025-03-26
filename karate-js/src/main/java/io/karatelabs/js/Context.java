@@ -68,7 +68,8 @@ public class Context {
         globals.put("Math", JsCommon.MATH);
         globals.put("parseInt", JsCommon.PARSE_INT);
         globals.put("JSON", JsCommon.JSON);
-        globals.put("Date", new JsDate());
+        globals.put("Date", JsCommon.GLOBAL_DATE);
+        globals.put("RegExp", JsCommon.GLOBAL_REGEX);
         globals.put("console", JsCommon.createConsole(System.out::println));
         return globals;
     }

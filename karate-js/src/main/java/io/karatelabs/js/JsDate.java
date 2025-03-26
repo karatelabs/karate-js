@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2024 Karate Labs Inc.
+ * Copyright 2025 Karate Labs Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,48 +29,26 @@ import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 import java.util.Map;
 
-/**
- * A JavaScript Date implementation using Java's modern Time API.
- * This class uses ZonedDateTime internally for better time zone support.
- */
-public class JsDate extends JsObject {
+public class JsDate extends JsFunction {
 
     final ZonedDateTime dateTime;
     private static final DateTimeFormatter ISO_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
     private static final ZoneId UTC = ZoneId.of("UTC");
 
-    /**
-     * Create a new JsDate with the current time.
-     */
     public JsDate() {
         this(ZonedDateTime.now());
     }
 
-    /**
-     * Create a new JsDate with the specified ZonedDateTime.
-     * 
-     * @param dateTime The ZonedDateTime to use
-     */
     public JsDate(ZonedDateTime dateTime) {
         this.dateTime = dateTime;
     }
 
-    /**
-     * Create a new JsDate with the specified timestamp.
-     * 
-     * @param timestamp The timestamp in milliseconds since epoch
-     */
     public JsDate(long timestamp) {
         this.dateTime = ZonedDateTime.ofInstant(
                 Instant.ofEpochMilli(timestamp),
                 ZoneId.systemDefault());
     }
 
-    /**
-     * Create a new JsDate from a string representation.
-     * 
-     * @param dateStr The date string to parse
-     */
     public JsDate(String dateStr) {
         ZonedDateTime parsedDateTime;
         try {
@@ -96,11 +74,6 @@ public class JsDate extends JsObject {
         this.dateTime = parsedDateTime;
     }
 
-    /**
-     * Get the timestamp representation of this date.
-     * 
-     * @return The timestamp in milliseconds since epoch
-     */
     public long getTime() {
         return dateTime.toInstant().toEpochMilli();
     }
@@ -113,180 +86,116 @@ public class JsDate extends JsObject {
     @Override
     Map<String, Object> initPrototype() {
         Map<String, Object> prototype = super.initPrototype();
-        
-        // Constructor
-        prototype.put("constructor", new JsFunction() {
-            @Override
-            public Object invoke(Object... args) {
-                if (args.length == 0) {
-                    return new JsDate();
-                } else {
-                    Object arg = args[0];
-                    if (arg instanceof Number) {
-                        // Date(timestamp)
-                        return new JsDate(((Number) arg).longValue());
-                    } else if (arg instanceof String) {
-                        // Date(dateString)
-                        return new JsDate((String) arg);
-                    } else if (arg instanceof JsDate) {
-                        // Date(dateObject)
-                        return new JsDate(((JsDate) arg).dateTime);
-                    }
-                }
-                return new JsDate();
-            }
-        });
-        
-        // Static methods
         prototype.put("now", new JsFunction() {
             @Override
             public Object invoke(Object... args) {
                 return System.currentTimeMillis();
             }
         });
-        
-        prototype.put("parse", new JsFunction() {
-            @Override
-            public Object invoke(Object... args) {
-                if (args.length == 0 || args[0] == null) {
-                    return Undefined.NAN;
-                }
-                try {
-                    String dateStr = args[0].toString();
-                    return new JsDate(dateStr).getTime();
-                } catch (Exception e) {
-                    return Undefined.NAN;
-                }
+        prototype.put("parse", (Invokable) args -> {
+            if (args.length == 0 || args[0] == null) {
+                return Undefined.NAN;
+            }
+            try {
+                String dateStr = args[0].toString();
+                return new JsDate(dateStr).getTime();
+            } catch (Exception e) {
+                return Undefined.NAN;
             }
         });
-        
-        // Instance methods
-        prototype.put("getTime", new JsFunction() {
-            @Override
-            public Object invoke(Object... args) {
-                if (thisObject instanceof JsDate) {
-                    return ((JsDate) thisObject).getTime();
-                }
-                return getTime();
+        prototype.put("getTime", (Invokable) args -> {
+            if (thisObject instanceof JsDate) {
+                return ((JsDate) thisObject).getTime();
             }
+            return getTime();
         });
-        
-        prototype.put("toString", new JsFunction() {
-            @Override
-            public Object invoke(Object... args) {
-                if (thisObject instanceof JsDate) {
-                    return ((JsDate) thisObject).toString();
-                }
-                return toString();
+        prototype.put("toString", (Invokable) args -> {
+            if (thisObject instanceof JsDate) {
+                return (thisObject).toString();
             }
+            return toString();
         });
-        
-        prototype.put("toISOString", new JsFunction() {
-            @Override
-            public Object invoke(Object... args) {
-                ZonedDateTime dt = thisObject instanceof JsDate 
-                        ? ((JsDate) thisObject).dateTime : dateTime;
-                return dt.withZoneSameInstant(UTC).format(ISO_FORMATTER);
+        prototype.put("toISOString", (Invokable) args -> {
+            ZonedDateTime dt = thisObject instanceof JsDate
+                    ? ((JsDate) thisObject).dateTime : dateTime;
+            return dt.withZoneSameInstant(UTC).format(ISO_FORMATTER);
+        });
+        prototype.put("toUTCString", (Invokable) args -> {
+            ZonedDateTime dt = thisObject instanceof JsDate
+                    ? ((JsDate) thisObject).dateTime : dateTime;
+            // Format: "Fri, 01 Jan 2021 00:00:00 GMT"
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss 'GMT'");
+            return dt.withZoneSameInstant(UTC).format(formatter);
+        });
+        prototype.put("valueOf", (Invokable) args -> {
+            if (thisObject instanceof JsDate) {
+                return ((JsDate) thisObject).getTime();
             }
+            return getTime();
         });
-        
-        prototype.put("toUTCString", new JsFunction() {
-            @Override
-            public Object invoke(Object... args) {
-                ZonedDateTime dt = thisObject instanceof JsDate 
-                        ? ((JsDate) thisObject).dateTime : dateTime;
-                // Format: "Fri, 01 Jan 2021 00:00:00 GMT"
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss 'GMT'");
-                return dt.withZoneSameInstant(UTC).format(formatter);
-            }
+        prototype.put("getFullYear", (Invokable) args -> {
+            ZonedDateTime dt = thisObject instanceof JsDate
+                    ? ((JsDate) thisObject).dateTime : dateTime;
+            return dt.getYear();
         });
-        
-        prototype.put("valueOf", new JsFunction() {
-            @Override
-            public Object invoke(Object... args) {
-                if (thisObject instanceof JsDate) {
-                    return ((JsDate) thisObject).getTime();
-                }
-                return getTime();
-            }
+        prototype.put("getMonth", (Invokable) args -> {
+            ZonedDateTime dt = thisObject instanceof JsDate
+                    ? ((JsDate) thisObject).dateTime : dateTime;
+            // JavaScript months are 0-indexed
+            return dt.getMonthValue() - 1;
         });
-        
-        // Get methods - using the local time zone
-        prototype.put("getFullYear", new JsFunction() {
-            @Override
-            public Object invoke(Object... args) {
-                ZonedDateTime dt = thisObject instanceof JsDate 
-                        ? ((JsDate) thisObject).dateTime : dateTime;
-                return dt.getYear();
-            }
+        prototype.put("getDate", (Invokable) args -> {
+            ZonedDateTime dt = thisObject instanceof JsDate
+                    ? ((JsDate) thisObject).dateTime : dateTime;
+            return dt.getDayOfMonth();
         });
-        
-        prototype.put("getMonth", new JsFunction() {
-            @Override
-            public Object invoke(Object... args) {
-                ZonedDateTime dt = thisObject instanceof JsDate 
-                        ? ((JsDate) thisObject).dateTime : dateTime;
-                // JavaScript months are 0-indexed
-                return dt.getMonthValue() - 1;
-            }
+        prototype.put("getDay", (Invokable) args -> {
+            ZonedDateTime dt = thisObject instanceof JsDate
+                    ? ((JsDate) thisObject).dateTime : dateTime;
+            // Convert Java's 1-7 (Mon-Sun) to JavaScript's 0-6 (Sun-Sat)
+            return dt.getDayOfWeek().getValue() % 7;
         });
-        
-        prototype.put("getDate", new JsFunction() {
-            @Override
-            public Object invoke(Object... args) {
-                ZonedDateTime dt = thisObject instanceof JsDate 
-                        ? ((JsDate) thisObject).dateTime : dateTime;
-                return dt.getDayOfMonth();
-            }
+        prototype.put("getHours", (Invokable) args -> {
+            ZonedDateTime dt = thisObject instanceof JsDate
+                    ? ((JsDate) thisObject).dateTime : dateTime;
+            return dt.getHour();
         });
-        
-        prototype.put("getDay", new JsFunction() {
-            @Override
-            public Object invoke(Object... args) {
-                ZonedDateTime dt = thisObject instanceof JsDate 
-                        ? ((JsDate) thisObject).dateTime : dateTime;
-                // Convert Java's 1-7 (Mon-Sun) to JavaScript's 0-6 (Sun-Sat)
-                int day = dt.getDayOfWeek().getValue() % 7;
-                return day;
-            }
+        prototype.put("getMinutes", (Invokable) args -> {
+            ZonedDateTime dt = thisObject instanceof JsDate
+                    ? ((JsDate) thisObject).dateTime : dateTime;
+            return dt.getMinute();
         });
-        
-        prototype.put("getHours", new JsFunction() {
-            @Override
-            public Object invoke(Object... args) {
-                ZonedDateTime dt = thisObject instanceof JsDate 
-                        ? ((JsDate) thisObject).dateTime : dateTime;
-                return dt.getHour();
-            }
+        prototype.put("getSeconds", (Invokable) args -> {
+            ZonedDateTime dt = thisObject instanceof JsDate
+                    ? ((JsDate) thisObject).dateTime : dateTime;
+            return dt.getSecond();
         });
-        
-        prototype.put("getMinutes", new JsFunction() {
-            @Override
-            public Object invoke(Object... args) {
-                ZonedDateTime dt = thisObject instanceof JsDate 
-                        ? ((JsDate) thisObject).dateTime : dateTime;
-                return dt.getMinute();
-            }
+        prototype.put("getMilliseconds", (Invokable) args -> {
+            ZonedDateTime dt = thisObject instanceof JsDate
+                    ? ((JsDate) thisObject).dateTime : dateTime;
+            return dt.get(ChronoField.MILLI_OF_SECOND);
         });
-        
-        prototype.put("getSeconds", new JsFunction() {
-            @Override
-            public Object invoke(Object... args) {
-                ZonedDateTime dt = thisObject instanceof JsDate 
-                        ? ((JsDate) thisObject).dateTime : dateTime;
-                return dt.getSecond();
-            }
-        });
-        
-        prototype.put("getMilliseconds", new JsFunction() {
-            @Override
-            public Object invoke(Object... args) {
-                ZonedDateTime dt = thisObject instanceof JsDate 
-                        ? ((JsDate) thisObject).dateTime : dateTime;
-                return dt.get(ChronoField.MILLI_OF_SECOND);
-            }
-        });
-        
         return prototype;
     }
+
+    @Override
+    public Object invoke(Object... args) {
+        if (args.length == 0) {
+            return new JsDate();
+        } else {
+            Object arg = args[0];
+            if (arg instanceof Number) {
+                // Date(timestamp)
+                return new JsDate(((Number) arg).longValue());
+            } else if (arg instanceof String) {
+                // Date(dateString)
+                return new JsDate((String) arg);
+            } else if (arg instanceof JsDate) {
+                // Date(dateObject)
+                return new JsDate(((JsDate) arg).dateTime);
+            }
+        }
+        return new JsDate();
+    }
+
 }

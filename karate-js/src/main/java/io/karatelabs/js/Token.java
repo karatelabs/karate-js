@@ -68,6 +68,8 @@ public enum Token {
     CASE(true, true),
     DEFAULT(true, true),
     BREAK(true, true),
+    THIS(true, true),
+    VOID(true, true),
     //====
     EQ_EQ_EQ,
     EQ_EQ,

@@ -32,10 +32,91 @@ import java.util.ArrayDeque;
 %type Token
 
 %{
-boolean regexAllowed;
+boolean regexAllowed = true; // start with true since a regex can appear at the start of a program
 ArrayDeque<Integer> kkStack;
 void kkPush() { if (kkStack == null) kkStack = new ArrayDeque<>(); kkStack.push(yystate()); }
 int kkPop() { return kkStack.pop(); }
+
+private void updateRegexAllowed(Token token) {
+    switch (token) {
+        // after these tokens, a regex literal is allowed (rather than division)
+        case L_PAREN:
+        case L_BRACKET:
+        case L_CURLY:
+        case COMMA:
+        case SEMI:
+        case COLON:
+        case EQ:
+        case EQ_EQ:
+        case EQ_EQ_EQ:
+        case NOT_EQ:
+        case NOT_EQ_EQ:
+        case LT:
+        case LT_EQ:
+        case GT:
+        case GT_EQ:
+        case PLUS:
+        case PLUS_EQ:
+        case MINUS:
+        case MINUS_EQ:
+        case STAR:
+        case STAR_EQ:
+        case STAR_STAR:
+        case STAR_STAR_EQ:
+        case SLASH_EQ:
+        case PERCENT:
+        case PERCENT_EQ:
+        case AMP:
+        case AMP_EQ:
+        case AMP_AMP:
+        case AMP_AMP_EQ:
+        case PIPE:
+        case PIPE_EQ:
+        case PIPE_PIPE:
+        case PIPE_PIPE_EQ:
+        case CARET:
+        case CARET_EQ:
+        case QUES:
+        case QUES_QUES:
+        case TILDE:
+        case NOT:
+        case RETURN:
+        case TYPEOF:
+        case DELETE:
+        case INSTANCEOF:
+        case IN:
+        case DO:
+        case IF:
+        case ELSE:
+        case CASE:
+        case DEFAULT:
+        case THROW:
+            regexAllowed = true;
+            break;
+        // after these tokens, a regex literal is not allowed
+        case R_PAREN:
+        case R_BRACKET:
+        case R_CURLY:
+        case IDENT:
+        case NUMBER:
+        case S_STRING:
+        case D_STRING:
+        case TRUE:
+        case FALSE:
+        case NULL:
+            regexAllowed = false;
+            break;
+        // for other tokens, keep the current value of regexAllowed
+        default:
+            // no change to regexAllowed
+            break;
+    }
+}
+
+private Token update(Token token) {
+    updateRegexAllowed(token);
+    return token;
+}
 %}
 
 WS = [ \t]
@@ -48,123 +129,151 @@ NUMBER = ({DIGIT}+ ("." {DIGIT}+)? {EXPONENT}?) | ("." {DIGIT}+ {EXPONENT}?)
 HEX = 0 [Xx] {HEX_DIGIT}*
 
 L_COMMENT = "//".*
-B_COMMENT = "/"\*([^*]|\*+[^*/])*(\*+"/")?
+B_COMMENT = "/*"([^*]|\*+[^*/])*(\*+"/")?
 D_STRING = \"([^\"]|\\\")*\"?
 S_STRING = '([^']|\\')*'?
 IDENT = [:jletter:][:jletterdigit:]*
 T_STRING = [^`$]+ ("$"[^{])?
-REGEX = "/" ([^/]|\\\/)+ "/" [:jletter:]*
+REGEX = "/" [^*/\n] ([^/\\\n]|\\[^\n])* "/" [:jletter:]*
 
 %state TEMPLATE PLACEHOLDER
 
 %%
 
 <YYINITIAL, PLACEHOLDER> {
-  {WS}* {LF} {WS}*              { return WS_LF; }
-  {WS}+                         { return WS; }
-  "`"                           { kkPush(); yybegin(TEMPLATE); return BACKTICK; }
-  "{"                           { return L_CURLY; }
-  //====                        { return R_CURLY; }
-  "["                           { return L_BRACKET; }
-  "]"                           { return R_BRACKET; }
-  "("                           { regexAllowed = true; return L_PAREN; }
-  ")"                           { regexAllowed = false; return R_PAREN; }
-  ","                           { return COMMA; }
-  ":"                           { return COLON; }
-  ";"                           { return SEMI; }
-  "..."                         { return DOT_DOT_DOT; }
-  "."                           { return DOT; }
+  {WS}* {LF} {WS}*              { return update(WS_LF); }
+  {WS}+                         { return update(WS); }
+  "`"                           { kkPush(); yybegin(TEMPLATE); return update(BACKTICK); }
+  "{"                           { return update(L_CURLY); }
+  //====                        { return update(R_CURLY); }
+  "["                           { return update(L_BRACKET); }
+  "]"                           { return update(R_BRACKET); }
+  "("                           { return update(L_PAREN); }
+  ")"                           { return update(R_PAREN); }
+  ","                           { return update(COMMA); }
+  ":"                           { return update(COLON); }
+  ";"                           { return update(SEMI); }
+  "..."                         { return update(DOT_DOT_DOT); }
+  "."                           { return update(DOT); }
   //====
-  "null"                        { return NULL; }
-  "true"                        { return TRUE; }
-  "false"                       { return FALSE; }
-  "function"                    { return FUNCTION; }
-  "return"                      { return RETURN; }
-  "try"                         { return TRY; }
-  "catch"                       { return CATCH; }
-  "finally"                     { return FINALLY; }
-  "throw"                       { return THROW; }
-  "new"                         { return NEW; }
-  "var"                         { return VAR; }
-  "let"                         { return LET; }
-  "const"                       { return CONST; }
-  "if"                          { return IF; }
-  "else"                        { return ELSE; }
-  "typeof"                      { return TYPEOF; }
-  "instanceof"                  { return INSTANCEOF; }
-  "delete"                      { return DELETE; }
-  "for"                         { return FOR; }
-  "in"                          { return IN; }
-  "of"                          { return OF; }
-  "do"                          { return DO; }
-  "while"                       { return WHILE; }
-  "switch"                      { return SWITCH; }
-  "case"                        { return CASE; }
-  "default"                     { return DEFAULT; }
-  "break"                       { return BREAK; }
+  "null"                        { return update(NULL); }
+  "true"                        { return update(TRUE); }
+  "false"                       { return update(FALSE); }
+  "function"                    { return update(FUNCTION); }
+  "return"                      { return update(RETURN); }
+  "try"                         { return update(TRY); }
+  "catch"                       { return update(CATCH); }
+  "finally"                     { return update(FINALLY); }
+  "throw"                       { return update(THROW); }
+  "new"                         { return update(NEW); }
+  "var"                         { return update(VAR); }
+  "let"                         { return update(LET); }
+  "const"                       { return update(CONST); }
+  "if"                          { return update(IF); }
+  "else"                        { return update(ELSE); }
+  "typeof"                      { return update(TYPEOF); }
+  "instanceof"                  { return update(INSTANCEOF); }
+  "delete"                      { return update(DELETE); }
+  "for"                         { return update(FOR); }
+  "in"                          { return update(IN); }
+  "of"                          { return update(OF); }
+  "do"                          { return update(DO); }
+  "while"                       { return update(WHILE); }
+  "switch"                      { return update(SWITCH); }
+  "case"                        { return update(CASE); }
+  "default"                     { return update(DEFAULT); }
+  "break"                       { return update(BREAK); }
   //====
-  "==="                         { return EQ_EQ_EQ; }
-  "=="                          { return EQ_EQ; }
-  "="                           { return EQ; }
-  "=>"                          { return EQ_GT; }
-  "<<="                         { return LT_LT_EQ; }
-  "<<"                          { return LT_LT; }
-  "<="                          { return LT_EQ; }
-  "<"                           { return LT; }
-  ">>>="                        { return GT_GT_GT_EQ; }
-  ">>>"                         { return GT_GT_GT; }
-  ">>="                         { return GT_GT_EQ; }
-  ">>"                          { return GT_GT; }
-  ">="                          { return GT_EQ; }
-  ">"                           { return GT; }
+  "==="                         { return update(EQ_EQ_EQ); }
+  "=="                          { return update(EQ_EQ); }
+  "="                           { return update(EQ); }
+  "=>"                          { return update(EQ_GT); }
+  "<<="                         { return update(LT_LT_EQ); }
+  "<<"                          { return update(LT_LT); }
+  "<="                          { return update(LT_EQ); }
+  "<"                           { return update(LT); }
+  ">>>="                        { return update(GT_GT_GT_EQ); }
+  ">>>"                         { return update(GT_GT_GT); }
+  ">>="                         { return update(GT_GT_EQ); }
+  ">>"                          { return update(GT_GT); }
+  ">="                          { return update(GT_EQ); }
+  ">"                           { return update(GT); }
   //====
-  "!=="                         { return NOT_EQ_EQ; }
-  "!="                          { return NOT_EQ; }
-  "!"                           { return NOT; }
-  "||="                         { return PIPE_PIPE_EQ; }
-  "||"                          { return PIPE_PIPE; }
-  "|="                          { return PIPE_EQ; }
-  "|"                           { return PIPE; }
-  "&&="                         { return AMP_AMP_EQ; }
-  "&&"                          { return AMP_AMP; }
-  "&="                          { return AMP_EQ; }
-  "&"                           { return AMP; }
-  "^="                          { return CARET_EQ; }
-  "^"                           { return CARET; }
-  "??"                          { return QUES_QUES; }
-  "?"                           { return QUES; }
+  "!=="                         { return update(NOT_EQ_EQ); }
+  "!="                          { return update(NOT_EQ); }
+  "!"                           { return update(NOT); }
+  "||="                         { return update(PIPE_PIPE_EQ); }
+  "||"                          { return update(PIPE_PIPE); }
+  "|="                          { return update(PIPE_EQ); }
+  "|"                           { return update(PIPE); }
+  "&&="                         { return update(AMP_AMP_EQ); }
+  "&&"                          { return update(AMP_AMP); }
+  "&="                          { return update(AMP_EQ); }
+  "&"                           { return update(AMP); }
+  "^="                          { return update(CARET_EQ); }
+  "^"                           { return update(CARET); }
+  "??"                          { return update(QUES_QUES); }
+  "?"                           { return update(QUES); }
   //====
-  "++"                          { return PLUS_PLUS; }
-  "+="                          { return PLUS_EQ; }
-  "+"                           { return PLUS; }
-  "--"                          { return MINUS_MINUS; }
-  "-="                          { return MINUS_EQ; }
-  "-"                           { return MINUS; }
-  "**="                         { return STAR_STAR_EQ; }
-  "**"                          { return STAR_STAR; }
-  "*="                          { return STAR_EQ; }
-  "*"                           { return STAR; }
-  "/="                          { return SLASH_EQ; }
-  "/"                           { return SLASH; }
-  "%="                          { return PERCENT_EQ; }
-  "%"                           { return PERCENT; }
-  "~"                           { return TILDE; }
+  "++"                          { return update(PLUS_PLUS); }
+  "+="                          { return update(PLUS_EQ); }
+  "+"                           { return update(PLUS); }
+  "--"                          { return update(MINUS_MINUS); }
+  "-="                          { return update(MINUS_EQ); }
+  "-"                           { return update(MINUS); }
+  "**="                         { return update(STAR_STAR_EQ); }
+  "**"                          { return update(STAR_STAR); }
+  "*="                          { return update(STAR_EQ); }
+  "*"                           { return update(STAR); }
+  "/="                          { return update(SLASH_EQ); }
+  "/"                           {
+    if (regexAllowed) {
+        // look ahead for a regex pattern
+        int length = yylength();
+        long position = yychar + length;
+        String restOfInput = yytext().toString() + zzBufferL.toString().substring((int) position);
+        // try to match a regex pattern in the rest of the input
+        // if it looks like a regex, push back and let the regex rule match
+        if (restOfInput.length() > 1 && !Character.isWhitespace(restOfInput.charAt(1))) {
+            yypushback(length);
+            try {
+                // try to match regex pattern
+                return update(REGEX);
+            } catch (Exception e) {
+                // if regex matching fails, treat as division
+                return update(SLASH);
+            }
+        }
+    }
+    return update(SLASH);
+  }
+  "%="                          { return update(PERCENT_EQ); }
+  "%"                           { return update(PERCENT); }
+  "~"                           { return update(TILDE); }
   //====
-  {L_COMMENT}                   { return L_COMMENT; }
-  {B_COMMENT}                   { return B_COMMENT; }
-  {S_STRING}                    { return S_STRING; }
-  {D_STRING}                    { return D_STRING; }
-  {NUMBER} | {HEX}              { return NUMBER; }
-  {IDENT}                       { return IDENT; }
-  {REGEX}                       { if (regexAllowed) { return REGEX; } else { yypushback(yylength() - 1); return SLASH; } }
+  {REGEX}                       {
+    if (regexAllowed) {
+        return update(REGEX);
+    } else {
+        // push back all but the first slash character
+        yypushback(yylength() - 1);
+        return update(SLASH);
+    }
+  }
+  {L_COMMENT}                   { return update(L_COMMENT); }
+  {B_COMMENT}                   { return update(B_COMMENT); }
+  {S_STRING}                    { return update(S_STRING); }
+  {D_STRING}                    { return update(D_STRING); }
+  {NUMBER} | {HEX}              { return update(NUMBER); }
+  {IDENT}                       { return update(IDENT); }
 }
 
-<YYINITIAL> "}"                 { return R_CURLY; }
+<YYINITIAL> "}"                 { return update(R_CURLY); }
 
-<PLACEHOLDER> "}"               { yybegin(kkPop()); return R_CURLY; }
+<PLACEHOLDER> "}"               { yybegin(kkPop()); return update(R_CURLY); }
 
 <TEMPLATE> {
-    "`"                         { yybegin(kkPop()); return BACKTICK; }
-    "${"                        { kkPush(); yybegin(PLACEHOLDER); return DOLLAR_L_CURLY; }
-    {T_STRING}                  { return T_STRING; }
+    "`"                         { yybegin(kkPop()); return update(BACKTICK); }
+    "${"                        { kkPush(); yybegin(PLACEHOLDER); return update(DOLLAR_L_CURLY); }
+    {T_STRING}                  { return update(T_STRING); }
 }

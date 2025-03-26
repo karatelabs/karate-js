@@ -738,8 +738,8 @@ public class Parser {
     private boolean lit_expr() {
         enter(Type.LIT_EXPR);
         boolean result = lit_object() || lit_array();
-        result = result || anyOf(Token.S_STRING, Token.D_STRING, Token.NUMBER, Token.TRUE, Token.FALSE, Token.NULL, Token.REGEX);
-        result = result || lit_template();
+        result = result || anyOf(Token.S_STRING, Token.D_STRING, Token.NUMBER, Token.TRUE, Token.FALSE, Token.NULL);
+        result = result || lit_template() || regex_literal();
         return exit(result, false);
     }
 
@@ -851,6 +851,13 @@ public class Parser {
             // all good
         } else {
             error(Token.COMMA, Token.R_BRACKET);
+        }
+        return exit();
+    }
+
+    private boolean regex_literal() {
+        if (!enter(Type.REGEX_LITERAL, Token.REGEX)) {
+            return false;
         }
         return exit();
     }

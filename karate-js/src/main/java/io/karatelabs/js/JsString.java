@@ -27,7 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
 
-public class JsString extends JsObject {
+public class JsString extends JsFunction {
 
     final String text;
 
@@ -43,13 +43,6 @@ public class JsString extends JsObject {
     @Override
     Map<String, Object> initPrototype() {
         Map<String, Object> prototype = super.initPrototype();
-        prototype.put("constructor", (Invokable) args -> {
-            String temp = "";
-            if (args.length > 0 && args[0] != null) {
-                temp = args[0].toString();
-            }
-            return new JsString(temp);
-        });
         prototype.put("indexOf", (Invokable) args -> {
             if (args.length > 1) {
                 return text.indexOf((String) args[0], ((Number) args[1]).intValue());
@@ -219,6 +212,15 @@ public class JsString extends JsObject {
             return sb.toString();
         });
         return prototype;
+    }
+
+    @Override
+    public Object invoke(Object... args) {
+        String temp = "";
+        if (args.length > 0 && args[0] != null) {
+            temp = args[0].toString();
+        }
+        return new JsString(temp);
     }
 
 }

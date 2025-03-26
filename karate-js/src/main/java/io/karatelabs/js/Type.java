@@ -79,6 +79,7 @@ public enum Type {
     LIT_EXPR,
     PAREN_EXPR,
     LIT_TEMPLATE,
-    PLACEHOLDER
+    PLACEHOLDER,
+    REGEX_LITERAL
 
 }

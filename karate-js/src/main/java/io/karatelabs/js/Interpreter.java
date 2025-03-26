@@ -73,7 +73,7 @@ public class Interpreter {
             case FALSE:
                 return false;
             case REGEX:
-                throw new RuntimeException(node.toStringError("regexes not supported"));
+                return new JsRegex(node.chunk.text);
             default:
                 throw new RuntimeException(node.toStringError("eval - unexpected chunk"));
         }
@@ -771,6 +771,8 @@ public class Interpreter {
                 return evalLitObject(node, context);
             case LIT_TEMPLATE:
                 return evalLitTemplate(node, context);
+            case REGEX_LITERAL:
+                return new JsRegex(node.children.get(0).chunk.text);
             case LOGIC_EXPR:
                 return evalLogicExpr(node, context);
             case LOGIC_AND_EXPR:

@@ -52,6 +52,10 @@ public class JsCommon {
 
     static final JsObject GLOBAL_STRING = new JsString("");
 
+    static final JsObject GLOBAL_REGEX = new JsRegex();
+
+    static final JsDate GLOBAL_DATE = new JsDate();
+
     static String TO_STRING(Object o) {
         if (o == null) {
             return "[object Null]";
