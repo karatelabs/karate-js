@@ -69,8 +69,8 @@ class JsStringTest extends EvalBase {
         assertEquals(true, eval("typeof String() === 'string'"));
         assertEquals("", eval("new String().valueOf()"));
         assertEquals("hello", eval("new String('hello').valueOf()"));
-        // assertEquals(true, eval("typeof new String() === 'object'")); intentional non-conformance
-        // assertEquals(true, eval("new String('hello') instanceof String")); intentional non-conformance
+        // assertEquals(true, eval("typeof new String() === 'object'")); // intentional non-conformance
+        // assertEquals(true, eval("new String('hello') instanceof String")); // intentional non-conformance
     }
 
     @Test

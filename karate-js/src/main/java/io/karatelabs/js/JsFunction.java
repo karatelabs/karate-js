@@ -28,7 +28,6 @@ import java.util.Map;
 public abstract class JsFunction extends JsObject implements Invokable {
 
     String name;
-    Object thisObject;
     Context invokeContext;
 
     public void setName(String name) {

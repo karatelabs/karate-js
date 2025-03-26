@@ -29,7 +29,7 @@ import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 import java.util.Map;
 
-public class JsDate extends JsFunction {
+public class JsDate extends JsObject implements Invokable {
 
     final ZonedDateTime dateTime;
     private static final DateTimeFormatter ISO_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");

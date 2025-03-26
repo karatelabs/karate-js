@@ -23,26 +23,29 @@
  */
 package io.karatelabs.js;
 
-public class JsError extends JsFunction {
+import java.util.Map;
 
-    private final String name;
+public class JsError extends JsObject implements Invokable {
 
-    public JsError(String name) {
-        this.name = name;
+    private final String message;
+
+    public JsError(String message) {
+        this.message = message;
+    }
+
+    @Override
+    Map<String, Object> initPrototype() {
+        Map<String, Object> map = super.initPrototype();
+        map.put("message", new Property(() -> message));
+        return map;
     }
 
     @Override
     public Object invoke(Object... args) {
-        JsObject object = new JsObject();
         if (args.length > 0) {
-            object.put("message", args[0]);
+            return new JsError(args[0] + "");
         }
-        return object;
-    }
-
-    @Override
-    public String toString() {
-        return name;
+        return new JsError(null);
     }
 
 }

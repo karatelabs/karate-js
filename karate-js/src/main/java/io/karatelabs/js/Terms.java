@@ -256,7 +256,7 @@ public class Terms {
         if (value instanceof String) {
             return "string";
         }
-        if (value instanceof Invokable) {
+        if (value instanceof JsFunction) {
             return "function";
         }
         if (value instanceof Number) {

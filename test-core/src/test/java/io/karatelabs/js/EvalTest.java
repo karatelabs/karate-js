@@ -10,8 +10,7 @@ class EvalTest extends EvalBase {
 
     @Test
     void testDev() {
-//        Object dateString = eval("Date()");
-//        logger.info("dateString: {}", dateString);
+
     }
 
     @Test

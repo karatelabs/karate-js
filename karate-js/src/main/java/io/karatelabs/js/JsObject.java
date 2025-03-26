@@ -27,8 +27,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class JsObject extends Prototype implements ObjectLike {
+public class JsObject extends Prototype implements ObjectLike, Invokable {
 
+    Object thisObject;
     private final Map<String, Object> map;
 
     public JsObject(Map<String, Object> map) {
@@ -87,5 +88,9 @@ public class JsObject extends Prototype implements ObjectLike {
         return map;
     }
 
+    @Override
+    public Object invoke(Object... args) {
+        return null;
+    }
 
 }
