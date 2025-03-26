@@ -66,6 +66,12 @@ class JsObjectTest extends EvalBase {
     }
 
     @Test
+    void testConstructorThis() {
+        eval("function Dog(name) { this.name = name }; var dog = new Dog('Fido'); var name = dog.name");
+        assertEquals("Fido", get("name"));
+    }
+
+    @Test
     void testObjectApi() {
         matchEval("Object.keys({ a: 1, b: 2 })", "['a', 'b']");
         matchEval("Object.values({ a: 1, b: 2 })", "[1, 2]");
@@ -91,6 +97,5 @@ class JsObjectTest extends EvalBase {
         matchEval("var obj1 = {a: 1, b: 2}; var obj2 = {b: 3, c: 4}; var obj3 = {...obj1, ...obj2}; obj3", "{ a: 1, b: 3, c: 4 }");
         matchEval("var obj1 = {a: 1, b: 2}; var obj2 = {b: 3, c: 4}; var obj3 = {...obj2, ...obj1}; obj3", "{ b: 2, c: 4, a: 1 }");
     }
-    
 
 }
