@@ -23,9 +23,12 @@
  */
 package io.karatelabs.js;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-public class JsObject extends Prototype implements ObjectLike, Invokable {
+public class JsObject implements ObjectLike, Invokable {
 
     Object thisObject;
     private final Map<String, Object> map;
@@ -38,126 +41,159 @@ public class JsObject extends Prototype implements ObjectLike, Invokable {
         this(new HashMap<>());
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    Map<String, Object> initPrototype() {
-        Map<String, Object> prototype = new HashMap<>();
-        prototype.put("toString", (Invokable) args -> TO_STRING(thisObject == null ? this : thisObject));
-        prototype.put("hasOwnProperty", (Invokable) args -> {
-            if (args.length == 0) {
-                return false;
-            }
-            Object target = thisObject == null ? this : thisObject;
-            String prop = args[0].toString();
-            if (target instanceof JsObject) {
-                JsObject jsObj = (JsObject) target;
-                return jsObj.toMap().containsKey(prop);
-            } else if (target instanceof ObjectLike) {
-                ObjectLike objLike = (ObjectLike) target;
-                Object value = objLike.get(prop);
-                return value != null;
-            } else if (target instanceof Map) {
-                Map<String, Object> map = (Map<String, Object>) target;
-                return map.containsKey(prop);
-            }
-            return false;
-        });
-        // static ======================================================================================================
-        prototype.put("keys", (Invokable) args -> {
-            List<Object> result = new ArrayList<>();
-            for (KeyValue kv : JsArray.toIterable(args[0])) {
-                result.add(kv.key);
-            }
-            return result;
-        });
-        prototype.put("values", (Invokable) args -> {
-            List<Object> result = new ArrayList<>();
-            for (KeyValue kv : JsArray.toIterable(args[0])) {
-                result.add(kv.value);
-            }
-            return result;
-        });
-        prototype.put("entries", (Invokable) args -> {
-            List<Object> result = new ArrayList<>();
-            for (KeyValue kv : JsArray.toIterable(args[0])) {
-                List<Object> entry = new ArrayList<>();
-                entry.add(kv.key);
-                entry.add(kv.value);
-                result.add(entry);
-            }
-            return result;
-        });
-        prototype.put("assign", (Invokable) args -> {
-            if (args.length < 1) {
-                return Undefined.INSTANCE;
-            }
-            Object target = args[0];
-            if (target == null) {
-                throw new RuntimeException("cannot convert undefined or null to object");
-            }
-            if (!(target instanceof JsObject) && !(target instanceof Map)) {
-                target = new JsObject();
-            }
-            for (int i = 1; i < args.length; i++) {
-                Object source = args[i];
-                if (source == null) {
-                    continue; // Skip null/undefined sources
-                }
-                Iterable<KeyValue> properties = JsArray.toIterable(source);
-                if (properties != null) {
-                    for (KeyValue kv : properties) {
-                        if (target instanceof JsObject) {
-                            ((JsObject) target).put(kv.key, kv.value);
-                        } else {
-                            ((Map) target).put(kv.key, kv.value);
-                        }
+    private Prototype _prototype;
+
+    Prototype getChildPrototype() {
+        return null;
+    }
+
+    final Prototype getPrototype() {
+        if (_prototype == null) {
+            _prototype = initPrototype();
+        }
+        return _prototype;
+    }
+
+    private Prototype initPrototype() {
+        return new Prototype() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public Object get(String prototypeKey) {
+                Prototype child = getChildPrototype();
+                if (child != null) {
+                    Object temp = child.get(prototypeKey);
+                    if (temp != null) {
+                        return temp;
                     }
                 }
-            }
-            return target;
-        });
-        prototype.put("fromEntries", (Invokable) args -> {
-            if (args.length < 1 || args[0] == null) {
-                throw new RuntimeException("cannot convert undefined or null to object");
-            }
-            Object entriesObj = args[0];
-            JsObject result = new JsObject();
-            Iterable<KeyValue> entries = JsArray.toIterable(entriesObj);
-            if (entries == null) {
-                return result;
-            }
-            for (KeyValue kv : entries) {
-                Object entry = kv.value;
-                if (entry == null) {
-                    continue;
+                switch (prototypeKey) {
+                    case "toString":
+                        return (Invokable) args -> JsCommon.TO_STRING(thisObject == null ? this : thisObject);
+                    case "hasOwnProperty":
+                        return (Invokable) args -> {
+                            if (args.length == 0) {
+                                return false;
+                            }
+                            Object target = thisObject == null ? this : thisObject;
+                            String prop = args[0].toString();
+                            if (target instanceof JsObject) {
+                                JsObject jsObj = (JsObject) target;
+                                return jsObj.toMap().containsKey(prop);
+                            } else if (target instanceof ObjectLike) {
+                                ObjectLike objLike = (ObjectLike) target;
+                                Object value = objLike.get(prop);
+                                return value != null;
+                            } else if (target instanceof Map) {
+                                Map<String, Object> map = (Map<String, Object>) target;
+                                return map.containsKey(prop);
+                            }
+                            return false;
+                        };
+                    case "keys":
+                        return (Invokable) args -> {
+                            List<Object> result = new ArrayList<>();
+                            for (KeyValue kv : JsArray.toIterable(args[0])) {
+                                result.add(kv.key);
+                            }
+                            return result;
+                        };
+                    case "values":
+                        return (Invokable) args -> {
+                            List<Object> result = new ArrayList<>();
+                            for (KeyValue kv : JsArray.toIterable(args[0])) {
+                                result.add(kv.value);
+                            }
+                            return result;
+                        };
+                    case "entries":
+                        return (Invokable) args -> {
+                            List<Object> result = new ArrayList<>();
+                            for (KeyValue kv : JsArray.toIterable(args[0])) {
+                                List<Object> entry = new ArrayList<>();
+                                entry.add(kv.key);
+                                entry.add(kv.value);
+                                result.add(entry);
+                            }
+                            return result;
+                        };
+                    // static ==========================================================================================
+                    case "assign":
+                        return (Invokable) args -> {
+                            if (args.length < 1) {
+                                return Undefined.INSTANCE;
+                            }
+                            Object target = args[0];
+                            if (target == null) {
+                                throw new RuntimeException("cannot convert undefined or null to object");
+                            }
+                            if (!(target instanceof JsObject) && !(target instanceof Map)) {
+                                target = new JsObject();
+                            }
+                            for (int i = 1; i < args.length; i++) {
+                                Object source = args[i];
+                                if (source == null) {
+                                    continue; // Skip null/undefined sources
+                                }
+                                Iterable<KeyValue> properties = JsArray.toIterable(source);
+                                if (properties != null) {
+                                    for (KeyValue kv : properties) {
+                                        if (target instanceof JsObject) {
+                                            ((JsObject) target).put(kv.key, kv.value);
+                                        } else {
+                                            ((Map) target).put(kv.key, kv.value);
+                                        }
+                                    }
+                                }
+                            }
+                            return target;
+                        };
+                    case "fromEntries":
+                        return (Invokable) args -> {
+                            if (args.length < 1 || args[0] == null) {
+                                throw new RuntimeException("cannot convert undefined or null to object");
+                            }
+                            Object entriesObj = args[0];
+                            JsObject result = new JsObject();
+                            Iterable<KeyValue> entries = JsArray.toIterable(entriesObj);
+                            if (entries == null) {
+                                return result;
+                            }
+                            for (KeyValue kv : entries) {
+                                Object entry = kv.value;
+                                if (entry == null) {
+                                    continue;
+                                }
+                                String key;
+                                Object value;
+                                if (entry instanceof List) {
+                                    List<Object> entryList = (List<Object>) entry;
+                                    if (entryList.size() >= 2) {
+                                        key = entryList.get(0).toString();
+                                        value = entryList.get(1);
+                                        result.put(key, value);
+                                    }
+                                } else if (entry instanceof ArrayLike) {
+                                    ArrayLike entryArray = (ArrayLike) entry;
+                                    if (entryArray.size() >= 2) {
+                                        key = entryArray.get(0).toString();
+                                        value = entryArray.get(1);
+                                        result.put(key, value);
+                                    }
+                                }
+                            }
+                            return result;
+                        };
+                    case "is":
+                        return (Invokable) args -> {
+                            if (args.length < 2) {
+                                return false;
+                            }
+                            return Terms.eq(args[0], args[1], true);
+                        };
                 }
-                String key;
-                Object value;
-                if (entry instanceof List) {
-                    List<Object> entryList = (List<Object>) entry;
-                    if (entryList.size() >= 2) {
-                        key = entryList.get(0).toString();
-                        value = entryList.get(1);
-                        result.put(key, value);
-                    }
-                } else if (entry instanceof ArrayLike) {
-                    ArrayLike entryArray = (ArrayLike) entry;
-                    if (entryArray.size() >= 2) {
-                        key = entryArray.get(0).toString();
-                        value = entryArray.get(1);
-                        result.put(key, value);
-                    }
-                }
+                return null;
             }
-            return result;
-        });
-        prototype.put("is", (Invokable) args -> {
-            if (args.length < 2) {
-                return false;
-            }
-            return Terms.eq(args[0], args[1], true);
-        });
-        return prototype;
+        };
     }
 
     @Override
@@ -168,7 +204,11 @@ public class JsObject extends Prototype implements ObjectLike, Invokable {
         if ("prototype".equals(name)) {
             return getPrototype();
         }
-        Object result = getPrototype().get(name);
+        Prototype prototype = getPrototype();
+        if (prototype.hasPrototypeKey(name)) {
+            return prototype.getByPrototypeKey(name);
+        }
+        Object result = prototype.get(name);
         if (result instanceof Property) {
             return ((Property) result).get();
         }

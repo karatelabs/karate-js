@@ -1,7 +1,5 @@
 package io.karatelabs.js;
 
-import java.util.Map;
-
 public class JsBytes extends JsObject {
 
     final byte[] bytes;
@@ -11,10 +9,17 @@ public class JsBytes extends JsObject {
     }
 
     @Override
-    Map<String, Object> initPrototype() {
-        Map<String, Object> prototype = super.initPrototype();
-        prototype.put("length", new Property(() -> bytes.length));
-        return prototype;
+    Prototype getChildPrototype() {
+        return new Prototype() {
+            @Override
+            public Object get(String prototypeKey) {
+                switch (prototypeKey) {
+                    case "length":
+                        return new Property(() -> bytes.length);
+                }
+                return null;
+            }
+        };
     }
 
 }

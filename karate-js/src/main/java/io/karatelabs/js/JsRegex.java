@@ -25,7 +25,6 @@ package io.karatelabs.js;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -150,11 +149,19 @@ public class JsRegex extends JsObject implements Invokable {
         }
         return new JsArray(matches) {
             @Override
-            Map<String, Object> initPrototype() {
-                Map<String, Object> prototype = super.initPrototype();
-                prototype.put("index", new Property(matcher::start));
-                prototype.put("input", new Property(() -> str));
-                return prototype;
+            Prototype getChildPrototype() {
+                return new Prototype() {
+                    @Override
+                    public Object get(String prototypeKey) {
+                        switch (prototypeKey) {
+                            case "index":
+                                return new Property(matcher::start);
+                            case "input":
+                                return new Property(() -> str);
+                        }
+                        return null;
+                    }
+                };
             }
         };
     }
@@ -165,37 +172,53 @@ public class JsRegex extends JsObject implements Invokable {
     }
 
     @Override
-    Map<String, Object> initPrototype() {
-        Map<String, Object> prototype = super.initPrototype();
-        prototype.put("test", (Invokable) args -> {
-            if (args.length == 0 || args[0] == null) {
-                return false;
-            }
-            JsRegex regex = this;
-            if (thisObject instanceof JsRegex) {
-                regex = (JsRegex) thisObject;
-            }
-            return regex.test(args[0].toString());
-        });
-        prototype.put("exec", (Invokable) args -> {
-            if (args.length == 0 || args[0] == null) {
+    Prototype getChildPrototype() {
+        return new Prototype() {
+            @Override
+            public Object get(String prototypeKey) {
+                switch (prototypeKey) {
+                    case "test":
+                        return (Invokable) args -> {
+                            if (args.length == 0 || args[0] == null) {
+                                return false;
+                            }
+                            JsRegex regex = JsRegex.this;
+                            if (thisObject instanceof JsRegex) {
+                                regex = (JsRegex) thisObject;
+                            }
+                            return regex.test(args[0].toString());
+                        };
+                    case "exec":
+                        return (Invokable) args -> {
+                            if (args.length == 0 || args[0] == null) {
+                                return null;
+                            }
+                            JsRegex regex = JsRegex.this;
+                            if (thisObject instanceof JsRegex) {
+                                regex = (JsRegex) thisObject;
+                            }
+                            return regex.exec(args[0].toString());
+                        };
+                    case "source":
+                        return new Property(() -> pattern);
+                    case "flags":
+                        return new Property(() -> flags);
+                    case "lastIndex":
+                        return new Property(() -> lastIndex);
+                    case "global":
+                        return new Property(() -> global);
+                    case "ignoreCase":
+                        return new Property(() -> flags.contains("i"));
+                    case "multiline":
+                        return new Property(() -> flags.contains("m"));
+                    case "dotAll":
+                        return new Property(() -> flags.contains("s"));
+                    case "toString":
+                        return (Invokable) args -> JsRegex.this.toString();
+                }
                 return null;
             }
-            JsRegex regex = this;
-            if (thisObject instanceof JsRegex) {
-                regex = (JsRegex) thisObject;
-            }
-            return regex.exec(args[0].toString());
-        });
-        prototype.put("source", new Property(() -> pattern));
-        prototype.put("flags", new Property(() -> flags));
-        prototype.put("lastIndex", new Property(() -> lastIndex));
-        prototype.put("global", new Property(() -> global));
-        prototype.put("ignoreCase", new Property(() -> flags.contains("i")));
-        prototype.put("multiline", new Property(() -> flags.contains("m")));
-        prototype.put("dotAll", new Property(() -> flags.contains("s")));
-        prototype.put("toString", (Invokable) args -> toString());
-        return prototype;
+        };
     }
 
     @Override

@@ -25,6 +25,7 @@ package io.karatelabs.js;
 
 import net.minidev.json.JSONValue;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 public class JsCommon {
@@ -70,10 +71,10 @@ public class JsCommon {
                     if (toString instanceof Invokable) {
                         sb.append(((Invokable) toString).invoke(arg));
                     } else {
-                        sb.append(Prototype.TO_STRING(arg));
+                        sb.append(TO_STRING(arg));
                     }
                 } else {
-                    sb.append(Prototype.TO_STRING(arg));
+                    sb.append(TO_STRING(arg));
                 }
                 sb.append(' ');
             }
@@ -81,6 +82,19 @@ public class JsCommon {
             return null;
         });
         return object;
+    }
+
+    static String TO_STRING(Object o) {
+        if (o == null) {
+            return "[object Null]";
+        }
+        if (o instanceof List) {
+            return "[object Array]";
+        }
+        if (Terms.isPrimitive(o)) {
+            return o.toString();
+        }
+        return "[object Object]";
     }
 
 }

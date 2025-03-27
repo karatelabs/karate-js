@@ -1,90 +1,137 @@
 package io.karatelabs.js;
 
-import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class JsMath extends JsObject {
 
     @Override
-    Map<String, Object> initPrototype() {
-        Map<String, Object> prototype = super.initPrototype();
-        prototype.put("E", Math.E);
-        prototype.put("LN10", Math.log(10));
-        prototype.put("LN2", Math.log(2));
-        prototype.put("LOG2E", 1 / Math.log(2));
-        prototype.put("PI", Math.PI);
-        prototype.put("SQRT1_2", Math.sqrt(0.5));
-        prototype.put("SQRT2", Math.sqrt(2));
-        prototype.put("abs", math(Math::abs));
-        prototype.put("acos", math(Math::acos));
-        prototype.put("acosh", math(x -> {
-            if (x < 1) {
-                throw new RuntimeException("value must be >= 1");
+    Prototype getChildPrototype() {
+        return new Prototype() {
+            @Override
+            public Object get(String prototypeKey) {
+                switch (prototypeKey) {
+                    case "E":
+                        return Math.E;
+                    case "LN10":
+                        return Math.log(10);
+                    case "LN2":
+                        return Math.log(2);
+                    case "LOG2E":
+                        return 1 / Math.log(2);
+                    case "PI":
+                        return Math.PI;
+                    case "SQRT1_2":
+                        return Math.sqrt(0.5);
+                    case "SQRT2":
+                        return Math.sqrt(2);
+                    case "abs":
+                        return math(Math::abs);
+                    case "acos":
+                        return math(Math::acos);
+                    case "acosh":
+                        return math(x -> {
+                            if (x < 1) {
+                                throw new RuntimeException("value must be >= 1");
+                            }
+                            return Math.log(x + Math.sqrt(x * x - 1));
+                        });
+                    case "asin":
+                        return math(Math::asin);
+                    case "asinh":
+                        return math(x -> Math.log(x + Math.sqrt(x * x + 1)));
+                    case "atan":
+                        return math(Math::atan);
+                    case "atan2":
+                        return math(Math::atan2);
+                    case "atanh":
+                        return math(x -> {
+                            if (x <= -1 || x >= 1) {
+                                throw new RuntimeException("value must be between -1 and 1 (exclusive)");
+                            }
+                            return 0.5 * Math.log((1 + x) / (1 - x));
+                        });
+                    case "cbrt":
+                        return math(Math::cbrt);
+                    case "ceil":
+                        return math(Math::ceil);
+                    case "clz32":
+                        return (Invokable) args -> {
+                            Number x = Terms.toNumber(args[0]);
+                            return Integer.numberOfLeadingZeros(x.intValue());
+                        };
+                    case "cos":
+                        return math(Math::cos);
+                    case "cosh":
+                        return math(Math::cosh);
+                    case "exp":
+                        return math(Math::exp);
+                    case "expm1":
+                        return math(Math::expm1);
+                    case "floor":
+                        return math(Math::floor);
+                    case "fround":
+                        return (Invokable) args -> {
+                            Number x = Terms.toNumber(args[0]);
+                            float y = (float) x.doubleValue();
+                            return (double) y;
+                        };
+                    case "hypot":
+                        return math(Math::hypot);
+                    case "imul":
+                        return (Invokable) args -> {
+                            Number x = Terms.toNumber(args[0]);
+                            Number y = Terms.toNumber(args[1]);
+                            return x.intValue() * y.intValue();
+                        };
+                    case "log":
+                        return math(Math::log);
+                    case "log10":
+                        return math(Math::log10);
+                    case "log1p":
+                        return math(Math::log1p);
+                    case "log2":
+                        return math(x -> Math.log(x) / Math.log(2));
+                    case "max":
+                        return math(Math::max);
+                    case "min":
+                        return math(Math::min);
+                    case "pow":
+                        return math(Math::pow);
+                    case "random":
+                        return (Invokable) args -> Math.random();
+                    case "round":
+                        return (Invokable) args -> {
+                            Number x = Terms.toNumber(args[0]);
+                            return Terms.narrow(Math.round(x.doubleValue()));
+                        };
+                    case "sign":
+                        return (Invokable) args -> {
+                            Number x = Terms.toNumber(args[0]);
+                            if (Terms.NEGATIVE_ZERO.equals(x)) {
+                                return Terms.NEGATIVE_ZERO;
+                            }
+                            if (Terms.POSITIVE_ZERO.equals(x)) {
+                                return Terms.POSITIVE_ZERO;
+                            }
+                            return x.doubleValue() > 0 ? 1 : -1;
+                        };
+                    case "sin":
+                        return math(Math::sin);
+                    case "sinh":
+                        return math(Math::sinh);
+                    case "sqrt":
+                        return math(Math::sqrt);
+                    case "tan":
+                        return math(Math::tan);
+                    case "tanh":
+                        return math(Math::tanh);
+                    case "trunc":
+                        return math(x -> x > 0 ? Math.floor(x) : Math.ceil(x));
+                }
+                return null;
             }
-            return Math.log(x + Math.sqrt(x * x - 1));
-        }));
-        prototype.put("asin", math(Math::asin));
-        prototype.put("asinh", math(x -> Math.log(x + Math.sqrt(x * x + 1))));
-        prototype.put("atan", math(Math::atan));
-        prototype.put("atan2", math(Math::atan2));
-        prototype.put("atanh", math(x -> {
-            if (x <= -1 || x >= 1) {
-                throw new RuntimeException("value must be between -1 and 1 (exclusive)");
-            }
-            return 0.5 * Math.log((1 + x) / (1 - x));
-        }));
-        prototype.put("cbrt", math(Math::cbrt));
-        prototype.put("ceil", math(Math::ceil));
-        prototype.put("clz32", (Invokable) args -> {
-            Number x = Terms.toNumber(args[0]);
-            return Integer.numberOfLeadingZeros(x.intValue());
-        });
-        prototype.put("cos", math(Math::cos));
-        prototype.put("cosh", math(Math::cosh));
-        prototype.put("exp", math(Math::exp));
-        prototype.put("expm1", math(Math::expm1));
-        prototype.put("floor", math(Math::floor));
-        prototype.put("fround", (Invokable) args -> {
-            Number x = Terms.toNumber(args[0]);
-            float y = (float) x.doubleValue();
-            return (double) y;
-        });
-        prototype.put("hypot", math(Math::hypot));
-        prototype.put("imul", (Invokable) args -> {
-            Number x = Terms.toNumber(args[0]);
-            Number y = Terms.toNumber(args[1]);
-            return x.intValue() * y.intValue();
-        });
-        prototype.put("log", math(Math::log));
-        prototype.put("log10", math(Math::log10));
-        prototype.put("log1p", math(Math::log1p));
-        prototype.put("log2", math(x -> Math.log(x) / Math.log(2)));
-        prototype.put("max", math(Math::max));
-        prototype.put("min", math(Math::min));
-        prototype.put("pow", math(Math::pow));
-        prototype.put("random", (Invokable) args -> Math.random());
-        prototype.put("round", (Invokable) args -> {
-            Number x = Terms.toNumber(args[0]);
-            return Terms.narrow(Math.round(x.doubleValue()));
-        });
-        prototype.put("sign", (Invokable) args -> {
-            Number x = Terms.toNumber(args[0]);
-            if (Terms.NEGATIVE_ZERO.equals(x)) {
-                return Terms.NEGATIVE_ZERO;
-            }
-            if (Terms.POSITIVE_ZERO.equals(x)) {
-                return Terms.POSITIVE_ZERO;
-            }
-            return x.doubleValue() > 0 ? 1 : -1;
-        });
-        prototype.put("sin", math(Math::sin));
-        prototype.put("sinh", math(Math::sinh));
-        prototype.put("sqrt", math(Math::sqrt));
-        prototype.put("tan", math(Math::tan));
-        prototype.put("tanh", math(Math::tanh));
-        prototype.put("trunc", math(x -> x > 0 ? Math.floor(x) : Math.ceil(x)));
-        return prototype;
+        };
     }
 
     private static Invokable math(Function<Double, Double> fn) {

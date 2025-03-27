@@ -26,7 +26,6 @@ package io.karatelabs.js;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 public abstract class JsFunction extends JsObject implements Invokable {
 
@@ -40,16 +39,25 @@ public abstract class JsFunction extends JsObject implements Invokable {
     }
 
     @Override
-    Map<String, Object> initPrototype() {
-        Map<String, Object> prototype = super.initPrototype();
-        prototype.put("call", (Invokable) args -> {
-            ShiftArgs shifted = new ShiftArgs(args);
-            thisObject = shifted.thisObject;
-            return invoke(shifted.args);
-        });
-        prototype.put("constructor", this);
-        prototype.put("name", new Property(() -> name));
-        return prototype;
+    Prototype getChildPrototype() {
+        return new Prototype() {
+            @Override
+            public Object get(String prototypeKey) {
+                switch (prototypeKey) {
+                    case "call":
+                        return (Invokable) args -> {
+                            ShiftArgs shifted = new ShiftArgs(args);
+                            thisObject = shifted.thisObject;
+                            return invoke(shifted.args);
+                        };
+                    case "constructor":
+                        return JsFunction.this;
+                    case "name":
+                        return new Property(() -> JsFunction.this.name);
+                }
+                return null;
+            }
+        };
     }
 
     private static class ShiftArgs {

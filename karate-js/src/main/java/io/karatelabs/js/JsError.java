@@ -23,8 +23,6 @@
  */
 package io.karatelabs.js;
 
-import java.util.Map;
-
 public class JsError extends JsObject implements Invokable {
 
     private final String message;
@@ -34,10 +32,17 @@ public class JsError extends JsObject implements Invokable {
     }
 
     @Override
-    Map<String, Object> initPrototype() {
-        Map<String, Object> map = super.initPrototype();
-        map.put("message", new Property(() -> message));
-        return map;
+    Prototype getChildPrototype() {
+        return new Prototype() {
+            @Override
+            public Object get(String prototypeKey) {
+                switch (prototypeKey) {
+                    case "message":
+                        return message;
+                }
+                return null;
+            }
+        };
     }
 
     @Override

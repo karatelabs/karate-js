@@ -177,7 +177,7 @@ public class Interpreter {
             invokable = (Invokable) o;
         } else if (o instanceof Prototype) {
             Prototype prototype = (Prototype) o;
-            invokable = (Invokable) prototype.getPrototype().get("constructor");
+            invokable = (Invokable) prototype.get("constructor");
         } else if (o instanceof JavaClass) {
             JavaClass jc = (JavaClass) o;
             invokable = jc::construct;

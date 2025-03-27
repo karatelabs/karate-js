@@ -23,33 +23,40 @@
  */
 package io.karatelabs.js;
 
-import java.util.List;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
-abstract class Prototype {
+abstract class Prototype implements ObjectLike {
 
     private Map<String, Object> prototype;
 
-    public final Map<String, Object> getPrototype() {
+    @Override
+    public void put(String name, Object value) {
         if (prototype == null) {
-            prototype = initPrototype();
+            prototype = new HashMap<>();
         }
-        return prototype;
+        prototype.put(name, value);
     }
 
-    abstract Map<String, Object> initPrototype();
+    public boolean hasPrototypeKey(String key) {
+        return prototype != null && prototype.containsKey(key);
+    }
 
-    static String TO_STRING(Object o) {
-        if (o == null) {
-            return "[object Null]";
+    public Object getByPrototypeKey(String key) {
+        return prototype == null ? null : prototype.get(key);
+    }
+
+    @Override
+    public void remove(String name) {
+        if (prototype != null) {
+            prototype.remove(name);
         }
-        if (o instanceof List) {
-            return "[object Array]";
-        }
-        if (Terms.isPrimitive(o)) {
-            return o.toString();
-        }
-        return "[object Object]";
+    }
+
+    @Override
+    public Map<String, Object> toMap() {
+        return prototype == null ? Collections.emptyMap() : prototype;
     }
 
 }

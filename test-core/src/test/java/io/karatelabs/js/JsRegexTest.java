@@ -7,6 +7,11 @@ import static org.junit.jupiter.api.Assertions.*;
 class JsRegexTest extends EvalBase {
 
     @Test
+    void testDev() {
+
+    }
+
+    @Test
     void testRegexLiteral() {
         eval("var re = /test/; var str = re.toString()");
         assertInstanceOf(JsRegex.class, get("re"));

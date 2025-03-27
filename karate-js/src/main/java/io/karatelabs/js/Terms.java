@@ -274,7 +274,7 @@ public class Terms {
     public static boolean instanceOf(Object lhs, Object rhs) {
         if (lhs instanceof JsObject && rhs instanceof JsObject) {
             JsObject objectLhs = (JsObject) lhs;
-            Map<String, Object> prototypeLhs = objectLhs.getPrototype();
+            Prototype prototypeLhs = objectLhs.getPrototype();
             if (prototypeLhs != null) {
                 Object constructorLhs = prototypeLhs.get("constructor");
                 if (constructorLhs != null) {
