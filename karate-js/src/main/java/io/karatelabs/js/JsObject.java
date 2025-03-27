@@ -54,8 +54,8 @@ public class JsObject extends Prototype implements ObjectLike, Invokable {
                 return jsObj.toMap().containsKey(prop);
             } else if (target instanceof ObjectLike) {
                 ObjectLike objLike = (ObjectLike) target;
-                Collection<String> keys = objLike.keys();
-                return keys.contains(prop);
+                Object value = objLike.get(prop);
+                return value != null;
             } else if (target instanceof Map) {
                 Map<String, Object> map = (Map<String, Object>) target;
                 return map.containsKey(prop);
@@ -178,19 +178,6 @@ public class JsObject extends Prototype implements ObjectLike, Invokable {
     @Override
     public void put(String name, Object value) {
         map.put(name, value);
-    }
-
-    @Override
-    public boolean hasKey(String name) {
-        if (map.containsKey(name)) {
-            return true;
-        }
-        return getPrototype().containsKey(name);
-    }
-
-    @Override
-    public Collection<String> keys() {
-        return map.keySet();
     }
 
     @Override

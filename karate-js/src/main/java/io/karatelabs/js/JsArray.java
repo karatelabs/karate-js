@@ -914,19 +914,19 @@ public class JsArray extends Prototype implements ArrayLike {
         } else if (object instanceof ObjectLike) {
             return () -> {
                 final ObjectLike objectLike = ((ObjectLike) object);
-                final Iterator<String> keys = objectLike.keys().iterator();
+                final Iterator<Map.Entry<String, Object>> entries = objectLike.toMap().entrySet().iterator();
                 return new Iterator<>() {
                     int index = 0;
 
                     @Override
                     public boolean hasNext() {
-                        return keys.hasNext();
+                        return entries.hasNext();
                     }
 
                     @Override
                     public KeyValue next() {
-                        String key = keys.next();
-                        return new KeyValue(object, index++, key, objectLike.get(key));
+                        Map.Entry<String, Object> entry = entries.next();
+                        return new KeyValue(object, index++, entry.getKey(), entry.getValue());
                     }
                 };
             };

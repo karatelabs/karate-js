@@ -23,7 +23,6 @@
  */
 package io.karatelabs.js;
 
-import java.util.Collection;
 import java.util.Map;
 
 public class JavaObject implements JavaMethods, JavaFields, ObjectLike {
@@ -57,16 +56,6 @@ public class JavaObject implements JavaMethods, JavaFields, ObjectLike {
     @Override
     public void put(String name, Object value) {
         Engine.JAVA_BRIDGE.set(object, name, value);
-    }
-
-    @Override
-    public boolean hasKey(String name) {
-        return JavaBridge.findGetter(object, name) != null;
-    }
-
-    @Override
-    public Collection<String> keys() {
-        return JavaBridge.propertyNames(object);
     }
 
     @Override

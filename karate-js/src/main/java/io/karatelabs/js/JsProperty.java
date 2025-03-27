@@ -144,8 +144,9 @@ public class JsProperty {
             if (object instanceof ObjectLike) {
                 ObjectLike map = (ObjectLike) object;
                 String key = num + "";
-                if (map.hasKey(key)) {
-                    return map.get(key);
+                Object value = map.get(key);
+                if (value != null) {
+                    return value;
                 }
             }
             throw new RuntimeException("get by index [" + index + "] for non-array: " + object);

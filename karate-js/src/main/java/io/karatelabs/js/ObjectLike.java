@@ -23,7 +23,6 @@
  */
 package io.karatelabs.js;
 
-import java.util.Collection;
 import java.util.Map;
 
 public interface ObjectLike {
@@ -31,10 +30,6 @@ public interface ObjectLike {
     Object get(String name);
 
     void put(String name, Object value);
-
-    boolean hasKey(String name);
-
-    Collection<String> keys();
 
     void remove(String name);
 

@@ -2,10 +2,6 @@ package io.karatelabs.js;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -53,15 +49,6 @@ class JavaObjectTest {
         jo.put("booleanValue", Boolean.TRUE);
         assertEquals(10, dp.getDoubleValue());
         assertTrue(dp.isBooleanValue());
-    }
-
-    @Test
-    void testPropNames() {
-        DemoPojo dp = new DemoPojo();
-        JavaObject jo = new JavaObject(dp);
-        List<String> keys = new ArrayList<>(jo.keys());
-        Collections.sort(keys);
-        assertEquals(List.of("booleanValue", "doubleValue", "intArray", "intValue", "integerArray", "stringValue"), keys);
     }
 
     @Test

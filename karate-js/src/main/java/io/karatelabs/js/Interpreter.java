@@ -562,8 +562,9 @@ public class Interpreter {
                 String errorMessage = null;
                 if (errorThrown instanceof JsObject) {
                     JsObject error = (JsObject) errorThrown;
-                    if (error.hasKey("message")) {
-                        errorMessage = (String) error.get("message");
+                    Object message = error.get("message");
+                    if (message instanceof String) {
+                        errorMessage = (String) message;
                     }
                 }
                 String message = child.toStringError(errorMessage == null ? errorThrown.toString() : errorMessage);
