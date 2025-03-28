@@ -61,7 +61,7 @@ In the spirit of open-source - we are releasing the work we have done so far. It
 
 The good thing is that it already has solved some of the hardest problems - the parser, support for all arithmetic operators, precedence and expressions. Arrow functions and prototype chains are supported.
 
-To get a sense of what is already supported, take a look at the [main unit-test](test-core/src/test/java/io/karatelabs/js/EvalTest.java).
+To get a sense of what is already supported, take a look at the [main unit-tests](test-core/src/test/java/io/karatelabs/js).
 
 ## Highlights
 * Simple code base, easy to understand and contribute
@@ -70,6 +70,7 @@ To get a sense of what is already supported, take a look at the [main unit-test]
 * Runs on Java 11 and up
 * High performance [JFlex](https://jflex.de) generated [lexer](karate-js/src/main/jflex/js.flex)
 * Hand-written [parser](karate-js/src/main/java/io/karatelabs/js/Parser.java) for the best performance
+* Full support for reflection-based Java interop (construct, call methods)
 * [Initial benchmarking](#benchmark) indicates that Karate-JS is much faster than Rhino, Nashorn and Graal
 * Project includes utilities to run the [Official ECMAScript Conformance Test Suite](https://github.com/tc39/test262) (TC262).
 
@@ -90,8 +91,8 @@ Here is a list of what we *don't* plan to support:
 * Concept of "strict mode" or not-strict mode
 * `async`, `await`, `yield` or promises
 * Generator functions
-* Regexes
-* JS Date handling
+* ~~Regexes~~ (implemented as of Mar-2025)
+* ~~JS Date~~ (implemented as of Mar-2025)
 * BigInt or decimals (users can delegate to the Java `BigDecimal` if needed)
 * Modules, `import`, `require` etc.
 * Node-like APIs e.g. `process.env` – users can also delegate to Java instead
