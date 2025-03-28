@@ -156,7 +156,6 @@ public class Interpreter {
     }
 
     private static Object evalDotExpr(Node node, Context context) {
-        // TODO refactor and merge code from evalFnCall into JsProperty
         JsProperty prop = new JsProperty(node, context);
         Object result = prop.get();
         if (result == Undefined.INSTANCE) {
@@ -171,31 +170,7 @@ public class Interpreter {
     @SuppressWarnings("unchecked")
     private static Object evalFnCall(Node node, Context context) {
         JsProperty prop = new JsProperty(node.children.get(0), context);
-        Object o = prop.get(true);
-        Invokable invokable;
-        if (o instanceof Invokable) {
-            invokable = (Invokable) o;
-        } else if (o instanceof Prototype) {
-            Prototype prototype = (Prototype) o;
-            invokable = (Invokable) prototype.get("constructor");
-        } else if (o instanceof JavaClass) {
-            JavaClass jc = (JavaClass) o;
-            invokable = jc::construct;
-        } else if (JavaFunction.isFunction(o)) {
-            invokable = new JavaFunction(o);
-        } else if (o == Undefined.INSTANCE) {
-            String className = node.children.get(0).getText();
-            try {
-                invokable = args -> Engine.JAVA_BRIDGE.construct(className, args);
-            } catch (Exception e) {
-                throw new RuntimeException("not a function: " + className);
-            }
-        } else if (o != null) { // try java interop
-            JavaObject jo = new JavaObject(o);
-            invokable = new JavaInvokable(prop.name, jo);
-        } else {
-            throw new RuntimeException("null is not a function");
-        }
+        Invokable invokable = prop.getInvokable();
         List<Object> argsList = new ArrayList<>();
         if (node.children.size() > 1) { // check for rare case, new syntax without parentheses
             Node fnArgsNode = node.children.get(2);
@@ -228,13 +203,16 @@ public class Interpreter {
         }
         if (context.construct) { // new keyword
             context.construct = false;
-            thisObject = o;
+            thisObject = invokable;
             if (jsFunction != null) {
                 jsFunction.thisObject = thisObject;
             }
             Object result = invokable.invoke(args);
+            // hack to ensure any computation result is a java string
+            // it breaks some js conventions, e.g. the below is not true in karate-js
+            // typeof new String() === 'object'
             if (result instanceof JsString) {
-                return ((JsString) result).text;
+                return result.toString();
             }
             return Terms.isPrimitive(result) ? thisObject : result;
         } else { // normal function call

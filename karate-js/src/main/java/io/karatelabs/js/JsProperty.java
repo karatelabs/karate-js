@@ -119,7 +119,7 @@ public class JsProperty {
         return get(false);
     }
 
-    Object get(boolean function) {
+    private Object get(boolean function) {
         if (object == Undefined.INSTANCE) {
             return object;
         }
@@ -205,6 +205,33 @@ public class JsProperty {
             }
         } catch (Exception e) {
             return Undefined.INSTANCE;
+        }
+    }
+
+    Invokable getInvokable() {
+        Object o = get(true);
+        if (o instanceof Invokable) {
+            return (Invokable) o;
+        } else if (o instanceof Prototype) {
+            Prototype prototype = (Prototype) o;
+            return (Invokable) prototype.get("constructor");
+        } else if (o instanceof JavaClass) {
+            JavaClass jc = (JavaClass) o;
+            return jc::construct;
+        } else if (JavaFunction.isFunction(o)) {
+            return new JavaFunction(o);
+        } else if (o == Undefined.INSTANCE) {
+            String className = node.getText();
+            try {
+                return args -> Engine.JAVA_BRIDGE.construct(className, args);
+            } catch (Exception e) {
+                throw new RuntimeException("undefined is not a function");
+            }
+        } else if (o != null) { // java interop
+            JavaObject jo = new JavaObject(o);
+            return new JavaInvokable(name, jo);
+        } else {
+            throw new RuntimeException("null is not a function");
         }
     }
 
