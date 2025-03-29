@@ -32,11 +32,12 @@ public class JsError extends JsObject implements Invokable {
     }
 
     @Override
-    Prototype getChildPrototype() {
-        return new Prototype() {
+    Prototype initPrototype() {
+        Prototype wrapped = super.initPrototype();
+        return new Prototype(wrapped) {
             @Override
-            public Object get(String prototypeKey) {
-                switch (prototypeKey) {
+            public Object getProperty(String propName) {
+                switch (propName) {
                     case "message":
                         return message;
                 }

@@ -160,8 +160,8 @@ public class JsProperty {
         if (object instanceof List) {
             return (new JsArray((List<Object>) object).get(name));
         }
-        if (object instanceof ArrayLike) {
-            return ((ArrayLike) object).get(name);
+        if (object instanceof JsArray) {
+            return ((JsArray) object).get(name);
         }
         if (object instanceof Map) {
             Map<String, Object> map = (Map<String, Object>) object;

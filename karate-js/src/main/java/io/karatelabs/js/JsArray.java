@@ -46,23 +46,12 @@ public class JsArray implements ArrayLike {
         return _prototype;
     }
 
-    Prototype getChildPrototype() {
-        return null;
-    }
-
     Prototype initPrototype() {
-        return new Prototype() {
+        return new Prototype(null) {
             @SuppressWarnings("unchecked")
             @Override
-            public Object get(String prototypeKey) {
-                Prototype child = getChildPrototype();
-                if (child != null) {
-                    Object temp = child.get(prototypeKey);
-                    if (temp != null) {
-                        return temp;
-                    }
-                }
-                switch (prototypeKey) {
+            public Object getProperty(String propName) {
+                switch (propName) {
                     case "toString":
                         return (Invokable) args -> JsCommon.TO_STRING(this);
                     case "length":
@@ -909,15 +898,7 @@ public class JsArray implements ArrayLike {
         if ("prototype".equals(name)) {
             return getPrototype();
         }
-        Prototype prototype = getPrototype();
-        if (prototype.hasPrototypeKey(name)) {
-            return prototype.getByPrototypeKey(name);
-        }
-        Object result = prototype.get(name);
-        if (result instanceof Property) {
-            return ((Property) result).get();
-        }
-        return result;
+        return getPrototype().get(name);
     }
 
     @SuppressWarnings("unchecked")

@@ -29,34 +29,51 @@ import java.util.Map;
 
 abstract class Prototype implements ObjectLike {
 
-    private Map<String, Object> prototype;
+    private final Prototype wrapped;
+    private Map<String, Object> props;
+
+    Prototype(Prototype wrapped) {
+        this.wrapped = wrapped;
+    }
 
     @Override
     public void put(String name, Object value) {
-        if (prototype == null) {
-            prototype = new HashMap<>();
+        if (props == null) {
+            props = new HashMap<>();
         }
-        prototype.put(name, value);
-    }
-
-    public boolean hasPrototypeKey(String key) {
-        return prototype != null && prototype.containsKey(key);
-    }
-
-    public Object getByPrototypeKey(String key) {
-        return prototype == null ? null : prototype.get(key);
+        props.put(name, value);
     }
 
     @Override
     public void remove(String name) {
-        if (prototype != null) {
-            prototype.remove(name);
+        if (props != null) {
+            props.remove(name);
         }
     }
 
     @Override
     public Map<String, Object> toMap() {
-        return prototype == null ? Collections.emptyMap() : prototype;
+        return props == null ? Collections.emptyMap() : props;
     }
+
+    @Override
+    final public Object get(String name) {
+        if (props != null && props.containsKey(name)) {
+            return props.get(name);
+        }
+        Object result = getProperty(name);
+        if (result instanceof Property) {
+            return ((Property) result).get();
+        }
+        if (result != null) {
+            return result;
+        }
+        if (wrapped != null) {
+            return wrapped.get(name);
+        }
+        return null;
+    }
+
+    abstract Object getProperty(String key);
 
 }

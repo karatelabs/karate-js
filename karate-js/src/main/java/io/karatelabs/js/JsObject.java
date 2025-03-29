@@ -43,10 +43,6 @@ public class JsObject implements ObjectLike, Invokable {
 
     private Prototype _prototype;
 
-    Prototype getChildPrototype() {
-        return null;
-    }
-
     final Prototype getPrototype() {
         if (_prototype == null) {
             _prototype = initPrototype();
@@ -54,19 +50,12 @@ public class JsObject implements ObjectLike, Invokable {
         return _prototype;
     }
 
-    private Prototype initPrototype() {
-        return new Prototype() {
+    Prototype initPrototype() {
+        return new Prototype(null) {
             @SuppressWarnings("unchecked")
             @Override
-            public Object get(String prototypeKey) {
-                Prototype child = getChildPrototype();
-                if (child != null) {
-                    Object temp = child.get(prototypeKey);
-                    if (temp != null) {
-                        return temp;
-                    }
-                }
-                switch (prototypeKey) {
+            public Object getProperty(String propName) {
+                switch (propName) {
                     case "toString":
                         return (Invokable) args -> JsCommon.TO_STRING(thisObject == null ? this : thisObject);
                     case "hasOwnProperty":
@@ -204,15 +193,7 @@ public class JsObject implements ObjectLike, Invokable {
         if ("prototype".equals(name)) {
             return getPrototype();
         }
-        Prototype prototype = getPrototype();
-        if (prototype.hasPrototypeKey(name)) {
-            return prototype.getByPrototypeKey(name);
-        }
-        Object result = prototype.get(name);
-        if (result instanceof Property) {
-            return ((Property) result).get();
-        }
-        return result;
+        return getPrototype().get(name);
     }
 
     @Override

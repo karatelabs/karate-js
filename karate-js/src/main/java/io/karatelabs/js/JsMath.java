@@ -6,11 +6,12 @@ import java.util.function.Function;
 public class JsMath extends JsObject {
 
     @Override
-    Prototype getChildPrototype() {
-        return new Prototype() {
+    Prototype initPrototype() {
+        Prototype wrapped = super.initPrototype();
+        return new Prototype(wrapped) {
             @Override
-            public Object get(String prototypeKey) {
-                switch (prototypeKey) {
+            public Object getProperty(String propName) {
+                switch (propName) {
                     case "E":
                         return Math.E;
                     case "LN10":
