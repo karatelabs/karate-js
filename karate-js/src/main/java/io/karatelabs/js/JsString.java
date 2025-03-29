@@ -30,7 +30,11 @@ public class JsString extends JsObject implements Invokable {
 
     final String text;
 
-    public JsString(String text) {
+    JsString() {
+        this("");
+    }
+
+    JsString(String text) {
         this.text = text;
     }
 

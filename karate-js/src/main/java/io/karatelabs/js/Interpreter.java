@@ -277,22 +277,20 @@ public class Interpreter {
         } else { // for in / of
             boolean in = node.children.get(3).chunk.token == Token.IN;
             Object forObject = eval(node.children.get(4), forContext);
-            Iterable<KeyValue> iterable = JsArray.toIterable(forObject);
-            if (iterable != null) {
-                String varName;
-                if (node.children.get(2).type == Type.VAR_STMT) {
-                    varName = node.children.get(2).children.get(1).getText();
+            Iterable<KeyValue> iterable = JsObject.toIterable(forObject);
+            String varName;
+            if (node.children.get(2).type == Type.VAR_STMT) {
+                varName = node.children.get(2).children.get(1).getText();
+            } else {
+                varName = node.children.get(2).getText();
+            }
+            for (KeyValue kv : iterable) {
+                if (in) {
+                    forContext.declare(varName, kv.key);
                 } else {
-                    varName = node.children.get(2).getText();
+                    forContext.declare(varName, kv.value);
                 }
-                for (KeyValue kv : iterable) {
-                    if (in) {
-                        forContext.declare(varName, kv.key);
-                    } else {
-                        forContext.declare(varName, kv.value);
-                    }
-                    forResult = eval(forBody, forContext);
-                }
+                forResult = eval(forBody, forContext);
             }
         }
         return forResult;

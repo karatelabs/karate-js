@@ -808,7 +808,7 @@ public class JsArray extends JsObject {
                                 invokable = (Invokable) args[1];
                             }
                             JsArray array = asArray(args[0]);
-                            for (KeyValue kv : JsObject.toIterable(array)) {
+                            for (KeyValue kv : toIterable(array)) {
                                 Object result = invokable == null ? kv.value : invokable.invoke(kv.value, kv.index);
                                 results.add(result);
                             }

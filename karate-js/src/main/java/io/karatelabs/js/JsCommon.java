@@ -30,36 +30,35 @@ import java.util.function.Consumer;
 
 public class JsCommon {
 
-    static final JsObject GLOBAL_STRING = new JsString("");
+    static final JsString GLOBAL_STRING = new JsString();
 
-    static final JsObject GLOBAL_REGEX = new JsRegex();
+    static final JsRegex GLOBAL_REGEX = new JsRegex();
 
     static final JsDate GLOBAL_DATE = new JsDate();
 
     static final JsMath GLOBAL_MATH = new JsMath();
 
-    static final JsObject JAVA_GLOBAL = createJavaGlobal();
+    static final ObjectLike JAVA_GLOBAL = (SimpleObject) name -> {
+        if ("type".equals(name)) {
+            return (Invokable) args -> new JavaClass((String) args[0]);
+        }
+        return null;
+    };
 
-    static final JsObject JSON = createJson();
+    static final ObjectLike JSON = (SimpleObject) name -> {
+        if ("stringify".equals(name)) {
+            return (Invokable) args -> JSONValue.toJSONString(args[0]);
+        } else if ("parse".equals(name)) {
+            return (Invokable) args -> JSONValue.parse((String) args[0]);
+        }
+        return null;
+    };
 
     static final JsObject GLOBAL_OBJECT = new JsObject();
 
     static final JsArray GLOBAL_ARRAY = new JsArray();
 
     static Invokable PARSE_INT = args -> Terms.toNumber(args[0]);
-
-    private static JsObject createJson() {
-        JsObject object = new JsObject();
-        object.put("stringify", (Invokable) args -> JSONValue.toJSONString(args[0]));
-        object.put("parse", (Invokable) args -> JSONValue.parse((String) args[0]));
-        return object;
-    }
-
-    private static JsObject createJavaGlobal() {
-        JsObject object = new JsObject();
-        object.put("type", (Invokable) args -> new JavaClass((String) args[0]));
-        return object;
-    }
 
     static JsObject createConsole(Consumer<String> logger) {
         JsObject object = new JsObject();
