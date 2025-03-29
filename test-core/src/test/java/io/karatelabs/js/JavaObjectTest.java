@@ -2,6 +2,8 @@ package io.karatelabs.js;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -27,6 +29,7 @@ class JavaObjectTest {
         assertEquals("foo", jo.get("stringValue"));
         assertEquals(5, jo.get("intValue"));
         assertEquals(true, jo.get("booleanValue"));
+        NodeUtils.match(jo.toMap(), "{ stringValue: 'foo', integerArray: null, intValue: 5, instanceField: 'instance-field', booleanValue: true, doubleValue: 0.0, intArray: null }");
     }
 
     @Test

@@ -23,6 +23,8 @@
  */
 package io.karatelabs.js;
 
+import net.minidev.json.JSONValue;
+
 import java.lang.reflect.*;
 import java.util.*;
 
@@ -296,34 +298,22 @@ public interface JavaBridge {
     }
 
     @SuppressWarnings("unchecked")
-    static Object toMapOrList(Object object) {
+    static Object toMap(Object object) {
         if (object == null) {
-            return object;
-        }
-        if (object instanceof JsArray) {
-            return ((JsArray) object).toList();
-        }
-        if (object instanceof List) {
-            List<Object> list = (List<Object>) object;
-            List<Object> result = new ArrayList<>();
-            for (Object o : list) {
-                result.add(toMapOrList(o));
-            }
-            return result;
+            return null;
         }
         if (object instanceof Map) {
             Map<String, Object> map = (Map<String, Object>) object;
             Map<String, Object> result = new LinkedHashMap<>();
-            map.forEach((k, v) -> result.put(k, toMapOrList(v)));
+            map.forEach((k, v) -> result.put(k, toMap(v)));
             return result;
-        }
-        if (object instanceof ObjectLike) {
-            return ((ObjectLike) object).toMap();
         }
         if (object instanceof String || object instanceof Number || object instanceof Boolean) {
             return object;
         }
-        return new JavaObject(object).toMap();
+        // using json-smart asm based java-bean unpacking
+        String json = JSONValue.toJSONString(object);
+        return JSONValue.parse(json);
     }
 
     static Object convertIfArray(Object o) {

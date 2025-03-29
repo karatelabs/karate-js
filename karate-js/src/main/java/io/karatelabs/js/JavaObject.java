@@ -66,7 +66,7 @@ public class JavaObject implements JavaMethods, JavaFields, ObjectLike {
     @SuppressWarnings("unchecked")
     @Override
     public Map<String, Object> toMap() {
-        return (Map<String, Object>) JavaBridge.toMapOrList(object);
+        return (Map<String, Object>) JavaBridge.toMap(object);
     }
 
 }
