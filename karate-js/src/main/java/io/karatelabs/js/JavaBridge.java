@@ -300,6 +300,9 @@ public interface JavaBridge {
         if (object == null) {
             return object;
         }
+        if (object instanceof JsArray) {
+            return ((JsArray) object).toList();
+        }
         if (object instanceof List) {
             List<Object> list = (List<Object>) object;
             List<Object> result = new ArrayList<>();
@@ -316,9 +319,6 @@ public interface JavaBridge {
         }
         if (object instanceof ObjectLike) {
             return ((ObjectLike) object).toMap();
-        }
-        if (object instanceof ArrayLike) {
-            return ((ArrayLike) object).toList();
         }
         if (object instanceof String || object instanceof Number || object instanceof Boolean) {
             return object;

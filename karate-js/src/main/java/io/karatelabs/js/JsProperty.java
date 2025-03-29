@@ -86,8 +86,8 @@ public class JsProperty {
             Number num = (Number) index;
             if (object instanceof List) {
                 ((List<Object>) object).set(num.intValue(), value);
-            } else if (object instanceof ArrayLike) {
-                ((ArrayLike) object).set(num.intValue(), value);
+            } else if (object instanceof JsArray) {
+                ((JsArray) object).set(num.intValue(), value);
             } else {
                 throw new RuntimeException("cannot set by index [" + index + "]:" + value + " on (non-array): " + object);
             }
@@ -128,8 +128,8 @@ public class JsProperty {
             if (object instanceof List) {
                 return ((List<Object>) object).get(num);
             }
-            if (object instanceof ArrayLike) {
-                return ((ArrayLike) object).get(num);
+            if (object instanceof JsArray) {
+                return ((JsArray) object).get(num);
             }
             if (object instanceof String) {
                 return ((String) object).substring(num, num + 1);

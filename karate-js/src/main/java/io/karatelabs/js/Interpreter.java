@@ -182,8 +182,8 @@ public class Interpreter {
                     Object arg = eval(fnArgNode.children.get(1), context);
                     if (arg instanceof List) {
                         argsList.addAll((List<Object>) arg);
-                    } else if (arg instanceof ArrayLike) {
-                        ArrayLike arrayLike = (ArrayLike) arg;
+                    } else if (arg instanceof JsArray) {
+                        JsArray arrayLike = (JsArray) arg;
                         argsList.addAll(arrayLike.toList());
                     }
                 } else {

@@ -25,7 +25,7 @@ package io.karatelabs.js;
 
 import java.util.*;
 
-public class JsArray implements ArrayLike {
+public class JsArray extends JsObject {
 
     final List<Object> list;
 
@@ -37,23 +37,13 @@ public class JsArray implements ArrayLike {
         this(new ArrayList<>());
     }
 
-    private Prototype _prototype;
-
-    private Prototype getPrototype() {
-        if (_prototype == null) {
-            _prototype = initPrototype();
-        }
-        return _prototype;
-    }
-
     Prototype initPrototype() {
-        return new Prototype(null) {
+        Prototype wrapped = super.initPrototype();
+        return new Prototype(wrapped) {
             @SuppressWarnings("unchecked")
             @Override
             public Object getProperty(String propName) {
                 switch (propName) {
-                    case "toString":
-                        return (Invokable) args -> JsCommon.TO_STRING(this);
                     case "length":
                         return new Property(JsArray.this::size);
                     case "map":
@@ -61,9 +51,8 @@ public class JsArray implements ArrayLike {
                             @Override
                             public Object invoke(Object... args) {
                                 List<Object> results = new ArrayList<>();
-                                ArrayLike thisArray = thisArray(JsArray.this, thisObject);
-                                Invokable invokable = toInvokable(args[0]);
-                                for (KeyValue kv : toIterable(thisArray)) {
+                                Invokable invokable = toInvokable(args);
+                                for (KeyValue kv : this) {
                                     Object result = invokable.invoke(kv.value, kv.index);
                                     results.add(result);
                                 }
@@ -75,9 +64,8 @@ public class JsArray implements ArrayLike {
                             @Override
                             public Object invoke(Object... args) {
                                 List<Object> results = new ArrayList<>();
-                                ArrayLike thisArray = thisArray(JsArray.this, thisObject);
-                                Invokable invokable = toInvokable(args[0]);
-                                for (KeyValue kv : toIterable(thisArray)) {
+                                Invokable invokable = toInvokable(args);
+                                for (KeyValue kv : this) {
                                     Object result = invokable.invoke(kv.value, kv.index);
                                     if (Terms.isTruthy(result)) {
                                         results.add(kv.value);
@@ -97,8 +85,7 @@ public class JsArray implements ArrayLike {
                                 } else {
                                     delimiter = ",";
                                 }
-                                ArrayLike thisArray = thisArray(JsArray.this, thisObject);
-                                for (KeyValue kv : toIterable(thisArray)) {
+                                for (KeyValue kv : this) {
                                     if (sb.length() != 0) {
                                         sb.append(delimiter);
                                     }
@@ -111,9 +98,8 @@ public class JsArray implements ArrayLike {
                         return new JsFunction() {
                             @Override
                             public Object invoke(Object... args) {
-                                ArrayLike thisArray = thisArray(JsArray.this, thisObject);
-                                Invokable invokable = toInvokable(args[0]);
-                                for (KeyValue kv : toIterable(thisArray)) {
+                                Invokable invokable = toInvokable(args);
+                                for (KeyValue kv : this) {
                                     Object result = invokable.invoke(kv.value, kv.index);
                                     if (Terms.isTruthy(result)) {
                                         return kv.value;
@@ -126,9 +112,8 @@ public class JsArray implements ArrayLike {
                         return new JsFunction() {
                             @Override
                             public Object invoke(Object... args) {
-                                ArrayLike thisArray = thisArray(JsArray.this, thisObject);
-                                Invokable invokable = toInvokable(args[0]);
-                                for (KeyValue kv : toIterable(thisArray)) {
+                                Invokable invokable = toInvokable(args);
+                                for (KeyValue kv : this) {
                                     Object result = invokable.invoke(kv.value, kv.index);
                                     if (Terms.isTruthy(result)) {
                                         return kv.index;
@@ -141,7 +126,7 @@ public class JsArray implements ArrayLike {
                         return new JsFunction() {
                             @Override
                             public Object invoke(Object... args) {
-                                ArrayLike thisArray = thisArray(JsArray.this, thisObject);
+                                JsArray thisArray = asArray(thisObject);
                                 for (Object o : args) {
                                     thisArray.add(o);
                                 }
@@ -152,7 +137,7 @@ public class JsArray implements ArrayLike {
                         return new JsFunction() {
                             @Override
                             public Object invoke(Object... args) {
-                                ArrayLike thisArray = thisArray(JsArray.this, thisObject);
+                                JsArray thisArray = asArray(thisObject);
                                 int size = thisArray.size();
                                 List<Object> result = new ArrayList<>();
                                 for (int i = size; i > 0; i--) {
@@ -165,8 +150,7 @@ public class JsArray implements ArrayLike {
                         return new JsFunction() {
                             @Override
                             public Object invoke(Object... args) {
-                                ArrayLike thisArray = thisArray(JsArray.this, thisObject);
-                                for (KeyValue kv : toIterable(thisArray)) {
+                                for (KeyValue kv : this) {
                                     if (Terms.eq(kv.value, args[0], false)) {
                                         return true;
                                     }
@@ -178,7 +162,7 @@ public class JsArray implements ArrayLike {
                         return new JsFunction() {
                             @Override
                             public Object invoke(Object... args) {
-                                ArrayLike thisArray = thisArray(JsArray.this, thisObject);
+                                JsArray thisArray = asArray(thisObject);
                                 int size = thisArray.size();
                                 if (size == 0) {
                                     return -1;
@@ -209,7 +193,7 @@ public class JsArray implements ArrayLike {
                         return new JsFunction() {
                             @Override
                             public Object invoke(Object... args) {
-                                ArrayLike thisArray = thisArray(JsArray.this, thisObject);
+                                JsArray thisArray = asArray(thisObject);
                                 int size = thisArray.size();
                                 int start = 0;
                                 int end = size;
@@ -238,10 +222,9 @@ public class JsArray implements ArrayLike {
                         return new JsFunction() {
                             @Override
                             public Object invoke(Object... args) {
-                                ArrayLike thisArray = thisArray(JsArray.this, thisObject);
-                                Invokable invokable = toInvokable(args[0]);
-                                for (KeyValue kv : toIterable(thisArray)) {
-                                    invokable.invoke(kv.value, kv.index, thisArray);
+                                Invokable invokable = toInvokable(args);
+                                for (KeyValue kv : this) {
+                                    invokable.invoke(kv.value, kv.index, thisObject);
                                 }
                                 return Undefined.INSTANCE;
                             }
@@ -251,13 +234,13 @@ public class JsArray implements ArrayLike {
                             @Override
                             @SuppressWarnings("unchecked")
                             public Object invoke(Object... args) {
-                                ArrayLike thisArray = thisArray(JsArray.this, thisObject);
+                                JsArray thisArray = asArray(thisObject);
                                 List<Object> result = new ArrayList<>(thisArray.toList());
                                 for (Object arg : args) {
                                     if (arg instanceof List) {
                                         result.addAll((List<Object>) arg);
-                                    } else if (arg instanceof ArrayLike) {
-                                        result.addAll(((ArrayLike) arg).toList());
+                                    } else if (arg instanceof JsArray) {
+                                        result.addAll(((JsArray) arg).toList());
                                     } else {
                                         result.add(arg);
                                     }
@@ -269,12 +252,12 @@ public class JsArray implements ArrayLike {
                         return new JsFunction() {
                             @Override
                             public Object invoke(Object... args) {
-                                ArrayLike thisArray = thisArray(JsArray.this, thisObject);
+                                JsArray thisArray = asArray(thisObject);
                                 if (thisArray.size() == 0) {
                                     return true;
                                 }
-                                Invokable invokable = toInvokable(args[0]);
-                                for (KeyValue kv : toIterable(thisArray)) {
+                                Invokable invokable = toInvokable(args);
+                                for (KeyValue kv : this) {
                                     Object result = invokable.invoke(kv.value, kv.index, thisArray);
                                     if (!Terms.isTruthy(result)) {
                                         return false;
@@ -287,12 +270,12 @@ public class JsArray implements ArrayLike {
                         return new JsFunction() {
                             @Override
                             public Object invoke(Object... args) {
-                                ArrayLike thisArray = thisArray(JsArray.this, thisObject);
+                                JsArray thisArray = asArray(thisObject);
                                 if (thisArray.size() == 0) {
                                     return false;
                                 }
-                                Invokable invokable = toInvokable(args[0]);
-                                for (KeyValue kv : toIterable(thisArray)) {
+                                Invokable invokable = toInvokable(args);
+                                for (KeyValue kv : this) {
                                     Object result = invokable.invoke(kv.value, kv.index, thisArray);
                                     if (Terms.isTruthy(result)) {
                                         return true;
@@ -305,8 +288,8 @@ public class JsArray implements ArrayLike {
                         return new JsFunction() {
                             @Override
                             public Object invoke(Object... args) {
-                                ArrayLike thisArray = thisArray(JsArray.this, thisObject);
-                                Invokable callback = toInvokable(args[0]);
+                                JsArray thisArray = asArray(thisObject);
+                                Invokable callback = toInvokable(args);
                                 if (thisArray.size() == 0 && args.length < 2) {
                                     throw new RuntimeException("reduce() called on empty array with no initial value");
                                 }
@@ -329,8 +312,8 @@ public class JsArray implements ArrayLike {
                         return new JsFunction() {
                             @Override
                             public Object invoke(Object... args) {
-                                ArrayLike thisArray = thisArray(JsArray.this, thisObject);
-                                Invokable callback = toInvokable(args[0]);
+                                JsArray thisArray = asArray(thisObject);
+                                Invokable callback = toInvokable(args);
                                 if (thisArray.size() == 0 && args.length < 2) {
                                     throw new RuntimeException("reduceRight() called on empty array with no initial value");
                                 }
@@ -353,7 +336,7 @@ public class JsArray implements ArrayLike {
                         return new JsFunction() {
                             @Override
                             public Object invoke(Object... args) {
-                                ArrayLike thisArray = thisArray(JsArray.this, thisObject);
+                                JsArray thisArray = asArray(thisObject);
                                 int depth = 1;
                                 if (args.length > 0 && args[0] != null) {
                                     Number depthNum = Terms.toNumber(args[0]);
@@ -362,7 +345,7 @@ public class JsArray implements ArrayLike {
                                     }
                                 }
                                 List<Object> result = new ArrayList<>();
-                                flattenArray(thisArray.toList(), result, depth);
+                                flatten(thisArray.toList(), result, depth);
                                 return result;
                             }
                         };
@@ -371,8 +354,8 @@ public class JsArray implements ArrayLike {
                             @SuppressWarnings("unchecked")
                             @Override
                             public Object invoke(Object... args) {
-                                ArrayLike thisArray = thisArray(JsArray.this, thisObject);
-                                Invokable callback = toInvokable(args[0]);
+                                JsArray thisArray = asArray(thisObject);
+                                Invokable callback = toInvokable(args);
                                 if (callback == null) {
                                     throw new RuntimeException("flatMap() requires a callback function");
                                 }
@@ -380,10 +363,10 @@ public class JsArray implements ArrayLike {
                                 int index = 0;
                                 for (Object item : thisArray.toList()) {
                                     Object mapped = callback.invoke(item, index, thisArray);
-                                    if (mapped instanceof List || mapped instanceof ArrayLike) {
+                                    if (mapped instanceof List || mapped instanceof JsArray) {
                                         List<Object> nestedList;
-                                        if (mapped instanceof ArrayLike) {
-                                            nestedList = ((ArrayLike) mapped).toList();
+                                        if (mapped instanceof JsArray) {
+                                            nestedList = ((JsArray) mapped).toList();
                                         } else {
                                             nestedList = (List<Object>) mapped;
                                         }
@@ -400,7 +383,7 @@ public class JsArray implements ArrayLike {
                         return new JsFunction() {
                             @Override
                             public Object invoke(Object... args) {
-                                ArrayLike thisArray = thisArray(JsArray.this, thisObject);
+                                JsArray thisArray = asArray(thisObject);
                                 List<Object> list = new ArrayList<>(thisArray.toList());
                                 if (list.isEmpty()) {
                                     return list;
@@ -440,7 +423,7 @@ public class JsArray implements ArrayLike {
                                 if (args.length == 0) {
                                     return thisObject;
                                 }
-                                ArrayLike thisArray = thisArray(JsArray.this, thisObject);
+                                JsArray thisArray = asArray(thisObject);
                                 int size = thisArray.size();
                                 if (size == 0) {
                                     return thisArray.toList();
@@ -475,7 +458,7 @@ public class JsArray implements ArrayLike {
                                 if (args.length == 0) {
                                     return new ArrayList<>();
                                 }
-                                ArrayLike thisArray = thisArray(JsArray.this, thisObject);
+                                JsArray thisArray = asArray(thisObject);
                                 int size = thisArray.size();
                                 if (size == 0) {
                                     return new ArrayList<>();
@@ -523,7 +506,7 @@ public class JsArray implements ArrayLike {
                         return new JsFunction() {
                             @Override
                             public Object invoke(Object... args) {
-                                ArrayLike thisArray = thisArray(JsArray.this, thisObject);
+                                JsArray thisArray = asArray(thisObject);
                                 int size = thisArray.size();
                                 if (size == 0) {
                                     return Undefined.INSTANCE;
@@ -544,7 +527,7 @@ public class JsArray implements ArrayLike {
                         return new JsFunction() {
                             @Override
                             public Object invoke(Object... args) {
-                                ArrayLike thisArray = thisArray(JsArray.this, thisObject);
+                                JsArray thisArray = asArray(thisObject);
                                 if (args.length == 0) {
                                     return thisArray.size();
                                 }
@@ -564,7 +547,7 @@ public class JsArray implements ArrayLike {
                         return new JsFunction() {
                             @Override
                             public Object invoke(Object... args) {
-                                ArrayLike thisArray = thisArray(JsArray.this, thisObject);
+                                JsArray thisArray = asArray(thisObject);
                                 int size = thisArray.size();
                                 if (size == 0) {
                                     return -1;
@@ -602,7 +585,7 @@ public class JsArray implements ArrayLike {
                         return new JsFunction() {
                             @Override
                             public Object invoke(Object... args) {
-                                ArrayLike thisArray = thisArray(JsArray.this, thisObject);
+                                JsArray thisArray = asArray(thisObject);
                                 int size = thisArray.size();
                                 if (size == 0) {
                                     return Undefined.INSTANCE;
@@ -623,7 +606,7 @@ public class JsArray implements ArrayLike {
                         return new JsFunction() {
                             @Override
                             public Object invoke(Object... args) {
-                                ArrayLike thisArray = thisArray(JsArray.this, thisObject);
+                                JsArray thisArray = asArray(thisObject);
                                 int size = thisArray.size();
                                 if (size == 0 || args.length == 0 || args[0] == null) {
                                     return Undefined.INSTANCE;
@@ -642,7 +625,7 @@ public class JsArray implements ArrayLike {
                         return new JsFunction() {
                             @Override
                             public Object invoke(Object... args) {
-                                ArrayLike thisArray = thisArray(JsArray.this, thisObject);
+                                JsArray thisArray = asArray(thisObject);
                                 int size = thisArray.size();
                                 if (size == 0 || args.length == 0) {
                                     return thisArray.toList();
@@ -694,7 +677,7 @@ public class JsArray implements ArrayLike {
                         return new JsFunction() {
                             @Override
                             public Object invoke(Object... args) {
-                                ArrayLike thisArray = thisArray(JsArray.this, thisObject);
+                                JsArray thisArray = asArray(thisObject);
                                 List<Object> result = new ArrayList<>();
                                 int size = thisArray.size();
                                 for (int i = 0; i < size; i++) {
@@ -707,7 +690,7 @@ public class JsArray implements ArrayLike {
                         return new JsFunction() {
                             @Override
                             public Object invoke(Object... args) {
-                                ArrayLike thisArray = thisArray(JsArray.this, thisObject);
+                                JsArray thisArray = asArray(thisObject);
                                 return thisArray.toList();
                             }
                         };
@@ -715,7 +698,7 @@ public class JsArray implements ArrayLike {
                         return new JsFunction() {
                             @Override
                             public Object invoke(Object... args) {
-                                ArrayLike thisArray = thisArray(JsArray.this, thisObject);
+                                JsArray thisArray = asArray(thisObject);
                                 List<Object> result = new ArrayList<>();
                                 int size = thisArray.size();
                                 for (int i = 0; i < size; i++) {
@@ -731,12 +714,12 @@ public class JsArray implements ArrayLike {
                         return new JsFunction() {
                             @Override
                             public Object invoke(Object... args) {
-                                ArrayLike thisArray = thisArray(JsArray.this, thisObject);
+                                JsArray thisArray = asArray(thisObject);
                                 int size = thisArray.size();
                                 if (size == 0 || args.length == 0) {
                                     return Undefined.INSTANCE;
                                 }
-                                Invokable invokable = toInvokable(args[0]);
+                                Invokable invokable = toInvokable(args);
                                 for (int i = size - 1; i >= 0; i--) {
                                     Object value = thisArray.get(i);
                                     Object result = invokable.invoke(value, i, thisArray);
@@ -751,12 +734,12 @@ public class JsArray implements ArrayLike {
                         return new JsFunction() {
                             @Override
                             public Object invoke(Object... args) {
-                                ArrayLike thisArray = thisArray(JsArray.this, thisObject);
+                                JsArray thisArray = asArray(thisObject);
                                 int size = thisArray.size();
                                 if (size == 0 || args.length == 0) {
                                     return -1;
                                 }
-                                Invokable invokable = toInvokable(args[0]);
+                                Invokable invokable = toInvokable(args);
                                 for (int i = size - 1; i >= 0; i--) {
                                     Object value = thisArray.get(i);
                                     Object result = invokable.invoke(value, i, thisArray);
@@ -771,7 +754,7 @@ public class JsArray implements ArrayLike {
                         return new JsFunction() {
                             @Override
                             public Object invoke(Object... args) {
-                                ArrayLike thisArray = thisArray(JsArray.this, thisObject);
+                                JsArray thisArray = asArray(thisObject);
                                 int size = thisArray.size();
                                 if (size == 0 || args.length < 2) {
                                     return thisArray.toList();
@@ -795,13 +778,13 @@ public class JsArray implements ArrayLike {
                         return new JsFunction() {
                             @Override
                             public Object invoke(Object... args) {
-                                ArrayLike thisArray = thisArray(JsArray.this, thisObject);
+                                JsArray thisArray = asArray(thisObject);
                                 if (args.length == 0) {
                                     return new JsObject();
                                 }
-                                Invokable callbackFn = toInvokable(args[0]);
+                                Invokable callbackFn = toInvokable(args);
                                 Map<String, List<Object>> groups = new HashMap<>();
-                                for (KeyValue kv : toIterable(thisArray)) {
+                                for (KeyValue kv : this) {
                                     Object key = callbackFn.invoke(kv.value, kv.index, thisArray);
                                     String keyStr = key == null ? "null" : key.toString();
                                     if (!groups.containsKey(keyStr)) {
@@ -818,102 +801,66 @@ public class JsArray implements ArrayLike {
                         };
                     // static ==========================================================================================
                     case "from":
-                        return new JsFunction() {
-                            @Override
-                            public Object invoke(Object... args) {
-                                List<Object> results = new ArrayList<>();
-                                Invokable invokable;
-                                if (args.length > 1 && args[1] instanceof Invokable) {
-                                    invokable = (Invokable) args[1];
-                                } else {
-                                    invokable = null;
-                                }
-                                Object array = args[0];
-                                if (array instanceof Map) {
-                                    array = toArrayLike((Map<String, Object>) args[0]);
-                                }
-                                for (KeyValue kv : toIterable(array)) {
-                                    Object result = invokable == null ? kv.value : invokable.invoke(kv.value, kv.index);
-                                    results.add(result);
-                                }
-                                return results;
+                        return (Invokable) args -> {
+                            List<Object> results = new ArrayList<>();
+                            Invokable invokable = null;
+                            if (args.length > 1 && args[1] instanceof Invokable) {
+                                invokable = (Invokable) args[1];
                             }
+                            JsArray array = asArray(args[0]);
+                            for (KeyValue kv : JsObject.toIterable(array)) {
+                                Object result = invokable == null ? kv.value : invokable.invoke(kv.value, kv.index);
+                                results.add(result);
+                            }
+                            return results;
                         };
                     case "isArray":
-                        return new JsFunction() {
-                            @Override
-                            public Object invoke(Object... args) {
-                                if (args.length == 0) {
-                                    return false;
-                                }
-                                Object arg = args[0];
-                                return arg instanceof List || arg instanceof ArrayLike;
-                            }
-                        };
+                        return (Invokable) args -> args[0] instanceof List || args[0] instanceof JsArray;
                     case "of":
-                        return new JsFunction() {
-                            @Override
-                            public Object invoke(Object... args) {
-                                return Arrays.asList(args);
-                            }
-                        };
+                        return (Invokable) Arrays::asList;
                 }
                 return null;
             }
         };
     }
 
-    @Override
     public Object get(int index) {
         return list.get(index);
     }
 
-    @Override
     public void set(int index, Object value) {
         list.set(index, value);
     }
 
-    @Override
     public void add(Object value) {
         list.add(value);
     }
 
-    @Override
     public void remove(int index) {
         list.remove(index);
     }
 
-    @Override
     public int size() {
         return list.size();
     }
 
-    @Override
     public List<Object> toList() {
         return list;
     }
 
-    @Override
-    public Object get(String name) {
-        if ("prototype".equals(name)) {
-            return getPrototype();
-        }
-        return getPrototype().get(name);
-    }
-
     @SuppressWarnings("unchecked")
-    static ArrayLike thisArray(ArrayLike array, Object instance) {
+    static JsArray asArray(Object instance) {
         if (instance instanceof List) {
             return new JsArray((List<Object>) instance);
-        } else if (instance instanceof ArrayLike) {
-            return (ArrayLike) instance;
+        } else if (instance instanceof JsArray) {
+            return (JsArray) instance;
         } else if (instance instanceof Map) {
-            return toArrayLike((Map<String, Object>) instance);
+            return toArray((Map<String, Object>) instance);
         }
-        return array;
+        throw new RuntimeException("not an array: " + instance);
     }
 
-    static ArrayLike toArrayLike(Map<String, Object> map) {
+    static JsArray toArray(Map<String, Object> map) {
         List<Object> list = new ArrayList<>();
         if (map.containsKey("length")) {
             Object length = map.get("length");
@@ -939,109 +886,27 @@ public class JsArray implements ArrayLike {
         return new JsArray(list);
     }
 
-    @SuppressWarnings("unchecked")
-    static Iterable<KeyValue> toIterable(Object object) {
-        if (object instanceof Map) {
-            return () -> {
-                final Iterator<Map.Entry<String, Object>> entries = ((Map<String, Object>) object).entrySet().iterator();
-                return new Iterator<>() {
-                    int index = 0;
-
-                    @Override
-                    public boolean hasNext() {
-                        return entries.hasNext();
-                    }
-
-                    @Override
-                    public KeyValue next() {
-                        Map.Entry<String, Object> entry = entries.next();
-                        return new KeyValue(object, index++, entry.getKey(), entry.getValue());
-                    }
-                };
-            };
-        } else if (object instanceof ObjectLike) {
-            return () -> {
-                final ObjectLike objectLike = ((ObjectLike) object);
-                final Iterator<Map.Entry<String, Object>> entries = objectLike.toMap().entrySet().iterator();
-                return new Iterator<>() {
-                    int index = 0;
-
-                    @Override
-                    public boolean hasNext() {
-                        return entries.hasNext();
-                    }
-
-                    @Override
-                    public KeyValue next() {
-                        Map.Entry<String, Object> entry = entries.next();
-                        return new KeyValue(object, index++, entry.getKey(), entry.getValue());
-                    }
-                };
-            };
-        } else if (object instanceof List) {
-            return () -> {
-                final Iterator<Object> items = ((List<Object>) object).iterator();
-                return new Iterator<>() {
-                    int index = 0;
-
-                    @Override
-                    public boolean hasNext() {
-                        return items.hasNext();
-                    }
-
-                    @Override
-                    public KeyValue next() {
-                        int i = index++;
-                        return new KeyValue(object, i, i + "", items.next());
-                    }
-                };
-            };
-        } else if (object instanceof ArrayLike) {
-            return () -> {
-                final ArrayLike arrayLike = (ArrayLike) object;
-                final int size = arrayLike.size();
-                return new Iterator<>() {
-                    int index = 0;
-
-                    @Override
-                    public boolean hasNext() {
-                        return index < size;
-                    }
-
-                    @Override
-                    public KeyValue next() {
-                        int i = index++;
-                        return new KeyValue(object, i, i + "", arrayLike.get(i));
-                    }
-                };
-            };
-        } else {
-            return null;
+    static Invokable toInvokable(Object[] args) {
+        if (args.length == 0) {
+            throw new RuntimeException("function expected");
         }
-    }
-
-    static Invokable toInvokable(Object object) {
-        if (object instanceof Invokable) {
-            return (Invokable) object;
+        if (args[0] instanceof Invokable) {
+            return (Invokable) args[0];
         }
-        if (object instanceof Prototype) {
-            Prototype prototype = (Prototype) object;
-            return (Invokable) prototype.get("constructor");
-        }
-        return null;
+        throw new RuntimeException("function expected");
     }
 
     @SuppressWarnings("unchecked")
-    static void flattenArray(List<Object> source, List<Object> result, int depth) {
+    static void flatten(List<Object> source, List<Object> result, int depth) {
         for (Object item : source) {
-            if (depth > 0 && (item instanceof List || item instanceof ArrayLike)) {
+            if (depth > 0 && (item instanceof List || item instanceof JsArray)) {
                 List<Object> nestedList;
-                if (item instanceof ArrayLike) {
-                    nestedList = ((ArrayLike) item).toList();
+                if (item instanceof JsArray) {
+                    nestedList = ((JsArray) item).toList();
                 } else {
                     nestedList = (List<Object>) item;
                 }
-                flattenArray(nestedList, result, depth - 1);
+                flatten(nestedList, result, depth - 1);
             } else {
                 result.add(item);
             }

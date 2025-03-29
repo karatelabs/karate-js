@@ -23,12 +23,9 @@
  */
 package io.karatelabs.js;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public class JsObject implements ObjectLike, Invokable {
+public class JsObject implements ObjectLike, Invokable, Iterable<KeyValue> {
 
     Object thisObject;
     private final Map<String, Object> map;
@@ -161,8 +158,8 @@ public class JsObject implements ObjectLike, Invokable {
                                         value = entryList.get(1);
                                         result.put(key, value);
                                     }
-                                } else if (entry instanceof ArrayLike) {
-                                    ArrayLike entryArray = (ArrayLike) entry;
+                                } else if (entry instanceof JsArray) {
+                                    JsArray entryArray = (JsArray) entry;
                                     if (entryArray.size() >= 2) {
                                         key = entryArray.get(0).toString();
                                         value = entryArray.get(1);
@@ -214,6 +211,63 @@ public class JsObject implements ObjectLike, Invokable {
     @Override
     public Object invoke(Object... args) {
         return new JsObject(); // todo string, number, date
+    }
+
+    @Override
+    public Iterator<KeyValue> iterator() {
+        return toIterable(thisObject).iterator();
+    }
+
+    @SuppressWarnings("unchecked")
+    static Iterable<KeyValue> toIterable(Object object) {
+        if (object instanceof List) {
+            object = new JsArray((List<Object>) object);
+        }
+        if (object instanceof JsArray) {
+            final JsArray array = (JsArray) object;
+            return () -> {
+                final int size = array.size();
+                return new Iterator<>() {
+                    int index = 0;
+
+                    @Override
+                    public boolean hasNext() {
+                        return index < size;
+                    }
+
+                    @Override
+                    public KeyValue next() {
+                        int i = index++;
+                        return new KeyValue(array, i, i + "", array.get(i));
+                    }
+                };
+            };
+        }
+        if (object instanceof Map) {
+            object = new JsObject((Map<String, Object>) object);
+        }
+        if (object instanceof ObjectLike) {
+            final ObjectLike objectLike = (ObjectLike) object;
+            return () -> {
+                final Iterator<Map.Entry<String, Object>> entries = objectLike.toMap().entrySet().iterator();
+                return new Iterator<>() {
+                    int index = 0;
+
+                    @Override
+                    public boolean hasNext() {
+                        return entries.hasNext();
+                    }
+
+                    @Override
+                    public KeyValue next() {
+                        Map.Entry<String, Object> entry = entries.next();
+                        return new KeyValue(objectLike, index++, entry.getKey(), entry.getValue());
+                    }
+                };
+            };
+        } else {
+            return null;
+        }
     }
 
 }
