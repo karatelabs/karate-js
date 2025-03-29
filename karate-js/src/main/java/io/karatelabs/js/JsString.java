@@ -61,7 +61,7 @@ public class JsString extends JsObject implements Invokable {
                             return text.startsWith((String) args[0]);
                         };
                     case "length":
-                        return new Property(text::length);
+                        return text.length();
                     case "replaceAll":
                         return (Invokable) args -> text.replaceAll((String) args[0], (String) args[1]);
                     case "getBytes":

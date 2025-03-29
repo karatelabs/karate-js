@@ -45,7 +45,7 @@ public class JsArray extends JsObject {
             public Object getProperty(String propName) {
                 switch (propName) {
                     case "length":
-                        return new Property(JsArray.this::size);
+                        return list.size();
                     case "map":
                         return new JsFunction() {
                             @Override

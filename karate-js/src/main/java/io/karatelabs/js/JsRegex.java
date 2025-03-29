@@ -156,9 +156,9 @@ public class JsRegex extends JsObject implements Invokable {
                     public Object getProperty(String propName) {
                         switch (propName) {
                             case "index":
-                                return new Property(matcher::start);
+                                return matcher.start();
                             case "input":
-                                return new Property(() -> str);
+                                return str;
                         }
                         return null;
                     }
@@ -202,19 +202,19 @@ public class JsRegex extends JsObject implements Invokable {
                             return regex.exec(args[0].toString());
                         };
                     case "source":
-                        return new Property(() -> pattern);
+                        return pattern;
                     case "flags":
-                        return new Property(() -> flags);
+                        return flags;
                     case "lastIndex":
-                        return new Property(() -> lastIndex);
+                        return lastIndex;
                     case "global":
-                        return new Property(() -> global);
+                        return global;
                     case "ignoreCase":
-                        return new Property(() -> flags.contains("i"));
+                        return flags.contains("i");
                     case "multiline":
-                        return new Property(() -> flags.contains("m"));
+                        return flags.contains("m");
                     case "dotAll":
-                        return new Property(() -> flags.contains("s"));
+                        return flags.contains("s");
                     case "toString":
                         return (Invokable) args -> JsRegex.this.toString();
                 }

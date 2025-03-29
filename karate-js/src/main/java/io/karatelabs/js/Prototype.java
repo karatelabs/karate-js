@@ -62,9 +62,6 @@ abstract class Prototype implements ObjectLike {
             return props.get(name);
         }
         Object result = getProperty(name);
-        if (result instanceof Property) {
-            return ((Property) result).get();
-        }
         if (result != null) {
             return result;
         }

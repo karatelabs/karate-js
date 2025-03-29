@@ -265,9 +265,8 @@ public class JsObject implements ObjectLike, Invokable, Iterable<KeyValue> {
                     }
                 };
             };
-        } else {
-            return null;
         }
+        return null;
     }
 
 }

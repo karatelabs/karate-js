@@ -16,7 +16,7 @@ public class JsBytes extends JsObject {
             public Object getProperty(String propName) {
                 switch (propName) {
                     case "length":
-                        return new Property(() -> bytes.length);
+                        return bytes.length;
                 }
                 return null;
             }

@@ -54,7 +54,7 @@ public abstract class JsFunction extends JsObject implements Invokable {
                     case "constructor":
                         return JsFunction.this;
                     case "name":
-                        return new Property(() -> JsFunction.this.name);
+                        return name;
                 }
                 return null;
             }

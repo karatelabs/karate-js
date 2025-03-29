@@ -93,12 +93,19 @@ public class NodeFunction extends JsFunction {
     @Override
     public String toString() {
         String args = String.join(",", argNames);
-        String fnName = name == null ? "" : name;
+        Object name = get("name");
         StringBuilder sb = new StringBuilder();
         if (arrow) {
-            sb.append(fnName).append(" (").append(args).append(") => ").append(body);
+            if (name != null) {
+                sb.append(name).append(" ");
+            }
+            sb.append("(").append(args).append(") => {}");
         } else {
-            sb.append("function ").append(fnName).append("(").append(args).append(")");
+            sb.append("function");
+            if (name != null) {
+                sb.append(" ").append(name);
+            }
+            sb.append("(").append(args).append(") {}");
         }
         return sb.toString();
     }
