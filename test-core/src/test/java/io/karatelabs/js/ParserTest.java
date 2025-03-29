@@ -292,7 +292,7 @@ class ParserTest {
 
     @Test
     void testSyntaxError() {
-        error("function", EvalError.class);
+        error("function", ParserException.class);
     }
 
     @Test

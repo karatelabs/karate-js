@@ -82,7 +82,7 @@ public class Parser {
         } else {
             chunk = chunks.get(position);
         }
-        throw new EvalError(message + "\n"
+        throw new ParserException(message + "\n"
                 + chunk.getPositionDisplay()
                 + " " + chunk + "\nparser state: " + this);
     }
@@ -113,7 +113,7 @@ public class Parser {
         Marker caller = marker;
         marker = new Marker(position, caller, node, marker.depth + 1);
         if (marker.depth > 100) {
-            throw new RuntimeException("too much recursion");
+            throw new ParserException("too much recursion");
         }
         if (tokens != null) {
             consumeNext();
@@ -213,9 +213,8 @@ public class Parser {
                 }
             }
         } catch (Throwable e) {
-            System.err.println("lexer failed at [" + (line + 1) + ":" + (col + 1) + "] prev: " + prev);
-            System.err.println(source.getStringForLog());
-            throw new RuntimeException(e);
+            String message = "lexer failed at [" + (line + 1) + ":" + (col + 1) + "] prev: " + prev + "\n" + source.getStringForLog();
+            throw new ParserException(message, e);
         }
         return list;
     }

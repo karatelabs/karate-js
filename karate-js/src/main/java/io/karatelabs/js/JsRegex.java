@@ -46,7 +46,7 @@ public class JsRegex extends JsObject implements Invokable {
         if (literalText.startsWith("/")) {
             int lastSlashIndex = literalText.lastIndexOf('/');
             if (lastSlashIndex <= 0) {
-                throw new EvalError("Invalid RegExp literal: " + literalText);
+                throw new RuntimeException("Invalid RegExp literal: " + literalText);
             }
             // extract pattern and flags from the literal
             this.pattern = literalText.substring(1, lastSlashIndex);
@@ -65,7 +65,7 @@ public class JsRegex extends JsObject implements Invokable {
             String javaPattern = translateJsRegexToJava(this.pattern);
             this.compiledPattern = Pattern.compile(javaPattern, javaFlags);
         } catch (PatternSyntaxException e) {
-            throw new EvalError("invalid regex: " + pattern + " - " + e.getMessage());
+            throw new RuntimeException("invalid regex: " + pattern + " - " + e.getMessage());
         }
     }
 
@@ -78,7 +78,7 @@ public class JsRegex extends JsObject implements Invokable {
             String javaPattern = translateJsRegexToJava(this.pattern);
             this.compiledPattern = Pattern.compile(javaPattern, javaFlags);
         } catch (PatternSyntaxException e) {
-            throw new EvalError("invalid regex: " + pattern + " - " + e.getMessage());
+            throw new RuntimeException("invalid regex: " + pattern + " - " + e.getMessage());
         }
     }
 

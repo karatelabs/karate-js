@@ -23,7 +23,7 @@
  */
 package io.karatelabs.js;
 
-public class KeyValue {
+class KeyValue {
 
     final Object parent;
     final int index;

@@ -546,7 +546,7 @@ public class Interpreter {
                     }
                 }
                 String message = child.toStringError(errorMessage == null ? errorThrown.toString() : errorMessage);
-                throw new EvalError(message);
+                throw new RuntimeException(message);
             }
         }
         return progResult;
@@ -640,7 +640,7 @@ public class Interpreter {
             Context finallyContext = new Context(context);
             eval(finallyBlock, finallyContext);
             if (finallyContext.isError()) {
-                throw new EvalError("finally block threw error: " + finallyContext.getErrorThrown());
+                throw new RuntimeException("finally block threw error: " + finallyContext.getErrorThrown());
             }
         }
         return tryValue;

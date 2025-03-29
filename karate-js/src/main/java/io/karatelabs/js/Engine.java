@@ -98,7 +98,7 @@ public class Engine {
                 message = e + "";
             }
             message = message + "\n" + source.getStringForLog();
-            throw new EvalError(message);
+            throw new RuntimeException(message);
         }
     }
 
