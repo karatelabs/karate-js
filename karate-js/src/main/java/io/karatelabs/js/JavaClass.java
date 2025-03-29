@@ -23,7 +23,7 @@
  */
 package io.karatelabs.js;
 
-public class JavaClass implements Constructable, JavaMethods, JavaFields {
+public class JavaClass implements JavaMethods, JavaFields {
 
     private final String className;
 
@@ -35,7 +35,6 @@ public class JavaClass implements Constructable, JavaMethods, JavaFields {
         this.className = className;
     }
 
-    @Override
     public Object construct(Object[] args) {
         return Engine.JAVA_BRIDGE.construct(className, args);
     }
