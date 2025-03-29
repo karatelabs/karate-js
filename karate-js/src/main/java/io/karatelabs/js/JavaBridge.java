@@ -180,24 +180,6 @@ public interface JavaBridge {
         }
     }
 
-    static Collection<String> propertyNames(Object object) {
-        List<String> list = new ArrayList<>();
-        for (Method method : object.getClass().getMethods()) {
-            if (method.getParameterTypes().length == 0) {
-                String methodName = method.getName();
-                if ("getClass".equals(methodName)) {
-                    continue;
-                }
-                if (methodName.startsWith("get") && methodName.length() > 3) {
-                    list.add(methodName.substring(3, 4).toLowerCase() + methodName.substring(4));
-                } else if (methodName.startsWith("is") && methodName.length() > 2) {
-                    list.add(methodName.substring(2, 3).toLowerCase() + methodName.substring(3));
-                }
-            }
-        }
-        return list;
-    }
-
     static Method findGetter(Object object, String name) {
         String getterSuffix = name.substring(0, 1).toUpperCase() + name.substring(1);
         Method method = findMethod(object.getClass(), "get" + getterSuffix, EMPTY);
