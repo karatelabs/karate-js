@@ -120,7 +120,39 @@ public class JsRegex extends JsObject implements Invokable {
         }
     }
 
-    public Object exec(String str) {
+    public String replace(String str, String replacement) {
+        Matcher matcher = compiledPattern.matcher(str);
+        StringBuilder result = new StringBuilder();
+        while (matcher.find()) {
+            matcher.appendReplacement(result, replacement);
+            lastIndex = matcher.end();
+            if (!global) {
+                break;
+            }
+        }
+        matcher.appendTail(result);
+        return result.toString();
+    }
+
+    public List<String> match(String str) {
+        Matcher matcher = compiledPattern.matcher(str);
+        List<String> matches = new ArrayList<>();
+        while (matcher.find()) {
+            matches.add(matcher.group(0));
+        }
+        // ideally should return JsArray with extra properties
+        return matches;
+    }
+
+    public int search(String str) {
+        Matcher matcher = compiledPattern.matcher(str);
+        if (matcher.find()) {
+            return matcher.start();
+        }
+        return -1;
+    }
+
+    public JsArray exec(String str) {
         Matcher matcher = compiledPattern.matcher(str);
         boolean found;
         if (global) {

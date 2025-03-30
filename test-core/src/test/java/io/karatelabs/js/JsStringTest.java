@@ -137,4 +137,25 @@ class JsStringTest extends EvalBase {
         assertEquals('o', bytes[2]);
     }
 
+    @Test
+    void testSearch() {
+        assertEquals(4, eval("'hey JudE'.search(/[A-Z]/)"));
+    }
+
+    @Test
+    void testReplace() {
+        assertEquals("xxFOOxx", eval("a = 'xxfooxx'; a.replace('foo', 'FOO')"));
+        assertEquals("xxFOOxx", eval("a = 'xxfooxx'; a.replace(/foo/, 'FOO')"));
+        assertEquals("xxFOOxx", eval("a = 'xxfooxx'; a.replace(/f../, 'FOO')"));
+        assertEquals("the cat is", eval("'the Dog is'.replace(/dog/i, 'cat')"));
+        assertEquals("oranges are round, oranges are juicy", eval("'Apples are round, apples are juicy'.replace(/apple/ig, 'orange')"));
+        assertEquals("oranges are round, oranges are juicy", eval("'Apples are round, apples are juicy'.replaceAll(/apple/ig, 'orange')"));
+    }
+
+    @Test
+    void testMatch() {
+        matchEval("a = 'xxfooxx'; a.match('foo')", "['foo']");
+        matchEval("'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.match(/[A-E]/gi)", "['A','B','C','D','E','a','b','c','d','e']");
+    }
+
 }

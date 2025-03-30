@@ -24,6 +24,7 @@
 package io.karatelabs.js;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class JsString extends JsObject implements Invokable {
@@ -66,8 +67,6 @@ public class JsString extends JsObject implements Invokable {
                         };
                     case "length":
                         return text.length();
-                    case "replaceAll":
-                        return (Invokable) args -> text.replaceAll((String) args[0], (String) args[1]);
                     case "getBytes":
                         return (Invokable) args -> text.getBytes(StandardCharsets.UTF_8);
                     case "split":
@@ -171,11 +170,6 @@ public class JsString extends JsObject implements Invokable {
                             }
                             return text.repeat(count);
                         };
-                    case "replace":
-                        return (Invokable) args -> {
-                            // simple implementation - doesn't handle regex
-                            return text.replace((String) args[0], (String) args[1]);
-                        };
                     case "slice":
                         return (Invokable) args -> {
                             int beginIndex = ((Number) args[0]).intValue();
@@ -216,6 +210,52 @@ public class JsString extends JsObject implements Invokable {
                     case "trimEnd":
                     case "trimRight":
                         return (Invokable) args -> text.replaceAll("\\s+$", "");
+                    // regex
+                    case "replace":
+                        return (Invokable) args -> {
+                            if (args[0] instanceof JsRegex) {
+                                JsRegex regex = (JsRegex) args[0];
+                                return regex.replace(text, (String) args[1]);
+                            }
+                            return text.replace((String) args[0], (String) args[1]);
+                        };
+                    case "replaceAll":
+                        return (Invokable) args -> {
+                            if (args[0] instanceof JsRegex) {
+                                JsRegex regex = (JsRegex) args[0];
+                                if (!regex.global) {
+                                    throw new RuntimeException("replaceAll requires regex with global flag");
+                                }
+                                return regex.replace(text, (String) args[1]);
+                            }
+                            return text.replaceAll((String) args[0], (String) args[1]);
+                        };
+                    case "match":
+                        return (Invokable) args -> {
+                            if (args.length == 0) {
+                                return Arrays.asList("");
+                            }
+                            JsRegex regex;
+                            if (args[0] instanceof JsRegex) {
+                                regex = (JsRegex) args[0];
+                            } else {
+                                regex = new JsRegex(args[0].toString());
+                            }
+                            return regex.match(text);
+                        };
+                    case "search":
+                        return (Invokable) args -> {
+                            if (args.length == 0) {
+                                return 0;
+                            }
+                            JsRegex regex;
+                            if (args[0] instanceof JsRegex) {
+                                regex = (JsRegex) args[0];
+                            } else {
+                                regex = new JsRegex(args[0].toString());
+                            }
+                            return regex.search(text);
+                        };
                     // static ==========================================================================================
                     case "valueOf":
                         return (Invokable) args -> text;

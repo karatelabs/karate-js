@@ -99,6 +99,7 @@ Here is a list of what we *don't* plan to support:
 * Accessor properties (get / set)
 * Internationalization
 * Things like `setTimeout()`
+* The `class` keyword
 
 ## Benchmark
 A [GitHub action](.github/workflows/benchmark.yml) is available that runs a [performance benchmark](test-perf/src/main/java/io/karatelabs/js/benchmark/Main.java). The benchmark is in 2 parts
