@@ -57,6 +57,9 @@ public class Terms {
         if (value instanceof Boolean) {
             return ((Boolean) value) ? 1 : 0;
         }
+        if (value instanceof JsDate) {
+            return ((JsDate) value).getTime();
+        }
         String text = value.toString().trim();
         if (text.isEmpty()) {
             return 0;

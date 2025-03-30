@@ -30,7 +30,7 @@ import java.time.temporal.ChronoField;
 
 public class JsDate extends JsObject implements Invokable {
 
-    final ZonedDateTime dateTime;
+    private ZonedDateTime dateTime;
     private static final DateTimeFormatter ISO_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
     private static final ZoneId UTC = ZoneId.of("UTC");
 
@@ -46,6 +46,19 @@ public class JsDate extends JsObject implements Invokable {
         this.dateTime = ZonedDateTime.ofInstant(
                 Instant.ofEpochMilli(timestamp),
                 ZoneId.systemDefault());
+    }
+
+    public JsDate(int year, int month, int date) {
+        // JavaScript months are 0-indexed, Java months are 1-indexed
+        this.dateTime = ZonedDateTime.of(year, month + 1, date, 0, 0, 0, 0, ZoneId.systemDefault());
+    }
+
+    public JsDate(int year, int month, int date, int hours, int minutes, int seconds) {
+        this.dateTime = ZonedDateTime.of(year, month + 1, date, hours, minutes, seconds, 0, ZoneId.systemDefault());
+    }
+
+    public JsDate(int year, int month, int date, int hours, int minutes, int seconds, int ms) {
+        this.dateTime = ZonedDateTime.of(year, month + 1, date, hours, minutes, seconds, ms * 1000000, ZoneId.systemDefault());
     }
 
     public JsDate(String dateStr) {
@@ -75,6 +88,10 @@ public class JsDate extends JsObject implements Invokable {
 
     public long getTime() {
         return dateTime.toInstant().toEpochMilli();
+    }
+
+    public void setDateTime(ZonedDateTime newDateTime) {
+        this.dateTime = newDateTime;
     }
 
     @Override
@@ -182,7 +199,139 @@ public class JsDate extends JsObject implements Invokable {
                                     ? ((JsDate) thisObject).dateTime : dateTime;
                             return dt.get(ChronoField.MILLI_OF_SECOND);
                         };
-
+                    // Setters
+                    case "setDate":
+                        return (Invokable) args -> {
+                            if (args.length == 0 || !(args[0] instanceof Number)) {
+                                return Undefined.NAN;
+                            }
+                            int day = ((Number) args[0]).intValue();
+                            ZonedDateTime dt = thisObject instanceof JsDate
+                                    ? ((JsDate) thisObject).dateTime : dateTime;
+                            ZonedDateTime newDt = dt.withDayOfMonth(day);
+                            if (thisObject instanceof JsDate) {
+                                ((JsDate) thisObject).setDateTime(newDt);
+                            }
+                            return newDt.toInstant().toEpochMilli();
+                        };
+                    case "setMonth":
+                        return (Invokable) args -> {
+                            if (args.length == 0 || !(args[0] instanceof Number)) {
+                                return Undefined.NAN;
+                            }
+                            // JavaScript months are 0-indexed
+                            int month = ((Number) args[0]).intValue() + 1;
+                            ZonedDateTime dt = thisObject instanceof JsDate
+                                    ? ((JsDate) thisObject).dateTime : dateTime;
+                            ZonedDateTime newDt = dt.withMonth(month);
+                            if (thisObject instanceof JsDate) {
+                                ((JsDate) thisObject).setDateTime(newDt);
+                            }
+                            return newDt.toInstant().toEpochMilli();
+                        };
+                    case "setFullYear":
+                        return (Invokable) args -> {
+                            if (args.length == 0 || !(args[0] instanceof Number)) {
+                                return Undefined.NAN;
+                            }
+                            int year = ((Number) args[0]).intValue();
+                            ZonedDateTime dt = thisObject instanceof JsDate
+                                    ? ((JsDate) thisObject).dateTime : dateTime;
+                            ZonedDateTime newDt = dt.withYear(year);
+                            if (thisObject instanceof JsDate) {
+                                ((JsDate) thisObject).setDateTime(newDt);
+                            }
+                            return newDt.toInstant().toEpochMilli();
+                        };
+                    case "setHours":
+                        return (Invokable) args -> {
+                            if (args.length == 0 || !(args[0] instanceof Number)) {
+                                return Undefined.NAN;
+                            }
+                            int hours = ((Number) args[0]).intValue();
+                            ZonedDateTime dt = thisObject instanceof JsDate
+                                    ? ((JsDate) thisObject).dateTime : dateTime;
+                            ZonedDateTime newDt = dt.withHour(hours);
+                            // Handle optional minute, second, and millisecond parameters
+                            if (args.length > 1 && args[1] instanceof Number) {
+                                newDt = newDt.withMinute(((Number) args[1]).intValue());
+                            }
+                            if (args.length > 2 && args[2] instanceof Number) {
+                                newDt = newDt.withSecond(((Number) args[2]).intValue());
+                            }
+                            if (args.length > 3 && args[3] instanceof Number) {
+                                newDt = newDt.with(ChronoField.MILLI_OF_SECOND, ((Number) args[3]).intValue());
+                            }
+                            if (thisObject instanceof JsDate) {
+                                ((JsDate) thisObject).setDateTime(newDt);
+                            }
+                            return newDt.toInstant().toEpochMilli();
+                        };
+                    case "setMinutes":
+                        return (Invokable) args -> {
+                            if (args.length == 0 || !(args[0] instanceof Number)) {
+                                return Undefined.NAN;
+                            }
+                            int minutes = ((Number) args[0]).intValue();
+                            ZonedDateTime dt = thisObject instanceof JsDate
+                                    ? ((JsDate) thisObject).dateTime : dateTime;
+                            ZonedDateTime newDt = dt.withMinute(minutes);
+                            // Handle optional second and millisecond parameters
+                            if (args.length > 1 && args[1] instanceof Number) {
+                                newDt = newDt.withSecond(((Number) args[1]).intValue());
+                            }
+                            if (args.length > 2 && args[2] instanceof Number) {
+                                newDt = newDt.with(ChronoField.MILLI_OF_SECOND, ((Number) args[2]).intValue());
+                            }
+                            if (thisObject instanceof JsDate) {
+                                ((JsDate) thisObject).setDateTime(newDt);
+                            }
+                            return newDt.toInstant().toEpochMilli();
+                        };
+                    case "setSeconds":
+                        return (Invokable) args -> {
+                            if (args.length == 0 || !(args[0] instanceof Number)) {
+                                return Undefined.NAN;
+                            }
+                            int seconds = ((Number) args[0]).intValue();
+                            ZonedDateTime dt = thisObject instanceof JsDate ? ((JsDate) thisObject).dateTime : dateTime;
+                            ZonedDateTime newDt = dt.withSecond(seconds);
+                            // Handle optional millisecond parameter
+                            if (args.length > 1 && args[1] instanceof Number) {
+                                newDt = newDt.with(ChronoField.MILLI_OF_SECOND, ((Number) args[1]).intValue());
+                            }
+                            if (thisObject instanceof JsDate) {
+                                ((JsDate) thisObject).setDateTime(newDt);
+                            }
+                            return newDt.toInstant().toEpochMilli();
+                        };
+                    case "setMilliseconds":
+                        return (Invokable) args -> {
+                            if (args.length == 0 || !(args[0] instanceof Number)) {
+                                return Undefined.NAN;
+                            }
+                            int ms = ((Number) args[0]).intValue();
+                            ZonedDateTime dt = thisObject instanceof JsDate ? ((JsDate) thisObject).dateTime : dateTime;
+                            ZonedDateTime newDt = dt.with(ChronoField.MILLI_OF_SECOND, ms);
+                            if (thisObject instanceof JsDate) {
+                                ((JsDate) thisObject).setDateTime(newDt);
+                            }
+                            return newDt.toInstant().toEpochMilli();
+                        };
+                    case "setTime":
+                        return (Invokable) args -> {
+                            if (args.length == 0 || !(args[0] instanceof Number)) {
+                                return Undefined.NAN;
+                            }
+                            long timestamp = ((Number) args[0]).longValue();
+                            ZonedDateTime newDt = ZonedDateTime.ofInstant(
+                                    Instant.ofEpochMilli(timestamp),
+                                    ZoneId.systemDefault());
+                            if (thisObject instanceof JsDate) {
+                                ((JsDate) thisObject).setDateTime(newDt);
+                            }
+                            return timestamp;
+                        };
                 }
                 return null;
             }
@@ -193,7 +342,7 @@ public class JsDate extends JsObject implements Invokable {
     public Object invoke(Object... args) {
         if (args.length == 0) {
             return new JsDate();
-        } else {
+        } else if (args.length == 1) {
             Object arg = args[0];
             if (arg instanceof Number) {
                 // Date(timestamp)
@@ -205,6 +354,23 @@ public class JsDate extends JsObject implements Invokable {
                 // Date(dateObject)
                 return new JsDate(((JsDate) arg).dateTime);
             }
+        } else if (args.length >= 3) {
+            // Date(year, month, day, [hours, minutes, seconds, ms])
+            int year = args[0] instanceof Number ? ((Number) args[0]).intValue() : 0;
+            int month = args[1] instanceof Number ? ((Number) args[1]).intValue() : 0;
+            int day = args[2] instanceof Number ? ((Number) args[2]).intValue() : 1;
+            if (args.length >= 6) {
+                int hours = args[3] instanceof Number ? ((Number) args[3]).intValue() : 0;
+                int minutes = args[4] instanceof Number ? ((Number) args[4]).intValue() : 0;
+                int seconds = args[5] instanceof Number ? ((Number) args[5]).intValue() : 0;
+
+                if (args.length >= 7) {
+                    int ms = args[6] instanceof Number ? ((Number) args[6]).intValue() : 0;
+                    return new JsDate(year, month, day, hours, minutes, seconds, ms);
+                }
+                return new JsDate(year, month, day, hours, minutes, seconds);
+            }
+            return new JsDate(year, month, day);
         }
         return new JsDate();
     }
