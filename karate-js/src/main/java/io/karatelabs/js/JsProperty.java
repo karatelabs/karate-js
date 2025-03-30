@@ -76,6 +76,10 @@ public class JsProperty {
                 object = Interpreter.eval(node.children.get(1), context);
                 name = null;
                 break;
+            case FN_CALL_EXPR:
+                object = Interpreter.eval(node, context); // evalFnCall
+                name = null;
+                break;
             default:
                 throw new RuntimeException("cannot assign from: " + node);
         }

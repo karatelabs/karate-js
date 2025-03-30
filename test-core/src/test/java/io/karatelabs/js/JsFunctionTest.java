@@ -101,4 +101,14 @@ class JsFunctionTest extends EvalBase {
         assertEquals("hello world", eval("var concat = (first, ...rest) => first + ' ' + rest.join(' '); concat('hello', 'world')"));
     }
 
+    @Test
+    void testCurrying() {
+        matchEval("function multiply(a) { return function(b) { return a * b } }; multiply(4)(7)", "28");
+    }
+
+    @Test
+    void testIife() {
+        matchEval("(function(){ return 'hello' })()", "'hello'");
+    }
+
 }
