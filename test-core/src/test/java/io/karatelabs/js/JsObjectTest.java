@@ -87,6 +87,8 @@ class JsObjectTest extends EvalBase {
         assertEquals(true, eval("Object.is(null, null)"));
         assertEquals(true, eval("Object.is(NaN, NaN)"));
         // assertEquals(false, eval("Object.is(0, -0)"));
+        matchEval("{}.valueOf()", "{}");
+        matchEval("var obj = { a: 1, b: 2 }; obj.valueOf()", "{ a: 1, b: 2 }");
     }
 
     @Test

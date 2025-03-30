@@ -165,9 +165,15 @@ public class JsProperty {
         }
         if (object instanceof Map) {
             Map<String, Object> map = (Map<String, Object>) object;
-            if (map.containsKey(name)) {
+            if (map.containsKey(name)) { // performance optimization
                 return map.get(name);
             }
+            JsObject jsObject = new JsObject(map);
+            Object result = jsObject.get(name);
+            if (result != null) {
+                return result;
+            }
+            // else attempt java interop
         }
         if (object instanceof ObjectLike) {
             return ((ObjectLike) object).get(name);

@@ -55,6 +55,8 @@ public class JsObject implements ObjectLike, Invokable, Iterable<KeyValue> {
                 switch (propName) {
                     case "toString":
                         return (Invokable) args -> JsCommon.TO_STRING(thisObject);
+                    case "valueOf":
+                        return (Invokable) args -> thisObject;
                     case "hasOwnProperty":
                         return (Invokable) args -> {
                             if (args.length == 0 || args[0] == null) {
