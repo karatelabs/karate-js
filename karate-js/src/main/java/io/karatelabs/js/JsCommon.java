@@ -60,27 +60,30 @@ public class JsCommon {
 
     static Invokable PARSE_INT = args -> Terms.toNumber(args[0]);
 
-    static JsObject createConsole(Consumer<String> logger) {
-        JsObject object = new JsObject();
-        object.put("log", (Invokable) args -> {
-            StringBuilder sb = new StringBuilder();
-            for (Object arg : args) {
-                if (arg instanceof ObjectLike) {
-                    Object toString = ((ObjectLike) arg).get("toString");
-                    if (toString instanceof Invokable) {
-                        sb.append(((Invokable) toString).invoke(arg));
-                    } else {
-                        sb.append(TO_STRING(arg));
+    static ObjectLike createConsole(Consumer<String> logger) {
+        return (SimpleObject) name -> {
+            if ("log".equals(name)) {
+                return (Invokable) args -> {
+                    StringBuilder sb = new StringBuilder();
+                    for (Object arg : args) {
+                        if (arg instanceof ObjectLike) {
+                            Object toString = ((ObjectLike) arg).get("toString");
+                            if (toString instanceof Invokable) {
+                                sb.append(((Invokable) toString).invoke(arg));
+                            } else {
+                                sb.append(TO_STRING(arg));
+                            }
+                        } else {
+                            sb.append(TO_STRING(arg));
+                        }
+                        sb.append(' ');
                     }
-                } else {
-                    sb.append(TO_STRING(arg));
-                }
-                sb.append(' ');
+                    logger.accept(sb.toString());
+                    return null;
+                };
             }
-            logger.accept(sb.toString());
             return null;
-        });
-        return object;
+        };
     }
 
     static String TO_STRING(Object o) {
