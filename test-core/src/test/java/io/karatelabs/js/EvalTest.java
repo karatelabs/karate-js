@@ -188,6 +188,7 @@ class EvalTest extends EvalBase {
     @Test
     void testJsonApi() {
         assertEquals("{\"a\":\"b\"}", eval("JSON.stringify({a:'b'})"));
+        assertEquals("{\"a\":\"b\"}", eval("JSON.stringify({a:'b',c:'d'}, ['a'])"));
         assertEquals(Map.of("a", "b"), eval("JSON.parse('{\"a\":\"b\"}')"));
     }
 

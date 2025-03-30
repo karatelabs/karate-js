@@ -137,7 +137,7 @@ class JsRegexTest extends EvalBase {
         assertEquals(0, get("ind1"));
         assertTrue((Integer) get("ind2") > 0);
         // mutation of lastIndex
-        // todo prototype "property" set probably needs work for re-ue to work
+        // todo prototype "property" set probably needs work for re-use to work
         assertEquals(0, get("ind3"));
     }
 

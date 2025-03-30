@@ -25,7 +25,9 @@ package io.karatelabs.js;
 
 import net.minidev.json.JSONValue;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class JsCommon {
@@ -45,9 +47,22 @@ public class JsCommon {
         return null;
     };
 
+    @SuppressWarnings("unchecked")
     static final ObjectLike JSON = (SimpleObject) name -> {
         if ("stringify".equals(name)) {
-            return (Invokable) args -> JSONValue.toJSONString(args[0]);
+            return (Invokable) args -> {
+                String json = JSONValue.toJSONString(args[0]);
+                if (args.length == 1) {
+                    return json;
+                }
+                List<String> list = (List<String>) args[1];
+                Map<String, Object> map = (Map<String, Object>) JSONValue.parse(json);
+                Map<String, Object> result = new LinkedHashMap<>();
+                for (String key : list) {
+                    result.put(key, map.get(key));
+                }
+                return JSONValue.toJSONString(result);
+            };
         } else if ("parse".equals(name)) {
             return (Invokable) args -> JSONValue.parse((String) args[0]);
         }
