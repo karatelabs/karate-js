@@ -101,15 +101,32 @@ public class JsCommon {
         };
     }
 
+    @SuppressWarnings("unchecked")
     static String TO_STRING(Object o) {
         if (o == null) {
             return "[object Null]";
         }
-        if (o instanceof List) {
-            return "[object Array]";
-        }
         if (Terms.isPrimitive(o)) {
             return o.toString();
+        }
+        if (o instanceof List) {
+            return JSONValue.toJSONString(o);
+        }
+        if (o instanceof JsArray) {
+            List<Object> list = ((JsArray) o).toList();
+            return JSONValue.toJSONString(list);
+        }
+        if (o instanceof Map) {
+            return JSONValue.toJSONString(o);
+        }
+        if (o instanceof JsFunction) {
+            return "[object Object]";
+        }
+        if (o instanceof ObjectLike) {
+            Map<String, Object> map = ((ObjectLike) o).toMap();
+            if (map != null) {
+                return JSONValue.toJSONString(map);
+            }
         }
         return "[object Object]";
     }

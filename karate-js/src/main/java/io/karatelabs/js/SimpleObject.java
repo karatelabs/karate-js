@@ -1,6 +1,5 @@
 package io.karatelabs.js;
 
-import java.util.Collections;
 import java.util.Map;
 
 public interface SimpleObject extends ObjectLike {
@@ -17,7 +16,7 @@ public interface SimpleObject extends ObjectLike {
 
     @Override
     default Map<String, Object> toMap() {
-        return Collections.emptyMap();
+        return null;
     }
 
 }

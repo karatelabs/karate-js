@@ -190,12 +190,7 @@ public class Context {
         stopped = true;
         errorThrown = error;
         if (logger.isTraceEnabled()) {
-            String info;
-            if (error instanceof JsObject) {
-                info = error + " " + ((JsObject) error).toMap();
-            } else {
-                info = error + "";
-            }
+            String info = error + "";
             logger.trace("**ERROR** {}", info);
             if (currentNode != null) {
                 logger.trace(currentNode.toStringError(""));

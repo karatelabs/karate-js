@@ -65,7 +65,8 @@ public class JsObject implements ObjectLike, Invokable, Iterable<KeyValue> {
                             String prop = args[0].toString();
                             if (thisObject instanceof ObjectLike) {
                                 ObjectLike objLike = (ObjectLike) thisObject;
-                                return objLike.toMap().containsKey(prop);
+                                Map<String, Object> map = objLike.toMap();
+                                return map != null && map.containsKey(prop);
                             } else if (thisObject instanceof Map) {
                                 Map<String, Object> map = (Map<String, Object>) thisObject;
                                 return map.containsKey(prop);
