@@ -324,5 +324,9 @@ class ParserTest {
         assertEquals(6, chunk.pos);
     }
 
+    @Test
+    void testRegexEofEdgeCase() {
+        error("<x>x</", IndexOutOfBoundsException.class);
+    }
 
 }

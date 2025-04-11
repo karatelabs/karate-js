@@ -228,20 +228,21 @@ REGEX = "/" [^*/\n] ([^/\\\n]|\\[^\n])* "/" [:jletter:]*
   "/="                          { return update(SLASH_EQ); }
   "/"                           {
     if (regexAllowed) {
-        // look ahead for a regex pattern
+        // look ahead for regex pattern
         int length = yylength();
-        long position = yychar + length;
-        String restOfInput = yytext().toString() + zzBufferL.toString().substring((int) position);
-        // try to match a regex pattern in the rest of the input
-        // if it looks like a regex, push back and let the regex rule match
-        if (restOfInput.length() > 1 && !Character.isWhitespace(restOfInput.charAt(1))) {
-            yypushback(length);
-            try {
-                // try to match regex pattern
-                return update(REGEX);
-            } catch (Exception e) {
-                // if regex matching fails, treat as division
-                return update(SLASH);
+        // if more input available
+        if (zzCurrentPos + 1 < zzEndRead) {
+            char nextChar = zzBuffer[zzCurrentPos + 1];
+            // if not whitespace, it could be a regex
+            if (!Character.isWhitespace(nextChar)) {
+                yypushback(length);
+                try {
+                    // try to match regex pattern
+                    return update(REGEX);
+                } catch (Exception e) {
+                    // if regex matching fails, treat as division
+                    return update(SLASH);
+                }
             }
         }
     }
