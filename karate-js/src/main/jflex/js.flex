@@ -227,27 +227,49 @@ REGEX = "/" [^*/\n] ([^/\\\n]|\\[^\n])* "/" [:jletter:]*
   "*"                           { return update(STAR); }
   "/="                          { return update(SLASH_EQ); }
   "/"                           {
-    if (regexAllowed) {
-        // look ahead for regex pattern
-        int length = yylength();
-        // if more input available
+if (regexAllowed) {
+    // look ahead for a regex pattern
+    int length = yylength();
+    // Check if there's valid regex syntax ahead
+    int savedPosition = zzCurrentPos;
+    boolean isRegex = false;
+    try {
+        // First char after slash shouldn't be * or / or newline
         if (zzCurrentPos + 1 < zzEndRead) {
-            char nextChar = zzBuffer[zzCurrentPos + 1];
-            // if not whitespace, it could be a regex
-            if (!Character.isWhitespace(nextChar)) {
-                yypushback(length);
-                try {
-                    // try to match regex pattern
-                    return update(REGEX);
-                } catch (Exception e) {
-                    // if regex matching fails, treat as division
-                    return update(SLASH);
+            char firstChar = zzBuffer[zzCurrentPos + 1];
+            if (firstChar != '*' && firstChar != '/' && firstChar != '\n') {
+                // Look for the closing slash
+                int pos = zzCurrentPos + 2;
+                boolean escaped = false;
+                while (pos < zzEndRead) {
+                    char c = zzBuffer[pos];
+                    if (c == '\\' && !escaped) {
+                        escaped = true;
+                    } else if (c == '/' && !escaped) {
+                        // Found closing slash - it's a regex!
+                        isRegex = true;
+                        break;
+                    } else if (c == '\n') {
+                        // Newlines aren't allowed in regex
+                        break;
+                    } else {
+                        escaped = false;
+                    }
+                    pos++;
                 }
             }
         }
+    } catch (Exception e) {
+        // If any error occurs, default to division
+        isRegex = false;
     }
-    return update(SLASH);
-  }
+    if (isRegex) {
+        yypushback(length);
+        return update(REGEX);
+    }
+}
+return update(SLASH);
+}
   "%="                          { return update(PERCENT_EQ); }
   "%"                           { return update(PERCENT); }
   "~"                           { return update(TILDE); }
