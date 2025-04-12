@@ -40,6 +40,13 @@ public class JsCommon {
 
     static final JsMath GLOBAL_MATH = new JsMath();
 
+    static final Invokable GLOBAL_NUMBER = args -> {
+        if (args.length == 0) {
+            return 0;
+        }
+        return Terms.toNumber(args[0]);
+    };
+
     static final ObjectLike JAVA_GLOBAL = (SimpleObject) name -> {
         if ("type".equals(name)) {
             return (Invokable) args -> new JavaClass((String) args[0]);

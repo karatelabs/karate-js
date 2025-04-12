@@ -27,7 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class JsString extends JsObject implements Invokable {
+public class JsString extends JsObject {
 
     final String text;
 

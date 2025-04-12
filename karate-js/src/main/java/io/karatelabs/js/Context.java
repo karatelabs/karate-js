@@ -70,6 +70,7 @@ public class Context {
         globals.put("JSON", JsCommon.JSON);
         globals.put("Date", JsCommon.GLOBAL_DATE);
         globals.put("RegExp", JsCommon.GLOBAL_REGEX);
+        globals.put("Number", JsCommon.GLOBAL_NUMBER);
         globals.put("console", JsCommon.createConsole(System.out::println));
         return globals;
     }

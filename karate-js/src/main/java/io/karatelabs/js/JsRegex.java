@@ -29,7 +29,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-public class JsRegex extends JsObject implements Invokable {
+public class JsRegex extends JsObject {
 
     final String pattern;
     final String flags;

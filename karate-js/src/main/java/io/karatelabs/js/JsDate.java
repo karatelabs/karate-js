@@ -28,7 +28,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 
-public class JsDate extends JsObject implements Invokable {
+public class JsDate extends JsObject {
 
     private ZonedDateTime dateTime;
     private static final DateTimeFormatter ISO_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");

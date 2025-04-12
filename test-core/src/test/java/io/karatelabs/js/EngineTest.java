@@ -55,6 +55,15 @@ class EngineTest {
     }
 
     @Test
+    void test05() {
+        File file = new File("src/test/resources/test-05.js");
+        Engine engine = new Engine();
+        String result = (String) engine.eval(file);
+        assertTrue(result.startsWith("411111"));
+        assertEquals(16, result.length());
+    }
+
+    @Test
     void testUndefined() {
         Engine engine = new Engine();
         Object result = engine.eval("1 * 'a'");

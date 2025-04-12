@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public abstract class JsFunction extends JsObject implements Invokable {
+public abstract class JsFunction extends JsObject {
 
     private static final Object[] EMPTY = new Object[0];
 
