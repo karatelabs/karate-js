@@ -23,12 +23,11 @@
  */
 package io.karatelabs.js;
 
+import net.minidev.json.JSONValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -54,29 +53,76 @@ public class Context {
         this.caller = caller;
     }
 
-    private static Map<String, Object> globals() {
-        Map<String, Object> globals = new HashMap<>();
-        globals.put("Java", JsCommon.JAVA_GLOBAL);
-        globals.put("undefined", Undefined.INSTANCE);
-        globals.put("Object", JsCommon.GLOBAL_OBJECT);
-        globals.put("Array", JsCommon.GLOBAL_ARRAY);
-        globals.put("Error", new JsError("Error"));
-        globals.put("TypeError", new JsError("TypeError"));
-        globals.put("String", JsCommon.GLOBAL_STRING);
-        globals.put("Infinity", Terms.POSITIVE_INFINITY);
-        globals.put("NaN", Undefined.NAN);
-        globals.put("Math", JsCommon.GLOBAL_MATH);
-        globals.put("parseInt", JsCommon.PARSE_INT);
-        globals.put("JSON", JsCommon.JSON);
-        globals.put("Date", JsCommon.GLOBAL_DATE);
-        globals.put("RegExp", JsCommon.GLOBAL_REGEX);
-        globals.put("Number", JsCommon.GLOBAL_NUMBER);
-        globals.put("console", JsCommon.createConsole(System.out::println));
-        return globals;
+    @SuppressWarnings("unchecked")
+    private Object getGlobal(String key) {
+        switch (key) {
+            case "console":
+                return createConsole(System.out::println);
+            case "parseInt":
+                return (Invokable) args -> Terms.toNumber(args[0]);
+            case "undefined":
+                return Undefined.INSTANCE;
+            case "Array":
+                return new JsArray();
+            case "Date":
+                return new JsDate();
+            case "Error":
+                return new JsError("Error");
+            case "Infinity":
+                return Terms.POSITIVE_INFINITY;
+            case "Java":
+                return (SimpleObject) name -> {
+                    if ("type".equals(name)) {
+                        return (Invokable) args -> new JavaClass((String) args[0]);
+                    }
+                    return null;
+                };
+            case "JSON":
+                return (SimpleObject) name -> {
+                    if ("stringify".equals(name)) {
+                        return (Invokable) args -> {
+                            String json = JSONValue.toJSONString(args[0]);
+                            if (args.length == 1) {
+                                return json;
+                            }
+                            List<String> list = (List<String>) args[1];
+                            Map<String, Object> map = (Map<String, Object>) JSONValue.parse(json);
+                            Map<String, Object> result = new LinkedHashMap<>();
+                            for (String k : list) {
+                                result.put(k, map.get(k));
+                            }
+                            return JSONValue.toJSONString(result);
+                        };
+                    } else if ("parse".equals(name)) {
+                        return (Invokable) args -> JSONValue.parse((String) args[0]);
+                    }
+                    return null;
+                };
+            case "Math":
+                return new JsMath();
+            case "NaN":
+                return Undefined.NAN;
+            case "Number":
+                return (Invokable) args -> {
+                    if (args.length == 0) {
+                        return 0;
+                    }
+                    return Terms.toNumber(args[0]);
+                };
+            case "Object":
+                return new JsObject();
+            case "RegExp":
+                return new JsRegex();
+            case "String":
+                return new JsString();
+            case "TypeError":
+                return new JsError("TypeError");
+        }
+        return null;
     }
 
     public void setOnConsole(Consumer<String> onConsole) {
-        parent.bindings.put("console", JsCommon.createConsole(onConsole));
+        parent.bindings.put("console", createConsole(onConsole));
     }
 
     public void setOnError(BiConsumer<Node, Exception> onError) {
@@ -108,7 +154,7 @@ public class Context {
     }
 
     public static Context root() {
-        Context root = new Context(null, globals(), null);
+        Context root = new Context(null, new HashMap<>(), null);
         return new Context(root);
     }
 
@@ -135,6 +181,11 @@ public class Context {
         if (parent != null && parent.hasKey(name)) {
             return parent.get(name);
         }
+        Object global = getGlobal(name);
+        if (global != null) {
+            bindings.put(name, global);
+            return global;
+        }
         return Undefined.INSTANCE;
     }
 
@@ -145,7 +196,29 @@ public class Context {
         if (caller != null && caller.hasKey(name)) {
             return true;
         }
-        return parent != null && parent.hasKey(name);
+        if (parent != null && parent.hasKey(name)) {
+            return true;
+        }
+        switch (name) {
+            case "console":
+            case "parseInt":
+            case "undefined":
+            case "Array":
+            case "Date":
+            case "Error":
+            case "Infinity":
+            case "Java":
+            case "JSON":
+            case "Math":
+            case "NaN":
+            case "Number":
+            case "Object":
+            case "RegExp":
+            case "String":
+            case "TypeError":
+                return true;
+        }
+        return false;
     }
 
     public void declare(String name, Object value) {
@@ -172,6 +245,32 @@ public class Context {
 
     public void remove(String name) {
         bindings.remove(name);
+    }
+
+    static ObjectLike createConsole(Consumer<String> logger) {
+        return (SimpleObject) name -> {
+            if ("log".equals(name)) {
+                return (Invokable) args -> {
+                    StringBuilder sb = new StringBuilder();
+                    for (Object arg : args) {
+                        if (arg instanceof ObjectLike) {
+                            Object toString = ((ObjectLike) arg).get("toString");
+                            if (toString instanceof Invokable) {
+                                sb.append(((Invokable) toString).invoke(arg));
+                            } else {
+                                sb.append(Terms.TO_STRING(arg));
+                            }
+                        } else {
+                            sb.append(Terms.TO_STRING(arg));
+                        }
+                        sb.append(' ');
+                    }
+                    logger.accept(sb.toString());
+                    return null;
+                };
+            }
+            return null;
+        };
     }
 
     //==================================================================================================================

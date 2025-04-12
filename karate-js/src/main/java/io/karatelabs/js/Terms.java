@@ -23,6 +23,8 @@
  */
 package io.karatelabs.js;
 
+import net.minidev.json.JSONValue;
+
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
@@ -288,6 +290,35 @@ public class Terms {
             }
         }
         return false;
+    }
+
+    static String TO_STRING(Object o) {
+        if (o == null) {
+            return "[object Null]";
+        }
+        if (Terms.isPrimitive(o)) {
+            return o.toString();
+        }
+        if (o instanceof List) {
+            return JSONValue.toJSONString(o);
+        }
+        if (o instanceof JsArray) {
+            List<Object> list = ((JsArray) o).toList();
+            return JSONValue.toJSONString(list);
+        }
+        if (o instanceof Map) {
+            return JSONValue.toJSONString(o);
+        }
+        if (o instanceof JsFunction) {
+            return "[object Object]";
+        }
+        if (o instanceof ObjectLike) {
+            Map<String, Object> map = ((ObjectLike) o).toMap();
+            if (map != null) {
+                return JSONValue.toJSONString(map);
+            }
+        }
+        return "[object Object]";
     }
 
 }
