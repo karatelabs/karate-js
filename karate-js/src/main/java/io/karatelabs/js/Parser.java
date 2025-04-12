@@ -184,7 +184,8 @@ public class Parser {
         try {
             while (true) {
                 Token token = lexer.yylex();
-                if (token == null) {
+                if (token == Token.EOF) {
+                    list.add(new Chunk(source, token, pos, line, col, ""));
                     break;
                 }
                 String text = lexer.yytext();
@@ -228,14 +229,14 @@ public class Parser {
 
     private Token peek() {
         if (position == size) {
-            return Token._NODE;
+            return Token.EOF;
         }
         return chunks.get(position).token;
     }
 
     private Token peekPrev() {
         if (position == 0) {
-            return Token._NODE;
+            return Token.EOF;
         }
         return chunks.get(position - 1).token;
     }
@@ -279,7 +280,7 @@ public class Parser {
     }
 
     private boolean eos() {
-        if (position == size) { // eof
+        if (peek() == Token.EOF) {
             return true;
         }
         Chunk chunk = chunks.get(position);
@@ -302,7 +303,7 @@ public class Parser {
                 break;
             }
         }
-        if (position != size) {
+        if (peek() != Token.EOF) {
             error("cannot parse statement");
         }
         exit();
@@ -747,6 +748,9 @@ public class Parser {
             return false;
         }
         while (true) {
+            if (peek() == Token.EOF) { // unbalanced backticks
+                error(Token.BACKTICK);
+            }
             if (consumeIf(Token.BACKTICK)) {
                 break;
             }

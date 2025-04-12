@@ -325,7 +325,12 @@ class ParserTest {
     }
 
     @Test
-    void testRegexEofEdgeCase() {
+    void testBacktickEdgeCases() {
+        error("`", ParserException.class);
+    }
+
+    @Test
+    void testRegexEofEdgeCases() {
         error("<x>x</", IndexOutOfBoundsException.class);
         error("<foo>foo</foo>\n", IndexOutOfBoundsException.class);
     }

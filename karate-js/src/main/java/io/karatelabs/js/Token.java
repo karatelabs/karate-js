@@ -25,7 +25,6 @@ package io.karatelabs.js;
 
 public enum Token {
 
-    _NODE,
     WS_LF(false),
     WS(false),
     BACKTICK,
@@ -127,7 +126,9 @@ public enum Token {
     //====
     REGEX,
     DOLLAR_L_CURLY,
-    T_STRING;
+    T_STRING,
+    //====
+    EOF(false);
 
     public final boolean primary;
     public final boolean keyword;

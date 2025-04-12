@@ -300,3 +300,10 @@ return update(SLASH);
     "${"                        { kkPush(); yybegin(PLACEHOLDER); return update(DOLLAR_L_CURLY); }
     {T_STRING}                  { return update(T_STRING); }
 }
+
+// Add EOF handling for all states
+<YYINITIAL> <<EOF>>             { return update(EOF); }
+
+<TEMPLATE> <<EOF>>              { return update(EOF); }
+
+<PLACEHOLDER> <<EOF>>           { return update(EOF); }

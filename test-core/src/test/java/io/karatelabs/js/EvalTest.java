@@ -10,7 +10,7 @@ class EvalTest extends EvalBase {
 
     @Test
     void testDev() {
-        assertEquals("{\"a\":\"b\"}", eval("JSON.stringify({a:'b'})"));
+
     }
 
     @Test
