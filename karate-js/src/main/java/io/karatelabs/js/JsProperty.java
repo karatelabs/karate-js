@@ -114,7 +114,12 @@ public class JsProperty {
             } else if (object instanceof JavaClass) {
                 ((JavaClass) object).update(name, value);
             } else {
-                Engine.JAVA_BRIDGE.set(object, name, value);
+                try {
+                    Engine.JAVA_BRIDGE.set(object, name, value);
+                } catch (Exception e) {
+                    logger.error("java bridge error: {}", e.getMessage());
+                    throw new RuntimeException("cannot set '" + name + "'");
+                }
             }
         }
     }
@@ -218,6 +223,17 @@ public class JsProperty {
         }
     }
 
+    private String getErrorMessageExtra() {
+        String message = "";
+        if (name != null) {
+            message = message + ", property: " + name;
+        }
+        if (object != null) {
+            message = message + ", object: " + object;
+        }
+        return message;
+    }
+
     Invokable getInvokable() {
         Object o = get(true);
         if (o instanceof Invokable) {
@@ -232,10 +248,14 @@ public class JsProperty {
             return new JavaFunction(o);
         } else if (o == Undefined.INSTANCE) {
             String className = node.getText();
-            try {
-                return args -> Engine.JAVA_BRIDGE.construct(className, args);
-            } catch (Exception e) {
-                throw new RuntimeException("undefined is not a function");
+            if (Engine.JAVA_BRIDGE.typeExists(className)) {
+                try {
+                    return args -> Engine.JAVA_BRIDGE.construct(className, args);
+                } catch (Exception e) {
+                    throw new RuntimeException("undefined is not a function" + getErrorMessageExtra());
+                }
+            } else {
+                throw new RuntimeException("undefined is not a function" + getErrorMessageExtra());
             }
         } else if (o != null) { // java interop
             JavaObject jo = new JavaObject(o);
