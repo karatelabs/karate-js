@@ -9,6 +9,11 @@ import static org.junit.jupiter.api.Assertions.*;
 class JsStringTest extends EvalBase {
 
     @Test
+    void testDev() {
+
+    }
+
+    @Test
     void testStringConcat() {
         assertEquals("foobar", eval("'foo' + 'bar'"));
         assertEquals("abc", eval("'a' + 'b' + 'c'"));
@@ -37,6 +42,7 @@ class JsStringTest extends EvalBase {
     @Test
     void testStringTemplate() {
         assertEquals("foobar", eval("var a = 'foo'; `${a}bar`"));
+        assertEquals("$foobar", eval("var a = 'foo'; `$${a}bar`"));
         assertEquals("foobar", eval("var a = x => 'foo'; `${a()}bar`"));
         assertEquals("[1, 2, 3]", eval("`[${[].map.call([1,2,3], String).join(', ')}]`"));
     }

@@ -259,6 +259,7 @@ return update(SLASH);
 
 <TEMPLATE> {
     "`"                         { yybegin(kkPop()); return update(BACKTICK); }
+    "$"                         { return update(T_STRING); }
     "${"                        { kkPush(); yybegin(PLACEHOLDER); return update(DOLLAR_L_CURLY); }
     {T_STRING}                  { return update(T_STRING); }
 }
