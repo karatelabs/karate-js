@@ -1,8 +1,17 @@
+> [!IMPORTANT]
+> ## 📦 This project has been archived
+>
+> This module has been folded into [karate-v2](https://github.com/karatelabs/karate-v2) but remains reusable by third-party projects. A lot of improvements and more syntax support has gone in.
+>
+> **👉 For the latest version, please see: [karatelabs/karate-v2/karate-js](https://github.com/karatelabs/karate-v2/tree/main/karate-js)**
+
+---
+
 <a href="https://central.sonatype.com/namespace/io.karatelabs.js">
 <img src="https://img.shields.io/maven-central/v/io.karatelabs.js/karate-js.svg"/>
 </a>
 
-# Karate JS
+# Karate JS (Archived)
 Lightweight JavaScript engine for the JVM.
 
 ## Summary
